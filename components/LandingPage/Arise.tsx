@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import TermAndCondition from './TermAndCondition';
 
 export default function Arise() {
     const opacity = useSharedValue(0);
@@ -39,6 +40,9 @@ export default function Arise() {
     }))
 
     useEffect(() => {
+        opacity.value = 0;
+        translateY.value = 30;
+
         opacity.value = withTiming(1, { duration: 800 });
         translateY.value = withTiming(0, { duration: 800 });
     }, []);
@@ -66,57 +70,51 @@ export default function Arise() {
     });
 
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-            <Animated.View
-                className='flex-1 w-full flex-col justify-end items-center relative overflow-hidden'
-                style={containerStyle}
+        <Animated.View
+            className='flex-1 w-full flex-col justify-end items-center relative'
+            style={containerStyle}
+        >
+            <View className='bg-white h-[50%] w-[150%] absolute bottom-0 self-center rounded-t-[100%] items-center' />
+
+            <View
+                className='items-center w-full'
+                style={{ paddingBottom: insets.bottom + 32 }}
             >
-                <View className='bg-white h-[50%] w-[150%] absolute bottom-0 self-center rounded-t-[100%] items-center' />
-
-                <View
-                    className='items-center w-full'
-                    style={{ paddingBottom: insets.bottom + 32 }}
-                >
-                    <GestureDetector gesture={tap}>
-                        <Animated.View
-                            className='relative h-28 w-28 overflow-hidden rounded-2xl bg-zinc-800 border border-zinc-700/50'
-                            style={[{ elevation: 8, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, zIndex: 999 }, logoStyle]}
-                            ref={logoRef}
-                        >
-                            <Image
-                                source={require('@/assets/arise/arise.png')}
-                                className='h-full w-full'
-                                resizeMode='cover'
-                            />
-                            <View className='absolute inset-0 rounded-2xl border border-white/10' />
-                        </Animated.View>
-                    </GestureDetector>
-
-                    <Text className='text-6xl font-elms mt-4'>Arise</Text>
-
-                    <Text className='text-center px-10 font-elms text-2xl py-8'>
-                        The smartest way to listen, discover, and connect with sound.
-                    </Text>
-
-                    <Animated.View style={buttonStyle}>
-                        <Pressable
-                            className='bg-black rounded-full items-center justify-center py-4'
-                            onPressIn={handlePressIn}
-                            onPressOut={handlePressOut}
-                            android_ripple={{ color: 'rgba(255,255,255,0.15)', borderless: false }}
-                        >
-                            <Text className='text-white text-xl font-elms'>Get Started</Text>
-                        </Pressable>
+                <GestureDetector gesture={tap}>
+                    <Animated.View
+                        className='relative h-28 w-28 overflow-hidden rounded-2xl bg-zinc-800 border border-zinc-700/50'
+                        style={[{ elevation: 8, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, zIndex: 999 }, logoStyle]}
+                        ref={logoRef}
+                    >
+                        <Image
+                            source={require('@/assets/arise/arise.png')}
+                            className='h-full w-full'
+                            resizeMode='cover'
+                        />
+                        <View className='absolute inset-0 rounded-2xl border border-white/10' />
                     </Animated.View>
+                </GestureDetector>
 
-                    <Text className="text-black text-sm mt-4">
-                        By continuing, accept our{" "}
-                        <Text className="text-blue-500 underline underline-offset-2">
-                            Terms & Privacy Policy
-                        </Text>
-                    </Text>
-                </View>
-            </Animated.View>
-        </GestureHandlerRootView>
+                <Text className='text-6xl font-elms mt-4'>Arise</Text>
+
+                <Text className='text-center px-10 font-elms text-2xl py-8'>
+                    The smartest way to listen, discover, and connect with sound.
+                </Text>
+
+                <Animated.View style={buttonStyle}>
+                    <Pressable
+                        className='bg-black rounded-full items-center justify-center py-4'
+                        onPressIn={handlePressIn}
+                        onPressOut={handlePressOut}
+                        android_ripple={{ color: 'rgba(255,255,255,0.15)', borderless: false }}
+                    >
+                        <Text className='text-white text-xl font-elms'>Get Started</Text>
+                    </Pressable>
+                </Animated.View>
+
+                <TermAndCondition />
+            </View>
+        </Animated.View>
+
     );
 }
