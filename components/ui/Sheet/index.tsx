@@ -32,6 +32,7 @@ export default function SheetProvider({ open, onClose, snap = 0.6, className, ch
     };
 
     const pan = Gesture.Pan()
+        .activeOffsetY([-18, 18])
         .onBegin(() => {
             context.value = translateY.value;
         })

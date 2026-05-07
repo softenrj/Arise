@@ -3,6 +3,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scheduleOnRN } from 'react-native-worklets';
 import TermAndCondition from './TermAndCondition';
 
 export default function Arise() {
@@ -40,11 +41,13 @@ export default function Arise() {
     }))
 
     useEffect(() => {
-        opacity.value = 0;
-        translateY.value = 30;
+        scheduleOnRN(() => {
+            opacity.value = 0;
+            translateY.value = 30;
 
-        opacity.value = withTiming(1, { duration: 800 });
-        translateY.value = withTiming(0, { duration: 800 });
+            opacity.value = withTiming(1, { duration: 800 });
+            translateY.value = withTiming(0, { duration: 800 });
+        })
     }, []);
 
     const handlePressIn = () => {
