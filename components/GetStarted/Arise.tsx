@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -7,6 +8,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import TermAndCondition from './TermAndCondition';
 
 export default function Arise() {
+    const router = useRouter();
     const opacity = useSharedValue(0);
     const translateY = useSharedValue(30);
     const scale = useSharedValue(1);
@@ -52,6 +54,7 @@ export default function Arise() {
 
     const handlePressIn = () => {
         scale.value = withTiming(0.92);
+        router.push("/(tabs)/home")
     };
 
     const handlePressOut = () => {

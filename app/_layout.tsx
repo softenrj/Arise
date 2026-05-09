@@ -8,7 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 
-export default function TabLayout() {
+export default function Layout() {
   const [fontsLoaded] = useFonts({
     ElmsSans_400: require('@/assets/font/ElmsSans-Regular.ttf'),
     ElmsSans_500: require('@/assets/font/ElmsSans-Medium.ttf'),
@@ -26,7 +26,10 @@ export default function TabLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
-          <Stack screenOptions={{ headerShown: false }} />
+          <Stack screenOptions={{ headerShown: false }} >
+            <Stack.Screen name='index' />
+            <Stack.Screen name='(tabs)' />
+          </Stack>
         </GluestackUIProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

@@ -1,9 +1,9 @@
-import LandingPage from '@/components/LandingPage'
+import GetStarted from '@/components/GetStarted'
 import React from 'react'
 
 const index = () => {
     return (
-        <LandingPage />
+        <GetStarted />
     )
 }
 

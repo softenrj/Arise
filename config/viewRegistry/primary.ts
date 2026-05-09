@@ -1,8 +1,8 @@
 import { Section } from "@/types/screenMap"
 
 export const Primary: Record<string, Section> = {
-    'landing-page': {
-        key: 'LandingPage',
+    'get-started': {
+        key: 'GetStarted',
         children: [{
             key: 'AriseLogo',
             props: {

@@ -1,8 +1,8 @@
-import LandingPage from "@/components/LandingPage";
-import AriseLogo from "@/components/LandingPage/AriseLogo";
+import GetStarted from "@/components/GetStarted";
+import AriseLogo from "@/components/GetStarted/Arise";
 import { ComponentType } from "react";
 
 export const sectionsRegistry: Record<string, ComponentType<any>> = {
     AriseLogo: AriseLogo,
-    LandingPage: LandingPage
+    GetStarted: GetStarted
 }
