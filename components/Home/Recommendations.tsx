@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { Sparkle } from 'lucide-react-native';
 import React from 'react';
 import MusicLinearList from '../common/MusicLinearList';

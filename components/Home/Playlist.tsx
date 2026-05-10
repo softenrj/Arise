@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import React from 'react';
 import { Image, Text, View } from 'react-native';
 

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { Link } from 'expo-router';
 import { Home, Library, Music2, Search, Settings } from 'lucide-react-native';
 import React, { useEffect } from 'react';
