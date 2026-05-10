@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';

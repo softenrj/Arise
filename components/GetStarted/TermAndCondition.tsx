@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import TermAndConditionSheet from '../common/TermAndConditionSheet';

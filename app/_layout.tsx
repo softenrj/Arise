@@ -1,8 +1,11 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from "expo-font";
 import { Stack } from 'expo-router';
 import React from 'react';
-import { useColorScheme } from 'react-native';
+import { StatusBar, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
@@ -25,6 +28,7 @@ export default function Layout() {
 
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <StatusBar barStyle={'dark-content'} />
         <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
           <Stack screenOptions={{ headerShown: false }} >
             <Stack.Screen name='index' />

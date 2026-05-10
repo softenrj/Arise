@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { Check, Database, Equal, Heart, Lock, Notebook, Sparkle } from "lucide-react-native";
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';

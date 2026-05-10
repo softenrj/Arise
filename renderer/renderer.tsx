@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { Section } from "@/types/screenMap";
 import React from "react";
 import { sectionsRegistry } from "./registry";
