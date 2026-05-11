@@ -32,7 +32,7 @@ export default function TabLayout() {
                     style={{
                         paddingBottom: insets.bottom,
                     }}
-                    className="w-full bg-white flex-row items-center justify-around px-4 py-3 shadow-2xl"
+                    className="w-full bg-black flex-row items-center justify-around px-4 py-3 shadow-2xl"
                 >
                     <TabTrigger name="Home" href={"/home"}>
                         <CustomeTab name="Home" Icon={Home} />
@@ -42,8 +42,8 @@ export default function TabLayout() {
                         <CustomeTab name="Search" Icon={Search} />
                     </TabTrigger>
 
-                    <TabTrigger name="Vibes" href={"/vibes"}>
-                        <CustomeTab name="Vibes" Icon={Home} />
+                    <TabTrigger name="Vibes" href={"/shorts"}>
+                        <CustomeTab name="Shorts" image={require('@/assets/arise/shorts-dark.png')} />
                     </TabTrigger>
 
                     <TabTrigger name="Library" href={"/library"}>

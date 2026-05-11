@@ -3,17 +3,17 @@
 
 import { ImageBackground } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { EllipsisVertical, HandMetal, MoveRight } from 'lucide-react-native';
+import { EllipsisVertical, MoveRight } from 'lucide-react-native';
 import React from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, Image, Text, View } from 'react-native';
 
 export default function Shorts() {
     return (
         <View>
             <View className='flex-col items-start'>
                 <View className='flex-row items-center gap-2 bg-sky-50 px-3 py-1 rounded-full self-start mb-2'>
-                    <HandMetal size={12} color='#0ea5e9' fill='#0ea5e9' strokeWidth={0} />
-                    <Text className='text-sky-500 text-xs font-elms-med tracking-widest uppercase'>Vibes</Text>
+                    <Image source={require("@/assets/arise/shorts.png")} className='w-3 h-3' />
+                    <Text className='text-sky-500 text-xs font-elms-med tracking-widest uppercase'>Shorts</Text>
                 </View>
                 <Text className='text-black text-4xl font-elms-med tracking-tighter leading-none'>Catch a new vibe.</Text>
                 <View className='flex-row items-center gap-1.5 mt-2'>

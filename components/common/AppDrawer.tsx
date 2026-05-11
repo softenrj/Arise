@@ -119,7 +119,7 @@ export default function AppDrawer({ open, onClose }: { open: boolean; onClose: (
                                 </TouchableOpacity>
                             </Link>
 
-                            <Link href={'/(tabs)/vibes'} asChild>
+                            <Link href={'/(tabs)/shorts'} asChild>
                                 <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
                                     <Music2 size={20} color='#000' strokeWidth={1.8} />
                                     <Text className='text-black font-elms-med text-sm'>Vibes</Text>

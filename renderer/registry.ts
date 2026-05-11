@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import NavBar, { ChipSnippts, GreetSnippts, TimeSnippts } from "@/components/common/NavBar";
 import GetStarted from "@/components/GetStarted";
 import AriseLogo from "@/components/GetStarted/Arise";
 import Home from "@/components/Home";
@@ -9,11 +10,20 @@ import Playlist from "@/components/Home/Playlist";
 import Recent from "@/components/Home/Recent";
 import Recommendations from "@/components/Home/Recommendations";
 import Shorts from "@/components/Home/Shorts";
+import Search from "@/components/Search";
+import SearchInput from "@/components/Search/SearchInput";
+import SuggestGrids from "@/components/Search/SuggestGrids";
 import { ComponentType } from "react";
 
 export const sectionsRegistry: Record<string, ComponentType<any>> = {
     AriseLogo: AriseLogo,
     GetStarted: GetStarted,
+
+    //? Nav
+    NavBar: NavBar,
+    NavGreet: GreetSnippts,
+    NavTime: TimeSnippts,
+    NavChip: ChipSnippts,
 
     //? home page
     Home: Home,
@@ -21,5 +31,10 @@ export const sectionsRegistry: Record<string, ComponentType<any>> = {
     Music_Of_The_Day: MusicoftheDay,
     Shorts: Shorts,
     Recommendations: Recommendations,
-    Playlist: Playlist
+    Playlist: Playlist,
+
+    //? Search
+    Search: Search,
+    SearchInput: SearchInput,
+    SuggestGrids: SuggestGrids
 }

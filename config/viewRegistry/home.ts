@@ -8,10 +8,10 @@ export const Home: Record<string, Section> = {
         key: 'Home',
         children: [
             { key: 'Recent' },
-            { key: 'Music_Of_The_Day' },
             { key: 'Shorts' },
             { key: 'Playlist' },
-            { key: 'Recommendations' }
+            { key: 'Recommendations' },
+            { key: 'Music_Of_The_Day' },
         ]
     }
 }

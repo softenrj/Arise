@@ -20,7 +20,7 @@ export default function MusicoftheDay() {
                         <Text className='text-purple-500 text-xs font-elms-med tracking-widest uppercase'>Today's Vibe</Text>
                     </View>
                     <Text className='text-black text-4xl font-elms-med tracking-tighter leading-none'>
-                        Pick up where{'\n'}you left off.
+                        hand-picked,{'\n'}just for today.
                     </Text>
                     <View className='flex-row items-center gap-1.5 mt-3'>
                         <View className='w-4 h-px bg-zinc-200' />
