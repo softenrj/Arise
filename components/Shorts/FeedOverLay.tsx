@@ -1,13 +1,19 @@
+import { useShorts } from '@/hooks/useShorts';
 import LottieView from 'lottie-react-native';
-import { Bookmark, Heart, Plus, Send } from 'lucide-react-native';
+import { Bookmark, EllipsisVertical, Heart, Plus, Send } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Image, LayoutAnimation, Pressable, Text, View } from 'react-native';
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Avatar, AvatarFallbackText, AvatarImage } from '../ui/avatar';
 
-export default function FeedOverLay() {
+export default function FeedOverLay({ like, onLink }: { like: boolean, onLink: () => void }) {
+    const { isHolding } = useShorts();
     const [isExpanded, setIsExpanded] = useState(false);
-    const [isLiked, setIsLiked] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
+
+    const wrapperStyle = useAnimatedStyle(() => ({ opacity: withTiming(isHolding.value ? 0 : 1, { duration: 200 }) }))
+
+    const { toggleImagePreview } = useShorts();
 
     const toggleExpand = () => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -15,7 +21,7 @@ export default function FeedOverLay() {
     };
 
     return (
-        <View className='absolute z-10 inset-0 justify-end pb-6 px-4' pointerEvents="box-none">
+        <Animated.View style={wrapperStyle} className='absolute z-10 inset-0 justify-end pb-6 px-4' pointerEvents="box-none">
             <View className='flex-row items-end justify-between w-full' pointerEvents="box-none">
 
                 <View className='flex-1 mr-6 gap-3' pointerEvents="box-none">
@@ -51,11 +57,11 @@ export default function FeedOverLay() {
 
                     <View className="items-center gap-1">
                         <Pressable
-                            onPress={() => setIsLiked(!isLiked)}
+                            onPress={onLink}
                             className='w-10 h-10 justify-center items-center relative'
                         >
-                            {!isLiked && <Heart size={32} color={'white'} />}
-                            {isLiked && (
+                            {!like && <Heart size={32} color={'white'} />}
+                            {like && (
                                 <LottieView
                                     source={require('@/assets/json/like.json')}
                                     autoPlay
@@ -76,6 +82,13 @@ export default function FeedOverLay() {
                     </View>
 
                     <View className="items-center gap-1">
+                        <Pressable className='w-10 h-10 justify-center items-center'>
+                            <Send size={30} color={'white'} />
+                        </Pressable>
+                        <Text className="text-white font-semibold text-xs shadow-md">Share</Text>
+                    </View>
+
+                    <View className="items-center gap-1">
                         <Pressable
                             onPress={() => setIsSaved(!isSaved)}
                             className='w-10 h-10 justify-center items-center'
@@ -90,24 +103,30 @@ export default function FeedOverLay() {
                     </View>
 
                     <View className="items-center gap-1">
-                        <Pressable className='w-10 h-10 justify-center items-center'>
-                            <Send size={30} color={'white'} />
+                        <Pressable
+                            onPress={() => setIsSaved(!isSaved)}
+                            className='w-10 h-10 justify-center items-center'
+                        >
+                            <EllipsisVertical
+                                size={30}
+                                color={'white'}
+                                fill={isSaved ? 'white' : 'transparent'}
+                            />
                         </Pressable>
-                        <Text className="text-white font-semibold text-xs shadow-md">Share</Text>
                     </View>
 
-                    <View className='justify-center items-center mt-2'>
+                    <Pressable onPress={toggleImagePreview} className='justify-center items-center mt-2'>
                         <View className="p-1 bg-white/20 rounded-md">
                             <Image
                                 source={{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh9ybGbX0RSnBFVlBeSOkzzlPi4O2eT5AH2w&s" }}
                                 className='w-10 h-10 rounded-sm'
                             />
                         </View>
-                    </View>
+                    </Pressable>
 
                 </View>
 
             </View>
-        </View>
+        </Animated.View>
     );
 }

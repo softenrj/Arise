@@ -17,7 +17,7 @@ export default function NavBar({ children, portal = null }: { children: React.Re
     const { onOpen } = useAppDrawer();
 
     return (
-        <SafeAreaView className="bg-white mt-2 z-10">
+        <SafeAreaView className="bg-white mt-2 z-10" edges={['top']}>
             <View className="flex px-6 pb-3 bg-white shadow-sm">
                 <View className="flex-row  gap-3 items-center relative">
                     <TouchableOpacity onPress={(onOpen)}>
