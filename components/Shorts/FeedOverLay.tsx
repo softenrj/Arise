@@ -6,7 +6,7 @@ import { Image, LayoutAnimation, Pressable, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Avatar, AvatarFallbackText, AvatarImage } from '../ui/avatar';
 
-export default function FeedOverLay({ like, onLink }: { like: boolean, onLink: () => void }) {
+export default function FeedOverLay({ like, onLike, animation }: { like: boolean, onLike: () => void, animation: boolean }) {
     const { isHolding } = useShorts();
     const [isExpanded, setIsExpanded] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -57,11 +57,16 @@ export default function FeedOverLay({ like, onLink }: { like: boolean, onLink: (
 
                     <View className="items-center gap-1">
                         <Pressable
-                            onPress={onLink}
+                            onPress={onLike}
                             className='w-10 h-10 justify-center items-center relative'
                         >
-                            {!like && <Heart size={32} color={'white'} />}
-                            {like && (
+                            {!animation && <Heart
+                                size={32}
+                                color={like ? 'red' : 'white'}
+                                fill={like ? 'red' : 'transparent'}
+                            />}
+
+                            {animation && (
                                 <LottieView
                                     source={require('@/assets/json/like.json')}
                                     autoPlay
@@ -104,7 +109,6 @@ export default function FeedOverLay({ like, onLink }: { like: boolean, onLink: (
 
                     <View className="items-center gap-1">
                         <Pressable
-                            onPress={() => setIsSaved(!isSaved)}
                             className='w-10 h-10 justify-center items-center'
                         >
                             <EllipsisVertical

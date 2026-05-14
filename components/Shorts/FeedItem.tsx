@@ -23,8 +23,18 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
     // like
     const [isLiked, setIsLiked] = React.useState(false);
     const tapTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+    const likeAnimationTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const toggleLike = React.useCallback(() => setIsLiked(prev => !prev), [isLiked]);
+    const [showLikeAnimation, setShowLikeAnimation] = React.useState<boolean>(false);
+
+    const toggleLike = React.useCallback(() => {
+        setIsLiked(prev => {
+            if (!prev) handleLikeAnimation();
+            return !prev;
+        });
+    }, []);
+
+    const handleLike = React.useCallback(() => setIsLiked(true), []);
 
     // slider property
     const sliderWidth = useSharedValue(0);
@@ -34,7 +44,7 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
 
     const [isMuted, setIsMuted] = React.useState(false);
 
-    const player = useVideoPlayer(require('@/assets/video/sample.mp4'), (p) => {
+    const player = useVideoPlayer(require('@/assets/video/sample1.mp4'), (p) => {
         p.loop = true;
         p.volume = 1.0;
         p.muted = false;
@@ -136,7 +146,9 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
             clearTimeout(tapTimeoutRef.current);
             tapTimeoutRef.current = null;
 
-            toggleLike();
+            handleLike();
+            // Like Animation
+            handleLikeAnimation();
         } else {
 
             tapTimeoutRef.current = setTimeout(() => {
@@ -147,8 +159,19 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
 
             }, DOUBLE_TAP_DELAY);
         }
-
     };
+
+    const handleLikeAnimation = React.useCallback(() => {
+        setShowLikeAnimation(true);
+
+        if (likeAnimationTimeoutRef.current) {
+            clearImmediate(likeAnimationTimeoutRef.current);
+        }
+
+        likeAnimationTimeoutRef.current = setTimeout(() => {
+            setShowLikeAnimation(false);
+        }, 700)
+    }, [])
 
     const toggleMute = () => {
         const next = !isMuted;
@@ -163,6 +186,7 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
     React.useEffect(() => {
         return () => {
             if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
+            if (likeAnimationTimeoutRef.current) clearTimeout(likeAnimationTimeoutRef.current);
         };
     }, []);
 
@@ -245,7 +269,7 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
                 />
             </Animated.View>
 
-            <FeedOverLay like={isLiked} onLink={toggleLike} />
+            <FeedOverLay like={isLiked} onLike={toggleLike} animation={showLikeAnimation} />
 
             <GestureDetector gesture={panGesture}>
                 <View

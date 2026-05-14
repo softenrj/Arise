@@ -3,6 +3,8 @@
 
 import AppDrawer from "@/components/common/AppDrawer";
 import CustomeTab from "@/components/common/CustomeTab";
+import { AppTheme } from "@/components/context/apptheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { TabList, Tabs, TabSlot, TabTrigger } from "expo-router/ui";
 import { Home, Library, Search } from "lucide-react-native";
 import React from "react";
@@ -17,6 +19,7 @@ export const AppDrawerContext = React.createContext({
 export default function TabLayout() {
     const insets = useSafeAreaInsets();
     const [open, setOpen] = React.useState<boolean>(false);
+    const { theme } = useAppTheme();
 
     const handleClose = () => setOpen(false);
     const handleOpen = () => setOpen(true);
@@ -32,7 +35,7 @@ export default function TabLayout() {
                     style={{
                         paddingBottom: insets.bottom,
                     }}
-                    className="w-full bg-black flex-row items-center justify-around px-4 py-3 shadow-2xl"
+                    className={`w-full flex-row items-center justify-around px-4 py-3 shadow-2xl ${theme === AppTheme.dark ? 'bg-black' : 'bg-white'}`}
                 >
                     <TabTrigger name="Home" href={"/home"}>
                         <CustomeTab name="Home" Icon={Home} />
@@ -43,7 +46,7 @@ export default function TabLayout() {
                     </TabTrigger>
 
                     <TabTrigger name="Vibes" href={"/shorts"}>
-                        <CustomeTab name="Shorts" image={require('@/assets/arise/shorts-dark.png')} />
+                        <CustomeTab name="Shorts" image={theme === AppTheme.dark ? require('@/assets/arise/shorts-dark.png') : require('@/assets/arise/shorts.png')} />
                     </TabTrigger>
 
                     <TabTrigger name="Library" href={"/library"}>

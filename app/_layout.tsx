@@ -8,6 +8,7 @@ import React from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import AppThemeProvider from '@/components/context/apptheme';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 
@@ -28,13 +29,15 @@ export default function Layout() {
 
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <StatusBar barStyle={'dark-content'} />
-        <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
-          <Stack screenOptions={{ headerShown: false }} >
-            <Stack.Screen name='index' />
-            <Stack.Screen name='(tabs)' />
-          </Stack>
-        </GluestackUIProvider>
+        <AppThemeProvider>
+          <StatusBar barStyle={'dark-content'} />
+          <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
+            <Stack screenOptions={{ headerShown: false }} >
+              <Stack.Screen name='index' />
+              <Stack.Screen name='(tabs)' />
+            </Stack>
+          </GluestackUIProvider>
+        </AppThemeProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
