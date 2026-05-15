@@ -29,12 +29,12 @@ export default function MusicoftheDay() {
                 </View>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} className='my-2 mx-3'>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 10 }} className='my-2 mx-3'>
                 {Array.from({ length: 4 }).map((_, i) => (
                     <View key={i} className='flex-row items-center w-full gap-3'>
                         <Image
                             source={{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh9ybGbX0RSnBFVlBeSOkzzlPi4O2eT5AH2w&s" }}
-                            className='w-14 h-14 rounded-sm'
+                            className='w-16 h-16 rounded-sm'
                         />
 
                         <View className='flex-1 flex-col justify-center'>

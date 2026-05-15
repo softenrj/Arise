@@ -5,12 +5,14 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from "expo-font";
 import { Stack } from 'expo-router';
 import React from 'react';
-import { StatusBar, useColorScheme } from 'react-native';
+import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import AppThemeProvider from '@/components/context/apptheme';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
+import { InitiateDataBase } from '@/service/database';
+import { SQLiteProvider } from 'expo-sqlite';
 
 export default function Layout() {
   const [fontsLoaded] = useFonts({
@@ -29,15 +31,16 @@ export default function Layout() {
 
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AppThemeProvider>
-          <StatusBar barStyle={'dark-content'} />
-          <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
-            <Stack screenOptions={{ headerShown: false }} >
-              <Stack.Screen name='index' />
-              <Stack.Screen name='(tabs)' />
-            </Stack>
-          </GluestackUIProvider>
-        </AppThemeProvider>
+        <SQLiteProvider databaseName='arise_raj_sqlite.db' onInit={InitiateDataBase}>
+          <AppThemeProvider>
+            <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
+              <Stack screenOptions={{ headerShown: false }} >
+                <Stack.Screen name='index' />
+                <Stack.Screen name='(tabs)' />
+              </Stack>
+            </GluestackUIProvider>
+          </AppThemeProvider>
+        </SQLiteProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

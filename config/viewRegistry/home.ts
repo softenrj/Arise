@@ -12,6 +12,9 @@ export const Home: Record<string, Section> = {
             { key: 'Playlist' },
             { key: 'Recommendations' },
             { key: 'Music_Of_The_Day' },
+        ],
+        sections: [
+            { key: 'Status' }
         ]
     }
 }

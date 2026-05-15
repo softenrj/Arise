@@ -6,6 +6,6 @@ import Renderer from '@/renderer/renderer';
 import React from 'react';
 
 export default function HomeRenderer() {
-    const scean = Home['home'];
-    return <Renderer scene={scean} />
+    const scene = Home['home'];
+    return <Renderer scene={scene} />
 }

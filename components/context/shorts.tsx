@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { ShortContextType } from '@/types/shorts';
 import React from 'react';
 import { SharedValue, useSharedValue } from 'react-native-reanimated';

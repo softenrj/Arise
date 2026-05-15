@@ -5,6 +5,7 @@ import { NavBar } from '@/config/viewRegistry/navbar';
 import Renderer from '@/renderer/renderer';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
 
 
 const categories = ['All', 'Recent', 'Recomended'];
@@ -23,7 +24,7 @@ export default function index({ children }: { children: React.ReactNode }) {
     return (
         <View className='bg-white flex-1'>
             <Renderer scene={navSeen} />
-
+            <FocusAwareStatusBar style='dark' />
             <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-4 py-2' showsVerticalScrollIndicator={false}>
                 <View>
                     <ScrollView

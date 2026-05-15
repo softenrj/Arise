@@ -10,6 +10,7 @@ import Playlist from "@/components/Home/Playlist";
 import Recent from "@/components/Home/Recent";
 import Recommendations from "@/components/Home/Recommendations";
 import Shorts from "@/components/Home/Shorts";
+import Library from "@/components/Library";
 import Search from "@/components/Search";
 import SearchInput from "@/components/Search/SearchInput";
 import SuggestGrids from "@/components/Search/SuggestGrids";
@@ -36,5 +37,8 @@ export const sectionsRegistry: Record<string, ComponentType<any>> = {
     //? Search
     Search: Search,
     SearchInput: SearchInput,
-    SuggestGrids: SuggestGrids
+    SuggestGrids: SuggestGrids,
+
+    //? Library
+    Library: Library,
 }

@@ -5,6 +5,7 @@ import FeedItem from "@/components/Shorts/FeedItem";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -35,6 +36,7 @@ export default function index() {
 
     return (
         <View className="flex-1 bg-black">
+            <StatusBar style="light" />
             <SafeAreaView edges={['top']} className="flex-1">
                 <ShortContextProvider>
                     <View

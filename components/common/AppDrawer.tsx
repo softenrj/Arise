@@ -2,7 +2,7 @@
 // See LICENSE for details.
 
 import { Link } from 'expo-router';
-import { Home, Library, Music2, Search, Settings } from 'lucide-react-native';
+import { Home, Library, Music, Music2, Search, Settings } from 'lucide-react-native';
 import React, { useEffect } from 'react';
 import { Dimensions, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -133,12 +133,19 @@ export default function AppDrawer({ open, onClose }: { open: boolean; onClose: (
                                 </TouchableOpacity>
                             </Link>
 
+                            <Link href={'/(tabs)/music_library'} asChild>
+                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
+                                    <Music size={20} color='#000' strokeWidth={1.8} />
+                                    <Text className='text-black font-elms-med text-sm'>Music Library</Text>
+                                </TouchableOpacity>
+                            </Link>
+
                         </View>
 
                         <View className='mx-4 my-3 h-px bg-zinc-100' />
 
                         <View className='px-3 gap-1'>
-                            <Link href={'/(tabs)/home'} asChild>
+                            <Link href={'/setting'} asChild>
                                 <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
                                     <Settings size={20} color='#71717a' strokeWidth={1.8} />
                                     <Text className='text-zinc-500 font-elms-med text-sm'>Account & Settings</Text>

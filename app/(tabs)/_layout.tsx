@@ -37,6 +37,8 @@ export default function TabLayout() {
                     }}
                     className={`w-full flex-row items-center justify-around px-4 py-3 shadow-2xl ${theme === AppTheme.dark ? 'bg-black' : 'bg-white'}`}
                 >
+                    <TabTrigger name="setting" href={'/setting'} style={{ display: 'none' }} />
+                    <TabTrigger name="music library" href={'/(tabs)/music_library'} style={{ display: 'none' }} />
                     <TabTrigger name="Home" href={"/home"}>
                         <CustomeTab name="Home" Icon={Home} />
                     </TabTrigger>

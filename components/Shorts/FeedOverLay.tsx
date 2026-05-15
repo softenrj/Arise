@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { useShorts } from '@/hooks/useShorts';
 import LottieView from 'lottie-react-native';
 import { Bookmark, EllipsisVertical, Heart, Plus, Send } from 'lucide-react-native';
