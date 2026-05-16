@@ -2,6 +2,8 @@
 // See LICENSE for details.
 
 import { createMultipleMusics } from '@/service/database';
+import { extractAudioMetadata } from '@/service/metaDataExtractor';
+import { Audio } from '@/types/audioMetadata';
 import * as MediaLibrary from 'expo-media-library';
 import { useSQLiteContext } from 'expo-sqlite';
 import { CheckCircle2, Music2, RefreshCw, ScanLine, ShieldAlert } from 'lucide-react-native';
@@ -82,24 +84,62 @@ export default function ScanMusic({ scanState, setScanState }: { scanState: Scan
         try {
             let hasNextPage = true;
             let after: string | undefined = undefined;
-            let musics: MediaLibrary.Asset[] = []; // Typed for safety
+            let musics: Audio[] = [];
             let total = 0;
             let knownTotal = 0;
 
             while (hasNextPage) {
-                const result = await MediaLibrary.getAssetsAsync({ mediaType: MediaLibrary.MediaType.audio, first: 50, after });
+                const result = await MediaLibrary.getAssetsAsync({
+                    mediaType: MediaLibrary.MediaType.audio,
+                    first: 50,
+                    after
+                });
 
                 if (knownTotal === 0 && result.totalCount > 0) {
                     knownTotal = result.totalCount;
                     setTotalCount(knownTotal);
                 }
 
-                // FIXED: Spread the assets to keep the array flat
-                musics.push(...result.assets);
+                const enrichedMusic: Audio[] = await Promise.all(
+                    result.assets.map(async (asset) => {
+                        try {
+                            const assetInfo = await MediaLibrary.getAssetInfoAsync(asset);
+                            const localUri = assetInfo.localUri ?? asset.uri;
+
+                            const tags = await extractAudioMetadata(localUri);
+
+                            return {
+                                ...asset,
+                                title: tags?.title || asset.filename?.replace(/\.[^.]+$/, '') || null,
+                                album: tags?.album || 'Arise by Raj',
+                                albumArtist: tags?.albumArtist || 'Arise by Raj',
+                                artist: tags?.artist || 'Arise by Raj',
+                                artwork: tags?.artwork || '',
+                                trackNumber: tags?.trackNumber ?? null,
+                                year: tags?.year || 0,
+                            };
+                        } catch (err) {
+                            console.warn(`Failed parsing metadata for: ${asset.filename}`, err);
+                            return {
+                                ...asset,
+                                title: asset.filename?.replace(/\.[^.]+$/, '') || null,
+                                album: 'Unknown Album',
+                                albumArtist: 'Unknown Artist',
+                                artist: 'Unknown Artist',
+                                artwork: '',
+                                trackNumber: null,
+                                year: 0,
+                            };
+                        }
+                    })
+                );
+
+                musics.push(...enrichedMusic);
 
                 total += result.assets.length;
                 setScannedCount(total);
                 setProgress(knownTotal > 0 ? total / knownTotal : 0);
+
                 hasNextPage = result.hasNextPage;
                 after = result.endCursor;
             }

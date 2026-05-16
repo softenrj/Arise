@@ -10,6 +10,9 @@ export const Search: Record<string, Section> = {
             { key: 'SearchInput' },
             { key: 'SuggestGrids' },
             { key: 'Shorts' },
+        ],
+        sections: [
+            { key: 'MiniPlayer' }
         ]
     }
 }

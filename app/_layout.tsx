@@ -11,10 +11,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppThemeProvider from '@/components/context/apptheme';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
+import { useSetupPlayer } from '@/hooks/useSetupPlayer';
 import { InitiateDataBase } from '@/service/database';
 import { SQLiteProvider } from 'expo-sqlite';
 
 export default function Layout() {
+  const isReady = useSetupPlayer();
   const [fontsLoaded] = useFonts({
     ElmsSans_400: require('@/assets/font/ElmsSans-Regular.ttf'),
     ElmsSans_500: require('@/assets/font/ElmsSans-Medium.ttf'),
@@ -25,7 +27,7 @@ export default function Layout() {
   });
   const colorScheme = useColorScheme();
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded || !isReady) return null;
 
   return (
 

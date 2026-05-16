@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import MiniPlayer from "@/components/common/MiniPlayer";
 import NavBar, { ChipSnippts, GreetSnippts, TimeSnippts } from "@/components/common/NavBar";
 import GetStarted from "@/components/GetStarted";
 import AriseLogo from "@/components/GetStarted/Arise";
@@ -41,4 +42,7 @@ export const sectionsRegistry: Record<string, ComponentType<any>> = {
 
     //? Library
     Library: Library,
+
+    //? miniplayer
+    MiniPlayer: MiniPlayer
 }

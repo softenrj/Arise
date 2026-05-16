@@ -7,12 +7,35 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { EllipsisVertical, Music, Music2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, Text, View } from 'react-native';
+import TrackPlayer, { Track } from 'react-native-track-player';
 import { ScanState } from '.';
 
 export default function Musics({ scanState }: { scanState: ScanState }) {
     const db = useSQLiteContext();
     const [musics, setMusics] = useState<IMusicTrack[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const setTrack = async (music: IMusicTrack) => {
+        try {
+            await TrackPlayer.reset();
+
+            const trackData: Track = {
+                id: music.id.toString(),
+                url: music.uri,
+                title: music.filename,
+                artist: music.artist,
+                artwork: music.artwork || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVyKaoQcjUPMj6Abi-Y0xR_z21a25rbVr_yg&s',
+                duration: music.duration || 0,
+            };
+
+            await TrackPlayer.add([trackData]);
+
+            await TrackPlayer.play();
+
+        } catch (error) {
+            console.error('Failed to set track globally:', error);
+        }
+    }
 
     useEffect(() => {
         loadMusicData();
@@ -42,11 +65,11 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
     };
 
     const renderTrack = ({ item }: { item: IMusicTrack }) => (
-        <View className='flex-row items-center w-full gap-3'>
+        <Pressable onPress={() => setTrack(item)} className='flex-row items-center w-full gap-3'>
 
-            {item.customCoverUri ? (
+            {item.customCoverUri || item.artwork ? (
                 <Image
-                    source={{ uri: item.customCoverUri }}
+                    source={{ uri: item.customCoverUri! || item.artwork! }}
                     className='w-16 h-16 rounded-sm bg-slate-100'
                 />
             ) : (
@@ -72,7 +95,7 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
             <Pressable className='p-2 active:bg-slate-100 rounded-full'>
                 <EllipsisVertical size={18} color='#d4d4d8' />
             </Pressable>
-        </View>
+        </Pressable>
     );
 
     return (

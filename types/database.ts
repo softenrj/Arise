@@ -3,7 +3,7 @@
 
 export interface IMusicTrack {
     id: string;
-    albumId: string | null;
+    uri: string;
     filename: string;
     duration: number;
     creationTime: number;
@@ -11,8 +11,17 @@ export interface IMusicTrack {
     mediaType: 'audio' | string;
     height: number;
     width: number;
+    albumId: string | null;
 
-    customCoverUri?: string | null;
+    title: string | null;
+    artist: string;
+    album: string | null;
+    albumArtist: string | null;
+    trackNumber: number | null;
+    year: number | null;
+    artwork: string | null;
+
     isLiked?: 0 | 1;
+    customCoverUri?: string | null;
     customVideoUri?: string | null;
 }

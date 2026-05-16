@@ -105,35 +105,35 @@ export default function AppDrawer({ open, onClose }: { open: boolean; onClose: (
 
                         <View className='px-3 pt-2 gap-1'>
 
-                            <Link href={'/(tabs)/home'} asChild>
+                            <Link href={'/(tabs)/home'} onPress={onClose} asChild>
                                 <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
                                     <Home size={20} color='#000' strokeWidth={1.8} />
                                     <Text className='text-black font-elms-med text-sm'>Home</Text>
                                 </TouchableOpacity>
                             </Link>
 
-                            <Link href={'/(tabs)/search'} asChild>
+                            <Link href={'/(tabs)/search'} onPress={onClose} asChild>
                                 <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
                                     <Search size={20} color='#000' strokeWidth={1.8} />
                                     <Text className='text-black font-elms-med text-sm'>Search</Text>
                                 </TouchableOpacity>
                             </Link>
 
-                            <Link href={'/(tabs)/shorts'} asChild>
+                            <Link href={'/(tabs)/shorts'} onPress={onClose} asChild>
                                 <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
                                     <Music2 size={20} color='#000' strokeWidth={1.8} />
                                     <Text className='text-black font-elms-med text-sm'>Vibes</Text>
                                 </TouchableOpacity>
                             </Link>
 
-                            <Link href={'/(tabs)/library'} asChild>
+                            <Link href={'/(tabs)/library'} onPress={onClose} asChild>
                                 <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
                                     <Library size={20} color='#000' strokeWidth={1.8} />
                                     <Text className='text-black font-elms-med text-sm'>Library</Text>
                                 </TouchableOpacity>
                             </Link>
 
-                            <Link href={'/(tabs)/music_library'} asChild>
+                            <Link href={'/(tabs)/music_library'} onPress={onClose} asChild>
                                 <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
                                     <Music size={20} color='#000' strokeWidth={1.8} />
                                     <Text className='text-black font-elms-med text-sm'>Music Library</Text>
@@ -145,7 +145,7 @@ export default function AppDrawer({ open, onClose }: { open: boolean; onClose: (
                         <View className='mx-4 my-3 h-px bg-zinc-100' />
 
                         <View className='px-3 gap-1'>
-                            <Link href={'/setting'} asChild>
+                            <Link href={'/setting'} onPress={onClose} asChild>
                                 <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
                                     <Settings size={20} color='#71717a' strokeWidth={1.8} />
                                     <Text className='text-zinc-500 font-elms-med text-sm'>Account & Settings</Text>
