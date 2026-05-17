@@ -114,7 +114,6 @@ export default function ScanMusic({ scanState, setScanState }: { scanState: Scan
                                 album: tags?.album || 'Arise by Raj',
                                 albumArtist: tags?.albumArtist || 'Arise by Raj',
                                 artist: tags?.artist || 'Arise by Raj',
-                                artwork: tags?.artwork || '',
                                 trackNumber: tags?.trackNumber ?? null,
                                 year: tags?.year || 0,
                             };
@@ -126,7 +125,6 @@ export default function ScanMusic({ scanState, setScanState }: { scanState: Scan
                                 album: 'Unknown Album',
                                 albumArtist: 'Unknown Artist',
                                 artist: 'Unknown Artist',
-                                artwork: '',
                                 trackNumber: null,
                                 year: 0,
                             };

@@ -1,36 +1,26 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useAppDispatch } from '@/hooks/useRedux';
 import { getAllMusics } from '@/service/database'; // Adjust path if needed
+import { getTrackFromMusic } from '@/service/TrackMaker';
+import { setupQueue } from '@/store/reducer/trackplayerSlice';
 import { IMusicTrack } from '@/types/database';
 import { useSQLiteContext } from 'expo-sqlite';
 import { EllipsisVertical, Music, Music2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, Text, View } from 'react-native';
-import TrackPlayer, { Track } from 'react-native-track-player';
 import { ScanState } from '.';
 
 export default function Musics({ scanState }: { scanState: ScanState }) {
     const db = useSQLiteContext();
     const [musics, setMusics] = useState<IMusicTrack[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const dispatch = useAppDispatch();
 
-    const setTrack = async (music: IMusicTrack) => {
+    const playTrack = async (idx: number) => {
         try {
-            await TrackPlayer.reset();
-
-            const trackData: Track = {
-                id: music.id.toString(),
-                url: music.uri,
-                title: music.filename,
-                artist: music.artist,
-                artwork: music.artwork || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVyKaoQcjUPMj6Abi-Y0xR_z21a25rbVr_yg&s',
-                duration: music.duration || 0,
-            };
-
-            await TrackPlayer.add([trackData]);
-
-            await TrackPlayer.play();
+            dispatch(setupQueue({ tracks: getTrackFromMusic(musics), startIndex: idx }))
 
         } catch (error) {
             console.error('Failed to set track globally:', error);
@@ -64,13 +54,14 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
         return filename.replace(/\.[^/.]+$/, "");
     };
 
-    const renderTrack = ({ item }: { item: IMusicTrack }) => (
-        <Pressable onPress={() => setTrack(item)} className='flex-row items-center w-full gap-3'>
+    const renderTrack = ({ item, index }: { item: IMusicTrack, index: number }) => (
+        <Pressable onPress={() => playTrack(index)} className='flex-row items-center w-full gap-3'>
 
-            {item.customCoverUri || item.artwork ? (
+            {item.customCoverUri ? (
                 <Image
-                    source={{ uri: item.customCoverUri! || item.artwork! }}
+                    source={{ uri: item.customCoverUri }}
                     className='w-16 h-16 rounded-sm bg-slate-100'
+                    resizeMethod="resize"
                 />
             ) : (
                 <View className='w-16 h-16 rounded-sm bg-slate-100 items-center justify-center'>
@@ -116,6 +107,7 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
                 renderItem={renderTrack}
                 contentContainerStyle={{ gap: 10, paddingBottom: 20 }}
                 showsVerticalScrollIndicator={false}
+                removeClippedSubviews={true}
                 ListEmptyComponent={
                     !isLoading ? (
                         <View className="py-10 items-center justify-center">

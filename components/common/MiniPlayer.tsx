@@ -2,13 +2,14 @@
 // See LICENSE for details.
 
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pause, Play } from 'lucide-react-native';
+import { Pause, Play, PlusCircle } from 'lucide-react-native';
 import React from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { getColors } from 'react-native-image-colors';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import TrackPlayer, { State, useActiveTrack, usePlaybackState, useProgress } from 'react-native-track-player';
+import MiniPlayerTrackDetails from './MiniPlayerTrackDetails';
 
 type GradientColors = [string, string, string];
 const DEFAULT_COLORS: GradientColors = ['#0e7490', '#155e75', '#164e63'];
@@ -16,7 +17,7 @@ const SLIDER_HEIGHT = 3;
 const SLIDER_HEIGHT_ACTIVE = 6;
 const HIT_SLOP = 20;
 
-//TODO Remove all Native Audio Metadata extractor to stable work
+const image = 'https://thewildcattribune.com/wp-content/uploads/2023/05/52890928681_a467a529c4_o-e1685030922246.jpg'
 
 export default function MiniPlayer() {
     const track = useActiveTrack();
@@ -34,10 +35,10 @@ export default function MiniPlayer() {
             return;
         }
 
-        getColors('https://thewildcattribune.com/wp-content/uploads/2023/05/52890928681_a467a529c4_o-e1685030922246.jpg', {
+        getColors(image, {
             fallback: DEFAULT_COLORS[0],
             cache: true,
-            key: 'https://thewildcattribune.com/wp-content/uploads/2023/05/52890928681_a467a529c4_o-e1685030922246.jpg',
+            key: image,
             quality: 'low'
         })
             .then((colors) => {
@@ -109,7 +110,6 @@ export default function MiniPlayer() {
         overflow: 'hidden' as const,
     }));
 
-    // FIX: Read dynamically from direct layout styling instead of static reanimated closures
     const fillStyle = useAnimatedStyle(() => ({
         width: progressX.value,
         height: '100%',
@@ -156,17 +156,13 @@ export default function MiniPlayer() {
                         <View className='h-full aspect-square rounded-md bg-white/20' />
                     )}
 
-                    <View className='flex-1 justify-center'>
-                        <Text numberOfLines={1} className='text-white text-sm font-jakarta font-semibold tracking-tight'>
-                            {track.title ?? 'Unknown Title'}
-                        </Text>
-                        <Text numberOfLines={1} className='text-zinc-300 text-xs font-normal mt-0.5'>
-                            {track.artist ?? 'Unknown Artist'}
-                        </Text>
-                    </View>
+                    <MiniPlayerTrackDetails />
                 </View>
 
                 <View className='flex-row items-center gap-4 px-2'>
+                    <TouchableOpacity onPress={togglePlay} hitSlop={8}>
+                        <PlusCircle size={20} color='white' />
+                    </TouchableOpacity>
                     <TouchableOpacity onPress={togglePlay} hitSlop={8}>
                         {isPlaying
                             ? <Pause size={20} color='white' fill='white' />
@@ -175,7 +171,6 @@ export default function MiniPlayer() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Progress bar container */}
                 <GestureDetector gesture={panGesture}>
                     <View
                         style={{

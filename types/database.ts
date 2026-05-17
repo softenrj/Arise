@@ -19,7 +19,6 @@ export interface IMusicTrack {
     albumArtist: string | null;
     trackNumber: number | null;
     year: number | null;
-    artwork: string | null;
 
     isLiked?: 0 | 1;
     customCoverUri?: string | null;

@@ -13,7 +13,9 @@ import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 import { useSetupPlayer } from '@/hooks/useSetupPlayer';
 import { InitiateDataBase } from '@/service/database';
+import { store } from '@/store/store';
 import { SQLiteProvider } from 'expo-sqlite';
+import { Provider } from 'react-redux';
 
 export default function Layout() {
   const isReady = useSetupPlayer();
@@ -32,18 +34,20 @@ export default function Layout() {
   return (
 
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <SQLiteProvider databaseName='arise_raj_sqlite.db' onInit={InitiateDataBase}>
-          <AppThemeProvider>
-            <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
-              <Stack screenOptions={{ headerShown: false }} >
-                <Stack.Screen name='index' />
-                <Stack.Screen name='(tabs)' />
-              </Stack>
-            </GluestackUIProvider>
-          </AppThemeProvider>
-        </SQLiteProvider>
-      </ThemeProvider>
+      <Provider store={store}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <SQLiteProvider databaseName='arise_raj_sqlite.db' onInit={InitiateDataBase}>
+            <AppThemeProvider>
+              <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
+                <Stack screenOptions={{ headerShown: false }} >
+                  <Stack.Screen name='index' />
+                  <Stack.Screen name='(tabs)' />
+                </Stack>
+              </GluestackUIProvider>
+            </AppThemeProvider>
+          </SQLiteProvider>
+        </ThemeProvider>
+      </Provider>
     </GestureHandlerRootView>
   );
 }

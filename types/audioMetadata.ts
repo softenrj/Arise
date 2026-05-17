@@ -1,10 +1,12 @@
+// Copyright (c) 2026 Raj
+// See LICENSE for details.
+
 import * as MediaLibrary from 'expo-media-library';
 
 export interface AudioMetadata {
     album: string;
     albumArtist: string;
     artist: string;
-    artwork: string;
     year: number;
 };
 

@@ -1,4 +1,6 @@
-// src/service.ts
+// Copyright (c) 2026 Raj
+// See LICENSE for details.
+
 import TrackPlayer, { Event } from 'react-native-track-player';
 
 export async function PlaybackService() {

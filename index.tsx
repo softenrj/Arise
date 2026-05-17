@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj
+// See LICENSE for details.
+
 import { registerRootComponent } from "expo";
 import { ExpoRoot } from "expo-router";
 import TrackPlayer from "react-native-track-player";
