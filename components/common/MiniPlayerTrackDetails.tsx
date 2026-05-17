@@ -29,6 +29,7 @@ export default function MiniPlayerTrackDetails() {
     const prevTrackId = useRef(track?.id);
 
     const resetPositions = () => {
+        'worklet';
         translateX.value = withSpring(0, SPRING_CONFIG);
         opacity.value = withTiming(1, { duration: 150 });
     };

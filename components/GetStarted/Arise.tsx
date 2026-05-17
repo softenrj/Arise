@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { storage } from '@/config/asyncStorage';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
@@ -78,6 +79,8 @@ export default function Arise() {
         };
     });
 
+    const handleContinue = () => storage.setItem('continue', () => JSON.stringify(true));
+
     return (
         <Animated.View
             className='flex-1 w-full flex-col justify-end items-center relative'
@@ -111,7 +114,7 @@ export default function Arise() {
                 </Text>
 
                 <Animated.View style={buttonStyle}>
-                    <Pressable
+                    <Pressable onPress={handleContinue}
                         className='bg-black rounded-full items-center justify-center py-4'
                         onPressIn={handlePressIn}
                         onPressOut={handlePressOut}

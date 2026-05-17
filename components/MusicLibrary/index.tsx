@@ -8,6 +8,8 @@ import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
 import MiniPlayer from '../common/MiniPlayer';
+import MusicLibProvider from '../context/musicLib';
+import EditSheet from './EditSheet';
 import Musics from './Musics';
 import ScanMusic from './ScanMusic';
 
@@ -21,7 +23,7 @@ export default function MusicScanScreen() {
     const handleState = (action: ScanState) => setScanState(action);
 
     return (
-        <>
+        <MusicLibProvider>
             <View className="flex-1 bg-white">
                 <FocusAwareStatusBar style="dark" />
                 <SafeAreaView className="flex-1" edges={['top']}>
@@ -44,6 +46,8 @@ export default function MusicScanScreen() {
                     </Animated.View>
                 </SafeAreaView>
             </View>
-            <MiniPlayer /></>
+            <MiniPlayer />
+            <EditSheet />
+        </MusicLibProvider>
     );
 }

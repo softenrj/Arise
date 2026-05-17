@@ -7,10 +7,11 @@ import { getTrackFromMusic } from '@/service/TrackMaker';
 import { setupQueue } from '@/store/reducer/trackplayerSlice';
 import { IMusicTrack } from '@/types/database';
 import { useSQLiteContext } from 'expo-sqlite';
-import { EllipsisVertical, Music, Music2 } from 'lucide-react-native';
+import { Music, Music2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, Text, View } from 'react-native';
 import { ScanState } from '.';
+import MusicMenu from './MusicMenu';
 
 export default function Musics({ scanState }: { scanState: ScanState }) {
     const db = useSQLiteContext();
@@ -55,38 +56,44 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
     };
 
     const renderTrack = ({ item, index }: { item: IMusicTrack, index: number }) => (
-        <Pressable onPress={() => playTrack(index)} className='flex-row items-center w-full gap-3'>
+        <View className='flex-row items-center w-full gap-3 pr-2'>
 
-            {item.customCoverUri ? (
-                <Image
-                    source={{ uri: item.customCoverUri }}
-                    className='w-16 h-16 rounded-sm bg-slate-100'
-                    resizeMethod="resize"
-                />
-            ) : (
-                <View className='w-16 h-16 rounded-sm bg-slate-100 items-center justify-center'>
-                    <Music size={24} color="#A1A1AA" />
+            <Pressable
+                onPress={() => playTrack(index)}
+                className='flex-1 flex-row items-center gap-3'
+            >
+                {item.customCoverUri ? (
+                    <Image
+                        source={{ uri: item.customCoverUri }}
+                        className='w-16 h-16 rounded-sm bg-slate-100'
+                        resizeMethod="resize"
+                    />
+                ) : (
+                    <View className='w-16 h-16 rounded-sm bg-slate-100 items-center justify-center'>
+                        <Music size={24} color="#A1A1AA" />
+                    </View>
+                )}
+
+                <View className='flex-1 flex-col justify-center'>
+                    <Text
+                        numberOfLines={1}
+                        className='text-black text-sm font-jakarta tracking-tight'
+                        style={{ fontWeight: 500 }}
+                    >
+                        {cleanFilename(item.filename)}
+                    </Text>
+
+                    <Text numberOfLines={1} className='text-zinc-500 text-xs mt-0.5'>
+                        {formatDuration(item.duration)} • Local Audio
+                    </Text>
                 </View>
-            )}
+            </Pressable>
 
-            <View className='flex-1 flex-col justify-center'>
-                <Text
-                    numberOfLines={1}
-                    className='text-black text-sm font-jakarta tracking-tight'
-                    style={{ fontWeight: 500 }}
-                >
-                    {cleanFilename(item.filename)}
-                </Text>
-
-                <Text numberOfLines={1} className='text-zinc-500 text-xs mt-0.5'>
-                    {formatDuration(item.duration)} • Local Audio
-                </Text>
+            <View>
+                <MusicMenu />
             </View>
 
-            <Pressable className='p-2 active:bg-slate-100 rounded-full'>
-                <EllipsisVertical size={18} color='#d4d4d8' />
-            </Pressable>
-        </Pressable>
+        </View>
     );
 
     return (
