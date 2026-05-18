@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useRouter } from 'expo-router';
 import { EllipsisVertical } from 'lucide-react-native';
 import React, { useRef } from 'react';
 import { Animated, Image, Pressable, Text, View } from 'react-native';
@@ -11,12 +12,16 @@ interface LibraryCardProps {
 
 export default function LibraryCard({ isGrid = false }: LibraryCardProps) {
     const opacity = useRef(new Animated.Value(1)).current;
+    const router = useRouter();
 
-    const pressIn = () =>
+    const pressIn = () => {
         Animated.timing(opacity, { toValue: 0.5, duration: 50, useNativeDriver: true }).start();
+    }
 
-    const pressOut = () =>
+    const pressOut = () => {
         Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+        router.push('/(tabs)/playlist')
+    }
 
     if (isGrid) {
         return (

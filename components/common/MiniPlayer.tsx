@@ -11,8 +11,8 @@ import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTi
 import TrackPlayer, { State, useActiveTrack, usePlaybackState, useProgress } from 'react-native-track-player';
 import MiniPlayerTrackDetails from './MiniPlayerTrackDetails';
 
-type GradientColors = [string, string, string];
-const DEFAULT_COLORS: GradientColors = ['#0e7490', '#155e75', '#164e63'];
+export type GradientColors = [string, string, string];
+export const DEFAULT_COLORS: GradientColors = ['#0e7490', '#155e75', '#164e63'];
 const SLIDER_HEIGHT = 3;
 const SLIDER_HEIGHT_ACTIVE = 6;
 const HIT_SLOP = 20;

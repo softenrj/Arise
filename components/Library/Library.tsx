@@ -8,7 +8,7 @@ import { Pressable, Text, View } from 'react-native';
 import LibraryCard from './LibraryCard';
 
 export default function Library() {
-    const [isList, setIsList] = React.useState(true);
+    const [isList, setIsList] = React.useState(false);
     const toggle = React.useCallback(() => setIsList(prev => !prev), []);
 
     return (
