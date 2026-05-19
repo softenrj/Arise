@@ -1,4 +1,7 @@
-import { Cog, EllipsisVertical, Eye, ListMusic, Trash } from 'lucide-react-native';
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
+import { Cog, EllipsisVertical, Eye, Heart, ListMusic, Trash } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Menu, MenuItem, MenuItemLabel } from '../ui/menu';
@@ -30,7 +33,7 @@ export default function PlayListMusicMenu() {
                 </MenuItemLabel>
             </MenuItem>
 
-            {/* <MenuItem
+            <MenuItem
                 key="Favourite"
                 textValue="Favourite"
                 className="px-4 py-3 flex-row items-center gap-3 active:bg-zinc-50 border-b border-zinc-100"
@@ -41,7 +44,7 @@ export default function PlayListMusicMenu() {
                 <MenuItemLabel size="sm" className="text-zinc-700 font-medium tracking-wide">
                     Favourite
                 </MenuItemLabel>
-            </MenuItem> */}
+            </MenuItem>
 
             <MenuItem
                 key="Hide"
