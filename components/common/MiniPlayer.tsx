@@ -1,10 +1,11 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import { useTrackPanle } from '@/hooks/useTrackPanel';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pause, Play, PlusCircle } from 'lucide-react-native';
 import React from 'react';
-import { Image, TouchableOpacity, View } from 'react-native';
+import { Image, Pressable, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { getColors } from 'react-native-image-colors';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
@@ -17,9 +18,11 @@ const SLIDER_HEIGHT = 3;
 const SLIDER_HEIGHT_ACTIVE = 6;
 const HIT_SLOP = 20;
 
+
 const image = 'https://thewildcattribune.com/wp-content/uploads/2023/05/52890928681_a467a529c4_o-e1685030922246.jpg'
 
 export default function MiniPlayer() {
+    const { onOpen } = useTrackPanle();
     const track = useActiveTrack();
     const { state } = usePlaybackState();
     const { position, duration } = useProgress(250);
@@ -136,7 +139,7 @@ export default function MiniPlayer() {
     if (!track) return null;
 
     return (
-        <View className='absolute h-16 mx-1 left-0 right-0 bottom-0 rounded-lg overflow-hidden'>
+        <Pressable onPress={onOpen} className='absolute h-16 mx-1 left-0 right-0 bottom-0 rounded-lg overflow-hidden'>
             <LinearGradient
                 colors={gradient}
                 start={{ x: 0, y: 0 }}
@@ -188,6 +191,6 @@ export default function MiniPlayer() {
                     </View>
                 </GestureDetector>
             </View>
-        </View>
+        </Pressable>
     );
 }

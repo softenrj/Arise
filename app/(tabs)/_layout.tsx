@@ -4,6 +4,8 @@
 import AppDrawer from "@/components/common/AppDrawer";
 import CustomeTab from "@/components/common/CustomeTab";
 import { AppTheme } from "@/components/context/apptheme";
+import TrackpanelProvider from "@/components/context/trackpanel";
+import Track from "@/components/track";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { TabList, Tabs, TabSlot, TabTrigger } from "expo-router/ui";
 import { Home, Library, Search } from "lucide-react-native";
@@ -26,40 +28,42 @@ export default function TabLayout() {
 
     return (
         <>
-            <Tabs>
-                <AppDrawerContext.Provider value={{ open, onClose: handleClose, onOpen: handleOpen }}>
-                    <TabSlot />
-                </AppDrawerContext.Provider>
+            <TrackpanelProvider>
+                <Tabs>
+                    <AppDrawerContext.Provider value={{ open, onClose: handleClose, onOpen: handleOpen }}>
+                        <TabSlot />
+                    </AppDrawerContext.Provider>
 
-                <TabList
-                    style={{
-                        paddingBottom: insets.bottom,
-                    }}
-                    className={`w-full flex-row items-center justify-around px-4 py-3 shadow-2xl ${theme === AppTheme.dark ? 'bg-black' : 'bg-white'}`}
-                >
-                    <TabTrigger name="setting" href={'/setting'} style={{ display: 'none' }} />
-                    <TabTrigger name="music library" href={'/(tabs)/music_library'} style={{ display: 'none' }} />
-                    <TabTrigger name="music library" href={'/(tabs)/playlist'} style={{ display: 'none' }} />
-                    <TabTrigger name="Home" href={"/home"}>
-                        <CustomeTab name="Home" Icon={Home} />
-                    </TabTrigger>
+                    <TabList
+                        style={{
+                            paddingBottom: insets.bottom,
+                        }}
+                        className={`w-full flex-row items-center justify-around px-4 py-3 shadow-2xl ${theme === AppTheme.dark ? 'bg-black' : 'bg-white'}`}
+                    >
+                        <TabTrigger name="setting" href={'/setting'} style={{ display: 'none' }} />
+                        <TabTrigger name="music library" href={'/(tabs)/music_library'} style={{ display: 'none' }} />
+                        <TabTrigger name="music library" href={'/(tabs)/playlist'} style={{ display: 'none' }} />
+                        <TabTrigger name="Home" href={"/home"}>
+                            <CustomeTab name="Home" Icon={Home} />
+                        </TabTrigger>
 
-                    <TabTrigger name="Search" href={"/search"}>
-                        <CustomeTab name="Search" Icon={Search} />
-                    </TabTrigger>
+                        <TabTrigger name="Search" href={"/search"}>
+                            <CustomeTab name="Search" Icon={Search} />
+                        </TabTrigger>
 
-                    <TabTrigger name="Vibes" href={"/shorts"}>
-                        <CustomeTab name="Shorts" image={theme === AppTheme.dark ? require('@/assets/arise/shorts-dark.png') : require('@/assets/arise/shorts.png')} />
-                    </TabTrigger>
+                        <TabTrigger name="Vibes" href={"/shorts"}>
+                            <CustomeTab name="Shorts" image={theme === AppTheme.dark ? require('@/assets/arise/shorts-dark.png') : require('@/assets/arise/shorts.png')} />
+                        </TabTrigger>
 
-                    <TabTrigger name="Library" href={"/library"}>
-                        <CustomeTab name="Library" Icon={Library} />
-                    </TabTrigger>
+                        <TabTrigger name="Library" href={"/library"}>
+                            <CustomeTab name="Library" Icon={Library} />
+                        </TabTrigger>
 
-                </TabList>
-            </Tabs>
-            <AppDrawer onClose={handleClose} open={open} />
-            {/* <Track /> */}
+                    </TabList>
+                </Tabs>
+                <AppDrawer onClose={handleClose} open={open} />
+                <Track />
+            </TrackpanelProvider>
         </>
     );
 }
