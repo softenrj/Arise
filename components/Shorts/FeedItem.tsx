@@ -14,6 +14,7 @@ import FeedOverLay from './FeedOverLay';
 
 const SLIDER_HEIGHT = 3;
 const SLIDER_HEIGHT_ACTIVE = 6;
+
 const HIT_SLOP = 20;
 const DOUBLE_TAP_DELAY = 300;
 
