@@ -105,7 +105,7 @@ export default function TrackController() {
     }, []);
 
     return (
-        <View className="px-6 pb-12 pt-6">
+        <View className="pb-12 pt-6">
 
             <View className="flex-row justify-between items-center mb-6">
                 <View className="flex-1 pr-4">
@@ -159,15 +159,15 @@ export default function TrackController() {
                 </TouchableOpacity>
 
                 <TouchableOpacity hitSlop={10}>
-                    <SkipBack size={34} color="#fff" />
+                    <SkipBack size={30} color="#fff" fill={'white'} />
                 </TouchableOpacity>
 
-                <TouchableOpacity className="w-16 h-16 bg-white rounded-full items-center justify-center">
+                <TouchableOpacity className="w-[4.2rem] h-[4.2rem] bg-white rounded-full items-center justify-center">
                     <Play size={28} color="#000" fill="#000" style={{ marginLeft: 4 }} />
                 </TouchableOpacity>
 
                 <TouchableOpacity hitSlop={10}>
-                    <SkipForward size={34} color="#fff" />
+                    <SkipForward size={30} fill={'white'} color="#fff" />
                 </TouchableOpacity>
 
                 <TouchableOpacity hitSlop={10}>

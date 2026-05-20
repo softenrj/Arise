@@ -66,7 +66,7 @@ export default function PlaylistScreen() {
             >
                 <SafeAreaView className='relative p-4 z-20' edges={['top']}>
                     <Pressable
-                        className="w-10 h-10 items-center justify-center rounded-full bg-black/30"
+                        className="w-10 h-10 items-center justify-center rounded-md bg-black/30"
                         hitSlop={12}
                         onPress={() => router.back()}
                     >

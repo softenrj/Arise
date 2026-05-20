@@ -67,7 +67,7 @@ export default function TrackSheet({ open, onClose, snap = 1, className, childre
     return (
         <GestureDetector gesture={pan}>
             <Animated.View
-                className={`${className} absolute bottom-0 left-0 right-0 bg-black z-[1001] p-5 shadow-black/10`}
+                className={`${className} absolute bottom-0 left-0 right-0 bg-black z-[1001] shadow-black/10`}
                 style={[
                     sheetStyle,
                     {
