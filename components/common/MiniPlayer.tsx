@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import { useTrack } from '@/hooks/useTrack';
 import { useTrackPanle } from '@/hooks/useTrackPanel';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pause, Play, PlusCircle } from 'lucide-react-native';
@@ -26,7 +27,7 @@ export default function MiniPlayer() {
     const track = useActiveTrack();
     const { state } = usePlaybackState();
     const { position, duration } = useProgress(250);
-
+    const { togglePlay } = useTrack();
     const isPlaying = state === State.Playing;
     const artwork = typeof track?.artwork === 'string' ? track.artwork : null;
 
@@ -131,10 +132,7 @@ export default function MiniPlayer() {
         transform: [{ scale: withSpring(isDragging.value ? 1 : 0.1) }],
     }));
 
-    const togglePlay = async () => {
-        if (isPlaying) await TrackPlayer.pause();
-        else await TrackPlayer.play();
-    };
+
 
     if (!track) return null;
 

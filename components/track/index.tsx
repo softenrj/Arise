@@ -4,11 +4,12 @@
 import { useTrackPanle } from '@/hooks/useTrackPanel';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { ChevronDown, EllipsisVertical, Hd, ListFilter } from 'lucide-react-native';
+import { ChevronDown, EllipsisVertical, Hd, ListFilter, Music } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { getColors } from 'react-native-image-colors';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useActiveTrack } from 'react-native-track-player';
 import Lyrics from './Lyrics';
 import TrackController from './TrackController';
 import TrackSheet from './TrackSheet';
@@ -24,6 +25,9 @@ export default function PlayerScreen() {
     const insets = useSafeAreaInsets();
 
     const firstPageHeight = screenHeight - insets.top - insets.bottom;
+
+    // ------------------ current music ---------------
+    const track = useActiveTrack();
 
     useEffect(() => {
         if (!image) return;
@@ -94,11 +98,13 @@ export default function PlayerScreen() {
                             </View>
 
                             <View className="flex-1 items-center justify-center">
-                                <Image
-                                    source={{ uri: image }}
+                                {track?.artwork ? <Image
+                                    source={{ uri: track.artwork }}
                                     className="w-full aspect-square rounded-md bg-white/5"
                                     resizeMode="cover"
-                                />
+                                /> : <View className='w-16 h-16 rounded-sm bg-slate-100 items-center justify-center'>
+                                    <Music size={24} color="#A1A1AA" />
+                                </View>}
                             </View>
 
                             <TrackController />

@@ -12,5 +12,6 @@ export function getTrackFromMusic(musics: IMusicTrack[]): Track[] {
         artist: music.artist,
         artwork: music.customCoverUri || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVyKaoQcjUPMj6Abi-Y0xR_z21a25rbVr_yg&s',
         duration: music.duration || 0,
+        mediaId: music.id
     }))
 } 

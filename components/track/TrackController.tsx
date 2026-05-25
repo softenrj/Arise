@@ -1,12 +1,15 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useAppSelector } from '@/hooks/useRedux';
+import { useTrack } from '@/hooks/useTrack';
 import LottieView from 'lottie-react-native';
-import { Heart, Play, Repeat, Shuffle, SkipBack, SkipForward } from 'lucide-react-native';
+import { Heart, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import { useActiveTrack, useProgress } from 'react-native-track-player';
 
 const SLIDER_HEIGHT = 3;
 const SLIDER_HEIGHT_ACTIVE = 6;
@@ -18,9 +21,16 @@ export default function TrackController() {
     const isDragging = useSharedValue(false);
     const startX = useSharedValue(0);
 
+    const { position, duration } = useProgress(250);
+    const { loopMode, shuffle } = useAppSelector(state => state.trackReducer)
+
+    const track = useActiveTrack();
+
     const [showLikeAnimation, setShowLikeAnimation] = React.useState<boolean>(false);
     const [isLiked, setIsLiked] = React.useState(false);
     const likeAnimationTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+    const { skipToPrevious, toggleShuffle, cycleLoopMode, skipToNext, togglePlay, seekTo, play, pause, isPlaying } = useTrack();
+
 
     const toggleLike = React.useCallback(() => {
         setIsLiked(prev => {
@@ -28,6 +38,14 @@ export default function TrackController() {
             return !prev;
         });
     }, []);
+
+    const seekToPosition = (pixelX: number) => {
+        if (duration <= 0) return;
+        const ratio = Math.max(0, Math.min(1, pixelX / sliderWidth.value));
+        const seconds = ratio * duration;
+        seekTo(seconds);
+    };
+
 
     const panGesture = Gesture.Pan()
         .hitSlop({ top: HIT_SLOP, bottom: HIT_SLOP })
@@ -37,17 +55,17 @@ export default function TrackController() {
             startX.value = progressX.value;
             const clamped = Math.max(0, Math.min(sliderWidth.value, e.x));
             progressX.value = clamped;
-            // runOnJS(pausePlay)();
-            // runOnJS(seekTo)(clamped);
+            runOnJS(pause)();
+            runOnJS(seekToPosition)(clamped);
         })
         .onUpdate((e) => {
             const clamped = Math.max(0, Math.min(sliderWidth.value, e.x));
             progressX.value = clamped;
-            // runOnJS(seekTo)(clamped);
+            runOnJS(seekToPosition)(clamped);
         })
         .onEnd(() => {
             isDragging.value = false;
-            // runOnJS(resumePlay)();
+            runOnJS(play)();
         })
         .onFinalize(() => {
             isDragging.value = false;
@@ -97,6 +115,12 @@ export default function TrackController() {
         }, 700)
     }, [])
 
+    React.useEffect(() => {
+        if (!isDragging.value && duration > 0) {
+            progressX.value = withTiming((position / duration) * sliderWidth.value, { duration: 200 });
+        }
+    }, [position, duration]);
+
 
     React.useEffect(() => {
         return () => {
@@ -110,10 +134,10 @@ export default function TrackController() {
             <View className="flex-row justify-between items-center mb-6">
                 <View className="flex-1 pr-4">
                     <Text className="text-white text-2xl font-bold truncate" numberOfLines={1}>
-                        Song Title
+                        {track?.title}
                     </Text>
                     <Text className="text-white/70 text-base mt-1" numberOfLines={1}>
-                        Artist Name
+                        {track?.artist}
                     </Text>
                 </View>
                 <Pressable
@@ -154,24 +178,25 @@ export default function TrackController() {
             </GestureDetector>
 
             <View className="flex-row justify-between items-center">
-                <TouchableOpacity hitSlop={10}>
-                    <Shuffle size={24} color="#1DB954" />
+                <TouchableOpacity hitSlop={10} onPress={toggleShuffle}>
+                    <Shuffle size={24} color={shuffle ? "#1DB954" : "#fff"} opacity={shuffle ? 1 : 0.5} />
                 </TouchableOpacity>
 
-                <TouchableOpacity hitSlop={10}>
+                <TouchableOpacity hitSlop={10} onPress={skipToPrevious}>
                     <SkipBack size={30} color="#fff" fill={'white'} />
                 </TouchableOpacity>
 
-                <TouchableOpacity className="w-[4.2rem] h-[4.2rem] bg-white rounded-full items-center justify-center">
-                    <Play size={28} color="#000" fill="#000" style={{ marginLeft: 4 }} />
+                <TouchableOpacity onPress={togglePlay} className="w-[4.2rem] h-[4.2rem] bg-white rounded-full items-center justify-center">
+                    {isPlaying ? <Pause size={28} color="#000" fill="#000" style={{ marginLeft: 4 }} /> : <Play size={28} color="#000" fill="#000" style={{ marginLeft: 4 }} />}
                 </TouchableOpacity>
 
-                <TouchableOpacity hitSlop={10}>
+                <TouchableOpacity hitSlop={10} onPress={skipToNext}>
                     <SkipForward size={30} fill={'white'} color="#fff" />
                 </TouchableOpacity>
 
-                <TouchableOpacity hitSlop={10}>
-                    <Repeat size={24} color="#fff" opacity={0.5} />
+                <TouchableOpacity hitSlop={10} onPress={cycleLoopMode} className='justify-center'>
+                    {loopMode !== 'track' && <Repeat size={24} color={loopMode !== 'none' ? "#1DB954" : "#fff"} opacity={loopMode !== 'none' ? 1 : 0.5} />}
+                    {loopMode === 'track' && <Repeat1 size={24} color={"#1DB954"} />}
                 </TouchableOpacity>
             </View>
         </View>

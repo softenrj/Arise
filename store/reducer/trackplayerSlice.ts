@@ -85,7 +85,7 @@ export const addToQueue = createAsyncThunk(
 export const playNext = createAsyncThunk(
     'trackplayer/playNext',
     async (tracks: Track[], { getState }) => {
-        const state = (getState() as { trackplayer: ArisePlayerState }).trackplayer;
+        const state = (getState() as { trackReducer: ArisePlayerState }).trackReducer;
         const insertAt = state.currentIndex + 1;
         await TrackPlayer.add(tracks, insertAt);
         return { tracks, insertAt };
@@ -103,17 +103,36 @@ export const removeFromQueue = createAsyncThunk(
 export const cycleLoopMode = createAsyncThunk(
     'trackplayer/cycleLoopMode',
     async (_, { getState }) => {
-        const state = (getState() as { trackplayer: ArisePlayerState }).trackplayer;
+        const state = (getState() as { trackReducer: ArisePlayerState }).trackReducer;
         const next = LOOP_CYCLE[(LOOP_CYCLE.indexOf(state.loopMode) + 1) % LOOP_CYCLE.length];
         await TrackPlayer.setRepeatMode(REPEAT_MODE_MAP[next]);
         return next;
     }
 );
 
+export const updateMusic = createAsyncThunk(
+    'trackplayer/musicUpdate',
+    async (track: Track, { getState }) => {
+        const state = (getState() as { trackReducer: ArisePlayerState }).trackReducer;
+
+        const activeIndex = await TrackPlayer.getActiveTrackIndex();
+
+        const queueIndex = state.queue.findIndex(_track => _track.mediaId === track.mediaId);
+
+        if (activeIndex === queueIndex) {
+            await TrackPlayer.updateNowPlayingMetadata(track);
+        } else if (queueIndex !== -1) {
+            await TrackPlayer.updateMetadataForTrack(queueIndex, track);
+        }
+
+        return track;
+    }
+)
+
 export const toggleShuffle = createAsyncThunk(
     'trackplayer/toggleShuffle',
     async (_, { getState }) => {
-        const state = (getState() as { trackplayer: ArisePlayerState }).trackplayer;
+        const state = (getState() as { trackReducer: ArisePlayerState }).trackReducer;
         const currentTrack = state.queue[state.currentIndex];
 
         if (!state.shuffle) {
@@ -233,6 +252,17 @@ const trackPlayerSlice = createSlice({
             state.currentIndex = 0;
             state.isPlaying = false;
             state.shuffle = false;
+        });
+
+        builder.addCase(updateMusic.fulfilled, (state, action) => {
+            const updatedTrack = action.payload
+
+            state.queue = state.queue.map(_track => {
+                if (_track.mediaId === updatedTrack.mediaId) {
+                    return updatedTrack;
+                }
+                return _track;
+            });
         });
     },
 });
