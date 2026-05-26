@@ -14,7 +14,6 @@ import Lyrics from './Lyrics';
 import TrackController from './TrackController';
 import TrackSheet from './TrackSheet';
 
-const image = "https://i.pinimg.com/736x/1a/33/fc/1a33fccce5c5866dc04d437ca965a702.jpg";
 const BACKGROUND_COLOR = '#121212';
 
 export default function PlayerScreen() {
@@ -30,11 +29,11 @@ export default function PlayerScreen() {
     const track = useActiveTrack();
 
     useEffect(() => {
-        if (!image) return;
-        getColors(image, {
+        if (!track?.artwork) return;
+        getColors(track.artwork, {
             fallback: BACKGROUND_COLOR,
             cache: true,
-            key: image,
+            key: track.artwork,
             quality: 'low',
         })
             .then((colors) => {

@@ -4,8 +4,13 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Menu, MenuItem, MenuItemLabel } from '../ui/menu';
 
-export default function MusicMenu() {
-    const { openSheet } = useMusicLib();
+export default function MusicMenu({ musicId }: { musicId: string }) {
+    const { openSheet, setEditMusicId } = useMusicLib();
+
+    const handleEdit = () => {
+        setEditMusicId(musicId);
+        openSheet();
+    }
     return (
         <Menu
             className="bg-white border border-zinc-100 rounded-xl shadow-lg shadow-zinc-200/80 overflow-hidden min-w-[180px] right-10"
@@ -64,7 +69,7 @@ export default function MusicMenu() {
                 key="Plugins"
                 textValue="Plugins"
                 className="px-4 py-3 flex-row items-center gap-3 active:bg-zinc-50"
-                onPress={openSheet}
+                onPress={handleEdit}
             >
                 <View className="w-7 h-7 rounded-lg bg-amber-50 items-center justify-center">
                     <Cog size={14} color="#f59e0b" />

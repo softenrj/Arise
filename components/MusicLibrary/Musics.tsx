@@ -1,23 +1,27 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useMusicLib } from '@/hooks/useMusicLib';
 import { useAppDispatch } from '@/hooks/useRedux';
 import { getAllMusics } from '@/service/database'; // Adjust path if needed
+import { formatDuration } from '@/service/MusicDuration';
 import { getTrackFromMusic } from '@/service/TrackMaker';
 import { setupQueue } from '@/store/reducer/trackplayerSlice';
 import { IMusicTrack } from '@/types/database';
+import { defaultMusicArtWork } from '@/utils/constants';
 import { useSQLiteContext } from 'expo-sqlite';
-import { Music, Music2 } from 'lucide-react-native';
+import { Music2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, Text, View } from 'react-native';
 import { ScanState } from '.';
 import MusicMenu from './MusicMenu';
 
 export default function Musics({ scanState }: { scanState: ScanState }) {
-    const db = useSQLiteContext();
-    const [musics, setMusics] = useState<IMusicTrack[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const dispatch = useAppDispatch();
+    const db = useSQLiteContext();
+
+    const { musics, setMusics } = useMusicLib();
 
     const playTrack = async (idx: number) => {
         try {
@@ -43,13 +47,6 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
         }
     };
 
-    const formatDuration = (seconds: number) => {
-        if (!seconds) return "0:00";
-        const m = Math.floor(seconds / 60);
-        const s = Math.floor(seconds % 60);
-        return `${m}:${s.toString().padStart(2, '0')}`;
-    };
-
     const cleanFilename = (filename: string) => {
         if (!filename) return "Unknown Track";
         return filename.replace(/\.[^/.]+$/, "");
@@ -62,17 +59,11 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
                 onPress={() => playTrack(index)}
                 className='flex-1 flex-row items-center gap-3'
             >
-                {item.customCoverUri ? (
-                    <Image
-                        source={{ uri: item.customCoverUri }}
-                        className='w-16 h-16 rounded-sm bg-slate-100'
-                        resizeMethod="resize"
-                    />
-                ) : (
-                    <View className='w-16 h-16 rounded-sm bg-slate-100 items-center justify-center'>
-                        <Music size={24} color="#A1A1AA" />
-                    </View>
-                )}
+                <Image
+                    source={{ uri: item.customCoverUri || defaultMusicArtWork }}
+                    className='w-16 h-16 rounded-sm bg-slate-100'
+                    resizeMethod="resize"
+                />
 
                 <View className='flex-1 flex-col justify-center'>
                     <Text
@@ -90,7 +81,7 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
             </Pressable>
 
             <View>
-                <MusicMenu />
+                <MusicMenu musicId={item.id} />
             </View>
 
         </View>

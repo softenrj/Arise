@@ -20,8 +20,6 @@ const SLIDER_HEIGHT_ACTIVE = 6;
 const HIT_SLOP = 20;
 
 
-const image = 'https://thewildcattribune.com/wp-content/uploads/2023/05/52890928681_a467a529c4_o-e1685030922246.jpg'
-
 export default function MiniPlayer() {
     const { onOpen } = useTrackPanle();
     const track = useActiveTrack();
@@ -29,7 +27,7 @@ export default function MiniPlayer() {
     const { position, duration } = useProgress(250);
     const { togglePlay } = useTrack();
     const isPlaying = state === State.Playing;
-    const artwork = typeof track?.artwork === 'string' ? track.artwork : null;
+    const artwork = track?.artwork;
 
     const [gradient, setGradient] = React.useState<GradientColors>(DEFAULT_COLORS);
 
@@ -39,10 +37,10 @@ export default function MiniPlayer() {
             return;
         }
 
-        getColors(image, {
+        getColors(artwork, {
             fallback: DEFAULT_COLORS[0],
             cache: true,
-            key: image,
+            key: artwork,
             quality: 'low'
         })
             .then((colors) => {
