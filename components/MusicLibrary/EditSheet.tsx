@@ -1,38 +1,125 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { useMusicLib } from '@/hooks/useMusicLib';
+import { updateMusicdb } from '@/service/database';
+import { createOrUpdateLyrics } from '@/service/lyricsdb';
 import { IMusicTrack } from '@/types/database';
-import { defaultMusicArtWork } from '@/utils/constants';
+import { defaultMusicArtWork, defaultVideo } from '@/utils/constants';
+import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from 'expo-image-picker';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { FileArchive } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
-import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import SheetProvider from '../ui/Sheet';
 
 export default function EditSheet() {
-    const { editSheet, closeSheet, musics, editMusicId } = useMusicLib();
-    const [music, setMusic] = useState<IMusicTrack | null>(null);
+    const { editSheet, closeSheet, musics, editMusicId, handleUpdate } = useMusicLib();
+    const [music, setMusic] = React.useState<IMusicTrack | null>(null);
+    const db = useSQLiteContext();
 
-    const [title, setTitle] = useState('');
-    const [artist, setArtist] = useState('');
+    // ------------------ Edit fields ----------------
+    const [title, setTitle] = React.useState('');
+    const [artist, setArtist] = React.useState('');
+    const [lyrics, setLyrics] = React.useState<DocumentPicker.DocumentPickerAsset | null>(null);
+    const [customeImage, setCustomeImage] = React.useState<string | null>(null);
+    const [customeVideo, setCustomeVideo] = React.useState<string | null>(null);
+    const [customVideoFileName, setCustomVideoFileName] = React.useState<string | null>(null);
 
-    const player = useVideoPlayer(require('@/assets/video/sample1.mp4'), (p) => {
+    const player = useVideoPlayer(defaultVideo, (p) => {
         p.loop = true;
         p.volume = 1.0;
         p.muted = false;
         p.timeUpdateEventInterval = 0.25;
     });
 
-    useEffect(() => {
+
+    const handlePickLytics = React.useCallback(async () => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: ["text/plain", "*/*"],
+                multiple: false,
+                copyToCacheDirectory: false
+            })
+
+            if (result.canceled || !result.assets || result.assets.length === 0) {
+                return;
+            }
+
+            const pickedFile = result.assets[0];
+            setLyrics(pickedFile);
+            console.log(pickedFile)
+        } catch (error) {
+            console.log("Error picking documents:", error);
+        }
+    }, [editMusicId])
+
+    const handleImagePicker = React.useCallback(async () => {
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true,
+                mediaTypes: ['images'],
+                quality: 1
+            })
+
+            if (result.canceled || !result.assets || result.assets.length === 0) return;
+            const pickedFile = result.assets[0];
+            setCustomeImage(pickedFile.uri);
+
+        } catch (error) {
+            console.log("Error picking documents:", error);
+        }
+    }, [editMusicId])
+
+    const handleVideoPicker = React.useCallback(async () => {
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true,
+                mediaTypes: ['videos'],
+                quality: 1
+            })
+
+            if (result.canceled || !result.assets || result.assets.length === 0) return;
+            const pickedFile = result.assets[0];
+            player.replace(pickedFile.uri);
+            setCustomeVideo(pickedFile.uri);
+            setCustomVideoFileName(pickedFile.fileName ?? null);
+
+        } catch (error) {
+            console.log("Error picking documents:", error);
+        }
+    }, [editMusicId])
+
+    React.useEffect(() => {
         const track = musics.find(m => m.id === editMusicId);
         if (track) {
             setMusic(track);
             setTitle(track.title!);
             setArtist(track.artist);
+            if (track.customVideoUri && track.customVideoFileName) {
+                player.replace(track?.customVideoUri);
+                setCustomVideoFileName(track.customVideoFileName)
+            }
+
         }
     }, [editMusicId, musics]);
 
-    const handleSave = () => {
-        console.log("Saving...", { title, artist });
-        // updateTrack({ ...music, title, artist });
+    const handleSave = async () => {
+        if (!music) return;
+        let lyricsId = null;
+
+        if (lyrics) {
+            const lyricsObject = { ...lyrics, musicId: music?.id }
+            lyricsId = await createOrUpdateLyrics(lyricsObject, db);
+        }
+
+        const updatedMusic = await updateMusicdb(db, music?.id!, {
+            title, artist, lyricsId, customCoverUri: customeImage, customVideoUri: customeVideo, customVideoFileName
+        }) as IMusicTrack;
+
+        handleUpdate(updatedMusic);
         closeSheet();
     };
 
@@ -52,9 +139,10 @@ export default function EditSheet() {
                     <TouchableOpacity
                         activeOpacity={0.8}
                         className='relative rounded-2xl shadow-sm overflow-hidden bg-slate-100'
+                        onPress={handleImagePicker}
                     >
                         <Image
-                            source={{ uri: music?.customCoverUri || defaultMusicArtWork }}
+                            source={{ uri: customeImage || music?.customCoverUri || defaultMusicArtWork }}
                             className='w-full h-64'
                             resizeMode="cover"
                             style={{ aspectRatio: 1 / 1 }}
@@ -63,32 +151,38 @@ export default function EditSheet() {
                 </View>
 
                 <View className='gap-5'>
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
 
-                    <View>
-                        <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
-                            Title
-                        </Text>
-                        <TextInput
-                            value={title}
-                            onChangeText={setTitle}
-                            placeholder="Enter song title"
-                            placeholderTextColor="#94a3b8"
-                            className='bg-slate-100 px-4 py-3 rounded-xl text-base font-elms text-slate-900'
-                        />
-                    </View>
+                        <View>
+                            <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
+                                Title
+                            </Text>
+                            <TextInput
+                                value={title}
+                                onChangeText={setTitle}
+                                placeholder="Enter song title"
+                                placeholderTextColor="#94a3b8"
+                                className='bg-slate-100 px-4 py-3 rounded-xl text-base font-elms text-slate-900'
+                            />
+                        </View>
+                    </KeyboardAvoidingView>
 
-                    <View>
-                        <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
-                            Artist
-                        </Text>
-                        <TextInput
-                            value={artist}
-                            onChangeText={setArtist}
-                            placeholder="Enter artist name"
-                            placeholderTextColor="#94a3b8"
-                            className='bg-slate-100 px-4 py-3 rounded-xl text-base font-elms text-slate-900'
-                        />
-                    </View>
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                        <View>
+                            <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
+                                Artist
+                            </Text>
+                            <TextInput
+                                value={artist}
+                                onChangeText={setArtist}
+                                placeholder="Enter artist name"
+                                placeholderTextColor="#94a3b8"
+                                className='bg-slate-100 px-4 py-3 rounded-xl text-base font-elms text-slate-900'
+                            />
+                        </View>
+                    </KeyboardAvoidingView>
 
                     <View>
                         <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
@@ -97,9 +191,10 @@ export default function EditSheet() {
                         <TouchableOpacity
                             activeOpacity={0.7}
                             className='bg-slate-100 px-4 py-4 rounded-xl flex-row justify-between items-center'
+                            onPress={handlePickLytics}
                         >
-                            <Text className='text-base font-elms text-slate-500'>
-                                Select .lrc file...
+                            <Text className='text-sm font-elms text-slate-500 break-words max-w-[90%]'>
+                                {lyrics?.name ? lyrics.name : 'Select .lrc file...'}
                             </Text>
                             <FileArchive size={20} color="#94a3b8" />
                         </TouchableOpacity>
@@ -121,9 +216,10 @@ export default function EditSheet() {
                         <TouchableOpacity
                             activeOpacity={0.7}
                             className='bg-slate-100 px-4 py-4 rounded-xl flex-row justify-between items-center'
+                            onPress={handleVideoPicker}
                         >
                             <Text className='text-base font-elms text-slate-500'>
-                                Select Clip yet...
+                                {customVideoFileName ? customVideoFileName : 'Select Clip yet...'}
                             </Text>
                             <FileArchive size={20} color="#94a3b8" />
                         </TouchableOpacity>

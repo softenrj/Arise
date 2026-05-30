@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { useCallback } from "react";
 import TrackPlayer, { State, Track, usePlaybackState } from "react-native-track-player";
 import { useAppDispatch } from "./useRedux";

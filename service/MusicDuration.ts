@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 export const formatDuration = (seconds: number) => {
     if (!seconds) return "0:00";
     const m = Math.floor(seconds / 60);

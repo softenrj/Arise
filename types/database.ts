@@ -21,6 +21,25 @@ export interface IMusicTrack {
     year: number | null;
 
     isLiked?: 0 | 1;
+    visible: 0 | 1;
     customCoverUri?: string | null;
     customVideoUri?: string | null;
+    customVideoFileName?: string | null;
+
+    lyricsId?: string | null;
+    lyricsName?: string | null;
+    lyricsUri?: string | null;
+}
+
+/**
+ * Interface for lyrics
+ */
+
+export interface ILyrics {
+    id: string,
+    mimeType: string,
+    name: string;
+    size: number;
+    uri: string;
+    musicId: string;
 }

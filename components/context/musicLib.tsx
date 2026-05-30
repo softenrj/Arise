@@ -10,6 +10,8 @@ interface MusicLib {
 
     editMusicId: string;
     setEditMusicId: (id: string) => void;
+
+    handleUpdate: (m: IMusicTrack) => void;
 }
 
 export const MusicLibContext = createContext<MusicLib>({
@@ -19,7 +21,8 @@ export const MusicLibContext = createContext<MusicLib>({
     musics: [],
     setMusics: () => { },
     editMusicId: '',
-    setEditMusicId: (id: string) => { }
+    setEditMusicId: (id: string) => { },
+    handleUpdate: (m: IMusicTrack) => { }
 })
 
 export default function musicLibProvider({ children }: { children: React.ReactNode }) {
@@ -32,8 +35,17 @@ export default function musicLibProvider({ children }: { children: React.ReactNo
     const handleEditMusicId = (id: string) => setMusicId(id);
 
     const handleMusics = (musics: IMusicTrack[]) => setMusic(musics)
+
+    const handleUpdateMusic = (updatedMusic: IMusicTrack) => {
+        const updatedQueue = music.map(m => {
+            if (m.id === updatedMusic.id) return updatedMusic;
+            return m;
+        })
+
+        setMusic(updatedQueue);
+    }
     return (
-        <MusicLibContext.Provider value={{ editSheet, openSheet, closeSheet, setMusics: handleMusics, musics: music, setEditMusicId: handleEditMusicId, editMusicId }}>
+        <MusicLibContext.Provider value={{ editSheet, openSheet, closeSheet, setMusics: handleMusics, musics: music, setEditMusicId: handleEditMusicId, editMusicId, handleUpdate: handleUpdateMusic }}>
             {children}
         </MusicLibContext.Provider>
     )
