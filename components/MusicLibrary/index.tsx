@@ -1,10 +1,11 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import { useRefresh } from '@/hooks/useRefresh';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Music2 } from 'lucide-react-native';
 import React from 'react';
-import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
 import MiniPlayer from '../common/MiniPlayer';
@@ -19,6 +20,8 @@ export type ScanState = 'idle' | 'scanning' | 'done' | 'error';
 export default function MusicScanScreen() {
     const [scanState, setScanState] = React.useState<ScanState>('idle');
     const router = useRouter();
+
+    const { onRefresh, refresh } = useRefresh();
 
     const handleState = (action: ScanState) => setScanState(action);
 
@@ -39,7 +42,8 @@ export default function MusicScanScreen() {
                             </Pressable>
                         </View>
 
-                        <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-6 py-2' showsVerticalScrollIndicator={false}>
+                        <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-6 py-2' showsVerticalScrollIndicator={false}
+                            refreshControl={<RefreshControl refreshing={refresh} onRefresh={onRefresh} />}>
                             <ScanMusic scanState={scanState} setScanState={handleState} />
                             <Musics scanState={scanState} />
                         </ScrollView>

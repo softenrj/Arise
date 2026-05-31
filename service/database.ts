@@ -97,7 +97,7 @@ export const createMusic = async (music: IMusicTrack, db: SQLiteDatabase) => {
                 id, uri, filename, title, artist, album, albumArtist, albumId, 
                 duration, trackNumber, year, artwork, isLiked, creationTime, 
                 modificationTime, customCoverUri, customVideoUri, customVideoFileName, visible
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
             music.id,
             music.uri,
             music.filename,
@@ -132,7 +132,7 @@ export const createMultipleMusics = async (musics: IMusicTrack[], db: SQLiteData
                     id, uri, filename, title, artist, album, albumArtist, albumId, 
                     duration, trackNumber, year, artwork, isLiked, creationTime, 
                     modificationTime, customCoverUri, customVideoUri, customVideoFileName, visible
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
             );
 
             try {
@@ -222,10 +222,13 @@ export const updateMusicdb = async (
     fields: UpdateMusic,
 ): Promise<IMusicTrack | null> => {
     try {
-
         if (!musicId) return null;
 
-        const keys = Object.keys(fields) as (keyof UpdateMusic)[];
+        const filteredFields = Object.fromEntries(
+            Object.entries(fields).filter(([_, v]) => v !== null && v !== undefined)
+        ) as UpdateMusic;
+
+        const keys = Object.keys(filteredFields) as (keyof UpdateMusic)[];
 
         if (keys.length === 0) return null;
 
@@ -234,21 +237,19 @@ export const updateMusicdb = async (
 
         keys.forEach(key => {
             setClauses.push(`${key} = ?`);
-            values.push(fields[key] === undefined ? null : fields[key]);
+            values.push(filteredFields[key]);
         });
 
         setClauses.push('modificationTime = ?');
         values.push(Date.now());
-
         values.push(musicId);
 
         const sqlQuery = `UPDATE Musics SET ${setClauses.join(', ')} WHERE id = ?`;
 
         await db.runAsync(sqlQuery, values);
 
-        const result = await getMusic(db, musicId);
+        return await getMusic(db, musicId);
 
-        return result;
     } catch (error) {
         console.error("Failed updating music from SQLite:", error);
         return null;

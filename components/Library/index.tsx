@@ -2,13 +2,16 @@
 // See LICENSE for details.
 
 import { NavBar } from '@/config/viewRegistry/navbar';
+import { useRefresh } from '@/hooks/useRefresh';
 import Renderer from '@/renderer/renderer';
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
 import Library from './Library';
 
 export default function index() {
+    const { refresh, onRefresh } = useRefresh();
+
     const navSeen = {
         ...NavBar['nav'],
         children: [
@@ -20,7 +23,8 @@ export default function index() {
         <View className='flex-1 bg-white'>
             <FocusAwareStatusBar style='dark' />
             <Renderer scene={navSeen} />
-            <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-6 py-2' showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-6 py-2' showsVerticalScrollIndicator={false}
+                refreshControl={<RefreshControl refreshing={refresh} onRefresh={onRefresh} />}>
                 <Library />
             </ScrollView>
         </View>

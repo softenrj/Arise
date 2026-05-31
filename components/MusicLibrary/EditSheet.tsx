@@ -1,9 +1,11 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useMusic } from '@/hooks/useMusic';
 import { useMusicLib } from '@/hooks/useMusicLib';
 import { updateMusicdb } from '@/service/database';
 import { createOrUpdateLyrics } from '@/service/lyricsdb';
+import { saveMedia } from '@/service/persistMedia';
 import { IMusicTrack } from '@/types/database';
 import { defaultMusicArtWork, defaultVideo } from '@/utils/constants';
 import * as DocumentPicker from "expo-document-picker";
@@ -16,9 +18,10 @@ import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, Tou
 import SheetProvider from '../ui/Sheet';
 
 export default function EditSheet() {
-    const { editSheet, closeSheet, musics, editMusicId, handleUpdate } = useMusicLib();
-    const [music, setMusic] = React.useState<IMusicTrack | null>(null);
     const db = useSQLiteContext();
+    const { musics, onMusicUpdate } = useMusic();
+    const { editSheet, closeSheet, editMusicId } = useMusicLib();
+    const [music, setMusic] = React.useState<IMusicTrack | null>(null);
 
     // ------------------ Edit fields ----------------
     const [title, setTitle] = React.useState('');
@@ -50,7 +53,6 @@ export default function EditSheet() {
 
             const pickedFile = result.assets[0];
             setLyrics(pickedFile);
-            console.log(pickedFile)
         } catch (error) {
             console.log("Error picking documents:", error);
         }
@@ -66,6 +68,7 @@ export default function EditSheet() {
 
             if (result.canceled || !result.assets || result.assets.length === 0) return;
             const pickedFile = result.assets[0];
+
             setCustomeImage(pickedFile.uri);
 
         } catch (error) {
@@ -115,11 +118,18 @@ export default function EditSheet() {
             lyricsId = await createOrUpdateLyrics(lyricsObject, db);
         }
 
+        let imageMediaUri = null;
+        let videoMediaUri = null;
+
+        if (customeImage) imageMediaUri = await saveMedia(customeImage, 'image', music.id);
+        if (customeVideo) videoMediaUri = await saveMedia(customeVideo, 'video', music.id)
+
+
         const updatedMusic = await updateMusicdb(db, music?.id!, {
-            title, artist, lyricsId, customCoverUri: customeImage, customVideoUri: customeVideo, customVideoFileName
+            title, artist, lyricsId, customCoverUri: imageMediaUri, customVideoUri: videoMediaUri, customVideoFileName
         }) as IMusicTrack;
 
-        handleUpdate(updatedMusic);
+        onMusicUpdate(updatedMusic);
         closeSheet();
     };
 

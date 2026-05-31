@@ -9,6 +9,8 @@ import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import AppThemeProvider from '@/components/context/apptheme';
+import MusicContextProvider from '@/components/context/music';
+import RefreshProvider from '@/components/context/refresh';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 import { useSetupPlayer } from '@/hooks/useSetupPlayer';
@@ -38,12 +40,16 @@ export default function Layout() {
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <SQLiteProvider databaseName='arise_raj_sqlite.db' onInit={InitiateDataBase}>
             <AppThemeProvider>
-              <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
-                <Stack screenOptions={{ headerShown: false }} >
-                  <Stack.Screen name='index' />
-                  <Stack.Screen name='(tabs)' />
-                </Stack>
-              </GluestackUIProvider>
+              <MusicContextProvider>
+                <RefreshProvider>
+                  <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
+                    <Stack screenOptions={{ headerShown: false }} >
+                      <Stack.Screen name='index' />
+                      <Stack.Screen name='(tabs)' />
+                    </Stack>
+                  </GluestackUIProvider>
+                </RefreshProvider>
+              </MusicContextProvider>
             </AppThemeProvider>
           </SQLiteProvider>
         </ThemeProvider>

@@ -2,9 +2,10 @@
 // See LICENSE for details.
 
 import { NavBar } from '@/config/viewRegistry/navbar';
+import { useRefresh } from '@/hooks/useRefresh';
 import Renderer from '@/renderer/renderer';
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
 
 
@@ -12,6 +13,7 @@ const categories = ['All', 'Recent', 'Recomended'];
 
 export default function index({ children }: { children: React.ReactNode }) {
     const [activeTab, setActiveTab] = React.useState('All');
+    const { refresh, onRefresh } = useRefresh();
 
     const navSeen = {
         ...NavBar['nav'],
@@ -25,7 +27,8 @@ export default function index({ children }: { children: React.ReactNode }) {
         <View className='bg-white flex-1'>
             <Renderer scene={navSeen} />
             <FocusAwareStatusBar style='dark' />
-            <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-4 py-2' showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-4 py-2' showsVerticalScrollIndicator={false}
+                refreshControl={<RefreshControl refreshing={refresh} onRefresh={onRefresh} />}>
                 <View>
                     <ScrollView
                         horizontal

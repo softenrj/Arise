@@ -3,11 +3,12 @@
 
 import FeedItem from "@/components/Shorts/FeedItem";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import { useRefresh } from "@/hooks/useRefresh";
 import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from 'react';
-import { View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppTheme } from "../context/apptheme";
 import ShortContextProvider from "../context/shorts";
@@ -16,6 +17,8 @@ export default function index() {
     const [containerHeight, setContainerHeight] = React.useState(0);
     const [activeIndex, setActiveIndex] = React.useState(0);
     const { setTheme } = useAppTheme();
+    const { refresh, onRefresh } = useRefresh();
+
 
     const onViewableItemsChanged = React.useCallback(({ viewableItems }: any) => {
         if (viewableItems.length > 0) {
@@ -55,6 +58,8 @@ export default function index() {
                                 snapToInterval={containerHeight}
                                 snapToAlignment="start"
                                 decelerationRate="fast"
+
+                                refreshControl={<RefreshControl refreshing={refresh} onRefresh={onRefresh} />}
 
                                 onViewableItemsChanged={onViewableItemsChanged}
                                 viewabilityConfig={viewabilityConfig}

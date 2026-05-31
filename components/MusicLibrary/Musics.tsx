@@ -1,15 +1,13 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
-import { useMusicLib } from '@/hooks/useMusicLib';
+import { useMusic } from '@/hooks/useMusic';
 import { useAppDispatch } from '@/hooks/useRedux';
-import { getAllMusics } from '@/service/database'; // Adjust path if needed
 import { formatDuration } from '@/service/MusicDuration';
 import { getTrackFromMusic } from '@/service/TrackMaker';
 import { setupQueue } from '@/store/reducer/trackplayerSlice';
 import { IMusicTrack } from '@/types/database';
 import { defaultMusicArtWork } from '@/utils/constants';
-import { useSQLiteContext } from 'expo-sqlite';
 import { Music2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, Text, View } from 'react-native';
@@ -19,9 +17,8 @@ import MusicMenu from './MusicMenu';
 export default function Musics({ scanState }: { scanState: ScanState }) {
     const [isLoading, setIsLoading] = useState(true);
     const dispatch = useAppDispatch();
-    const db = useSQLiteContext();
 
-    const { musics, setMusics } = useMusicLib();
+    const { musics, onMusicRefresh } = useMusic();
 
     const playTrack = async (idx: number) => {
         try {
@@ -33,19 +30,9 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
     }
 
     useEffect(() => {
-        loadMusicData();
+        onMusicRefresh();
     }, [scanState]);
 
-    const loadMusicData = async () => {
-        try {
-            const data = await getAllMusics(db);
-            setMusics(data);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const cleanFilename = (filename: string) => {
         if (!filename) return "Unknown Track";
@@ -100,6 +87,7 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
 
             <FlatList
                 data={musics}
+                extraData={musics}
                 scrollEnabled={false}
                 keyExtractor={(item) => item.id}
                 renderItem={renderTrack}

@@ -187,7 +187,7 @@ export default function TrackController() {
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={togglePlay} className="w-[4.2rem] h-[4.2rem] bg-white rounded-full items-center justify-center">
-                    {isPlaying ? <Pause size={28} color="#000" fill="#000" style={{ marginLeft: 4 }} /> : <Play size={28} color="#000" fill="#000" style={{ marginLeft: 4 }} />}
+                    {isPlaying ? <Pause size={28} color="#000" fill="#000" /> : <Play size={28} color="#000" fill="#000" />}
                 </TouchableOpacity>
 
                 <TouchableOpacity hitSlop={10} onPress={skipToNext}>

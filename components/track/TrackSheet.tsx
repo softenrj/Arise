@@ -4,7 +4,7 @@
 import React, { useEffect } from 'react';
 import { Dimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { Easing, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -54,15 +54,6 @@ export default function TrackSheet({ open, onClose, snap = 1, className, childre
         transform: [{ translateY: translateY.value }],
     }));
 
-    const backdropStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(
-            translateY.value,
-            [0, SHEET_HEIGHT],
-            [0.5, 0],
-            Extrapolation.CLAMP
-        ),
-        display: translateY.value >= SCREEN_HEIGHT ? 'none' : 'flex',
-    }));
 
     return (
         <GestureDetector gesture={pan}>

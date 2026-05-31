@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useMusic } from '@/hooks/useMusic';
 import { useMusicLib } from '@/hooks/useMusicLib';
 import { hideMusicdb, removeMusicdb } from '@/service/database';
 import { IMusicTrack } from '@/types/database';
@@ -11,9 +12,10 @@ import { Pressable, View } from 'react-native';
 import { Menu, MenuItem, MenuItemLabel } from '../ui/menu';
 
 export default function MusicMenu({ musicId }: { musicId: string }) {
-    const { closeSheet, musics, editMusicId, handleUpdate, setEditMusicId, openSheet } = useMusicLib();
-    const [music, setMusic] = React.useState<IMusicTrack | null>(null);
     const db = useSQLiteContext();
+    const { musics, onMusicUpdate } = useMusic();
+    const { closeSheet, editMusicId, setEditMusicId, openSheet } = useMusicLib();
+    const [music, setMusic] = React.useState<IMusicTrack | null>(null);
     const [visibility, setVisibility] = React.useState<0 | 1>(1);
 
     const handleEdit = () => {

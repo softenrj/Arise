@@ -3,7 +3,6 @@
 
 import { useTrackPanle } from '@/hooks/useTrackPanel';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
 import { ChevronDown, EllipsisVertical, Hd, ListFilter, Music } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
@@ -51,7 +50,7 @@ export default function PlayerScreen() {
             .catch((err) => {
                 console.warn("Gradient extraction failed, using defaults:", err);
             });
-    }, []);
+    }, [track]);
 
     return (
         <TrackSheet open={open} onClose={onClose}>
@@ -78,7 +77,7 @@ export default function PlayerScreen() {
                     <SafeAreaView className="flex-1 px-6 mb-10">
                         <View style={{ minHeight: firstPageHeight }} className="justify-between">
                             <View className="flex-row justify-between items-center pt-2 pb-4">
-                                <TouchableOpacity hitSlop={15} onPress={() => router.back()}>
+                                <TouchableOpacity hitSlop={15} onPress={onClose}>
                                     <ChevronDown size={28} color="#fff" />
                                 </TouchableOpacity>
 

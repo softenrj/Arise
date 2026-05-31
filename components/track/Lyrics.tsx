@@ -11,7 +11,6 @@ export default function Lyrics({ color }: { color: string }) {
     const [lyrics, setLyrics] = React.useState<LyricLine[]>([]);
 
     const pickDocuments = async () => {
-        console.log("first")
         try {
             const result = await DocumentPicker.getDocumentAsync({
                 type: ["text/plain", "*/*"],
