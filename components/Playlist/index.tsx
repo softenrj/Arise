@@ -2,9 +2,13 @@
 // See LICENSE for details.
 
 import { useAppTheme } from '@/hooks/useAppTheme';
+import { usePlaylist } from '@/hooks/usePlaylist';
+import { getPlayListById, getPlayListMusic } from '@/service/playlistdb';
+import { defaultPlayListCover } from '@/utils/constants';
 import { ImageBackground } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native'; // ❌ Removed ScrollView
@@ -19,19 +23,21 @@ import PlayListMusic from './PlayListMusic';
 const image = "https://template.canva.com/EAGYFRbnbek/2/0/800w-fOdQ6rP7qsA.jpg";
 const BACKGROUND_COLOR = '#121212';
 
-export default function PlaylistScreen() {
+export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
     const { setTheme } = useAppTheme();
     const router = useRouter();
+    const db = useSQLiteContext();
+    const { setPlayList, setPlayListMusic, playlist } = usePlaylist();
 
     const [gradient, setGradient] = useState<string[]>(['transparent', BACKGROUND_COLOR]);
 
     useEffect(() => {
-        if (!image) return;
+        if (!playlist?.cover) return;
 
         getColors(image, {
             fallback: BACKGROUND_COLOR,
             cache: true,
-            key: image,
+            key: playlist.cover,
             quality: 'low'
         })
             .then((colors) => {
@@ -52,6 +58,20 @@ export default function PlaylistScreen() {
             });
     }, []);
 
+
+    const loadPlayList = async () => {
+        const response = await Promise.all([
+            getPlayListById(db, playlistId),
+            getPlayListMusic(db, playlistId)
+        ]);
+        if (response[0]) setPlayList(response[0]);
+        if (response[1]) setPlayListMusic(response[1]);
+    }
+
+    React.useEffect(() => {
+        loadPlayList();
+    }, [playlistId])
+
     useFocusEffect(React.useCallback(() => {
         setTheme(AppTheme.dark);
         return () => setTheme(AppTheme.light);
@@ -62,7 +82,7 @@ export default function PlaylistScreen() {
             <ImageBackground
                 className='w-full aspect-square'
                 style={{ aspectRatio: 1 / 1 }}
-                source={{ uri: image }}
+                source={{ uri: playlist?.cover || defaultPlayListCover }}
             >
                 <SafeAreaView className='relative p-4 z-20' edges={['top']}>
                     <Pressable
@@ -88,10 +108,10 @@ export default function PlaylistScreen() {
 
                 <View className='absolute bottom-6 left-5 right-5 z-20'>
                     <Text numberOfLines={2} className='text-white font-bold text-4xl mb-2'>
-                        Alex Warren - Ordinary
+                        {playlist?.title}
                     </Text>
                     <Text numberOfLines={2} className='text-gray-300 text-sm leading-5'>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus quaerat suscipit molestiae illo sequi ut, veritatis doloremque natus.
+                        {playlist?.description}
                     </Text>
                 </View>
             </ImageBackground>

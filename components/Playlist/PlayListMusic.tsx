@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import { usePlaylist } from '@/hooks/usePlaylist';
+import { reorderPlaylistMusic } from '@/service/playlistdb';
+import { useSQLiteContext } from 'expo-sqlite';
+import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import PlayListMusicMenu from './PlayListMusicMenu';
@@ -9,7 +12,14 @@ const initialData = Array.from({ length: 10 }).map((_, index) => ({
 }));
 
 export default function PlayListMusic({ header }: { header: React.JSX.Element }) {
-    const [data, setData] = useState(initialData);
+    const db = useSQLiteContext();
+    const { playlistMusics, setPlayListMusic } = usePlaylist();
+
+    const handleReorder = async (data: any) => {
+        await reorderPlaylistMusic({ db, items: data });
+        setPlayListMusic(data);
+    }
+
 
     const renderTrack = ({ item, drag, isActive }: any) => (
         <ScaleDecorator>
@@ -49,8 +59,8 @@ export default function PlayListMusic({ header }: { header: React.JSX.Element })
     return (
         <View className="flex-1">
             <DraggableFlatList
-                data={data}
-                onDragEnd={({ data }) => setData(data)}
+                data={playlistMusics}
+                onDragEnd={({ data }) => handleReorder(data)}
                 keyExtractor={(item) => item.id}
                 renderItem={renderTrack}
                 ListHeaderComponent={header}
