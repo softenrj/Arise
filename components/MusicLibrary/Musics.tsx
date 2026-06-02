@@ -40,7 +40,7 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
     };
 
     const renderTrack = ({ item, index }: { item: IMusicTrack, index: number }) => (
-        <View className='flex-row items-center w-full gap-3 pr-2'>
+        <View className='flex-row items-center w-full gap-3 pr-2' key={index}>
 
             <Pressable
                 onPress={() => playTrack(index)}

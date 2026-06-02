@@ -5,6 +5,7 @@ import { PlayList, PlayListMusic } from "@/types/database";
 import { defaultPlayListCover } from "@/utils/constants";
 import * as Crypto from "expo-crypto";
 import { SQLiteDatabase } from "expo-sqlite";
+import { saveMedia } from "./persistMedia";
 
 const getId = () => Crypto.randomUUID();
 
@@ -65,9 +66,11 @@ export const createPlayList = async ({
   cover = defaultPlayListCover,
 }: CreatePlayList) => {
   try {
-    const finalCover = cover || defaultPlayListCover;
     const id = getId();
     const now = Date.now();
+    let permanentCover;
+    if (cover) permanentCover = await saveMedia(cover, 'image', id);
+    const finalCover = permanentCover || defaultPlayListCover;
 
     await db.runAsync(
       `
@@ -218,6 +221,18 @@ export const appendPlayListMusic = async ({
   try {
     if (!musicId || !playlistId) return null;
 
+    const existingRecord = await db.getFirstAsync<{ id: string }>(
+      `
+        SELECT id FROM PlayList_MUSIC 
+        WHERE playlistId = ? AND musicId = ?
+      `,
+      [playlistId, musicId]
+    );
+
+    if (existingRecord) {
+      return existingRecord.id;
+    }
+
     const now = Date.now();
     const id = getId();
 
@@ -233,7 +248,7 @@ export const appendPlayListMusic = async ({
     const position = (lastObject?.maxPosition ?? -1) + 1;
 
     const sqlCommand = `INSERT INTO PlayList_MUSIC (
-      id, musicId, playlistId, posotion, createdAt, updatedAt
+      id, musicId, playlistId, position, createdAt, updatedAt
     ) VALUES (?, ?, ?, ?, ?, ?)`;
 
     await db.runAsync(sqlCommand, [
@@ -248,6 +263,55 @@ export const appendPlayListMusic = async ({
     return id;
   } catch (error) {
     console.error("Error while append playlist music:", error);
+    return null;
+  }
+};
+
+export const setPlayListMusic = async ({
+  db,
+  musicIds,
+  playlistId,
+}: {
+  db: SQLiteDatabase;
+  musicIds: string[];
+  playlistId: string;
+}) => {
+  try {
+    if (!musicIds || !playlistId) return false;
+
+    const now = Date.now();
+
+    await db.withTransactionAsync(async () => {
+
+      await db.runAsync(
+        `DELETE FROM PlayList_MUSIC WHERE playlistId = ?`,
+        [playlistId]
+      );
+
+      const sqlCommand = `INSERT INTO PlayList_MUSIC (
+        id, musicId, playlistId, position, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?)`;
+
+      for (let i = 0; i < musicIds.length; i++) {
+        const musicId = musicIds[i];
+        const recordId = getId();
+
+        await db.runAsync(sqlCommand, [
+          recordId,
+          musicId,
+          playlistId,
+          i,
+          now,
+          now,
+        ]);
+      }
+    });
+
+    const playList = await getPlayListMusic(db, playlistId);
+
+    return playList;
+  } catch (error) {
+    console.error("Error while resetting playlist music:", error);
     return null;
   }
 };
@@ -313,6 +377,7 @@ export const getPlayListMusic = async (db: SQLiteDatabase, id: string) => {
     const sqlCommand = `
       SELECT * FROM PlayList_MUSIC
       WHERE playlistId = ?
+      ORDER BY position ASC
     `;
 
     const result = (await db.getAllAsync(sqlCommand, [id])) as PlayListMusic[];
@@ -322,3 +387,21 @@ export const getPlayListMusic = async (db: SQLiteDatabase, id: string) => {
     return [];
   }
 };
+
+export const pinPlayList = async (db: SQLiteDatabase, pin: 0 | 1, playlistId: string) => {
+  try {
+    if (!playlistId) return false;
+
+    const sqlCommand = `
+      UPDATE PlayList SET pined = ?
+      WHERE id = ?
+    `;
+
+
+    await db.runAsync(sqlCommand, [pin, playlistId]);
+    return true;
+  } catch (error) {
+    console.error("Failed to pin playlist :", error);
+    return false;
+  }
+}

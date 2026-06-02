@@ -1,5 +1,7 @@
 import { usePlaylist } from '@/hooks/usePlaylist';
 import { reorderPlaylistMusic } from '@/service/playlistdb';
+import { IPlayListMusicTrack } from '@/types/database';
+import { defaultMusicArtWork } from '@/utils/constants';
 import { useSQLiteContext } from 'expo-sqlite';
 import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
@@ -21,7 +23,7 @@ export default function PlayListMusic({ header }: { header: React.JSX.Element })
     }
 
 
-    const renderTrack = ({ item, drag, isActive }: any) => (
+    const renderTrack = ({ item, drag, isActive }: { item: IPlayListMusicTrack, drag: any, isActive: boolean }) => (
         <ScaleDecorator>
             <View className={`flex-row items-center w-full gap-3 py-2 px-6 ${isActive ? 'opacity-70 bg-zinc-800' : ''}`}>
                 <Pressable
@@ -30,7 +32,7 @@ export default function PlayListMusic({ header }: { header: React.JSX.Element })
                     className='flex-1 flex-row items-center gap-3'
                 >
                     <Image
-                        source={{ uri: "https://template.canva.com/EAGYFRbnbek/2/0/800w-fOdQ6rP7qsA.jpg" }}
+                        source={{ uri: item.customCoverUri || defaultMusicArtWork }}
                         className='w-16 h-16 rounded-sm bg-slate-100'
                         resizeMethod="resize"
                     />
@@ -63,6 +65,7 @@ export default function PlayListMusic({ header }: { header: React.JSX.Element })
                 onDragEnd={({ data }) => handleReorder(data)}
                 keyExtractor={(item) => item.id}
                 renderItem={renderTrack}
+
                 ListHeaderComponent={header}
 
                 contentContainerStyle={{ paddingBottom: 100 }}

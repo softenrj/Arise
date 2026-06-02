@@ -1,26 +1,29 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
-import { useAppTheme } from '@/hooks/useAppTheme';
-import { usePlaylist } from '@/hooks/usePlaylist';
-import { getPlayListById, getPlayListMusic } from '@/service/playlistdb';
-import { defaultPlayListCover } from '@/utils/constants';
 import { ImageBackground } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native'; // ❌ Removed ScrollView
+import React, { useCallback, useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import { getColors } from 'react-native-image-colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { usePlaylist } from '@/hooks/usePlaylist';
+import { getPlayListById, getPlayListMusic } from '@/service/playlistdb';
+import { defaultPlayListCover } from '@/utils/constants';
+import { AppTheme } from '../context/apptheme';
+
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
 import MiniPlayer from '../common/MiniPlayer';
-import { AppTheme } from '../context/apptheme';
+import EditSheet from './EditSheet';
+import MusicList from './MusicList';
 import PlayListControls from './PlayListControls';
 import PlayListMusic from './PlayListMusic';
 
-const image = "https://template.canva.com/EAGYFRbnbek/2/0/800w-fOdQ6rP7qsA.jpg";
 const BACKGROUND_COLOR = '#121212';
 
 export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
@@ -30,11 +33,18 @@ export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
     const { setPlayList, setPlayListMusic, playlist } = usePlaylist();
 
     const [gradient, setGradient] = useState<string[]>(['transparent', BACKGROUND_COLOR]);
+    const [musiclistSheet, setMusicListSheet] = useState<boolean>(false);
+    const [editPlaylist, setEditPlaylist] = React.useState<boolean>(false);
+
+    const handleMusicListSheet = useCallback(() => setMusicListSheet(prev => !prev), [])
+    const handleEditPlayList = React.useCallback(() => {
+        setEditPlaylist(prev => !prev);
+    }, [])
 
     useEffect(() => {
         if (!playlist?.cover) return;
 
-        getColors(image, {
+        getColors(playlist.cover, {
             fallback: BACKGROUND_COLOR,
             cache: true,
             key: playlist.cover,
@@ -55,33 +65,39 @@ export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
             })
             .catch((err) => {
                 console.warn("Gradient extraction failed, using defaults:", err);
+                setGradient(['transparent', BACKGROUND_COLOR]);
             });
-    }, []);
+    }, [playlist?.cover]);
 
+    const loadPlayList = useCallback(async () => {
+        try {
+            const [details, tracks] = await Promise.all([
+                getPlayListById(db, playlistId),
+                getPlayListMusic(db, playlistId)
+            ]);
+            if (details) setPlayList(details);
+            if (tracks) setPlayListMusic(tracks);
+        } catch (error) {
+            console.error("Failed loading target playlist data stack:", error);
+        }
+    }, [db, playlistId, setPlayList, setPlayListMusic]);
 
-    const loadPlayList = async () => {
-        const response = await Promise.all([
-            getPlayListById(db, playlistId),
-            getPlayListMusic(db, playlistId)
-        ]);
-        if (response[0]) setPlayList(response[0]);
-        if (response[1]) setPlayListMusic(response[1]);
-    }
-
-    React.useEffect(() => {
+    useEffect(() => {
         loadPlayList();
-    }, [playlistId])
+    }, [loadPlayList]);
 
-    useFocusEffect(React.useCallback(() => {
-        setTheme(AppTheme.dark);
-        return () => setTheme(AppTheme.light);
-    }, []));
+    useFocusEffect(
+        useCallback(() => {
+            setTheme(AppTheme.dark);
+            return () => setTheme(AppTheme.light);
+        }, [setTheme])
+    );
 
-    const ListHeader = () => (
+    const ListHeader = useCallback(() => (
         <View>
             <ImageBackground
                 className='w-full aspect-square'
-                style={{ aspectRatio: 1 / 1 }}
+                style={{ aspectRatio: 1 }}
                 source={{ uri: playlist?.cover || defaultPlayListCover }}
             >
                 <SafeAreaView className='relative p-4 z-20' edges={['top']}>
@@ -95,8 +111,14 @@ export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
                 </SafeAreaView>
 
                 <LinearGradient
-                    colors={['transparent', 'rgba(18, 18, 18, 0.6)', BACKGROUND_COLOR]}
-                    locations={[0.4, 0.8, 1]}
+                    colors={[
+                        'rgba(18, 18, 18, 0)',
+                        'rgba(18, 18, 18, 0.15)',
+                        'rgba(18, 18, 18, 0.45)',
+                        'rgba(18, 18, 18, 0.85)',
+                        BACKGROUND_COLOR
+                    ]}
+                    locations={[0, 0.4, 0.7, 0.9, 1]}
                     style={{
                         position: 'absolute',
                         bottom: 0, left: 0, right: 0,
@@ -116,30 +138,38 @@ export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
                 </View>
             </ImageBackground>
 
-            <PlayListControls />
+            <PlayListControls onMusicListOpen={handleMusicListSheet} onEditPlayList={handleEditPlayList} />
         </View>
-    );
+    ), [playlist, router, handleMusicListSheet]);
 
     return (
-        <View className='flex-1 bg-white' style={{ backgroundColor: gradient[1] }}>
-            <FocusAwareStatusBar animated style='light' />
+        <>
+            <View className='flex-1' style={{ backgroundColor: BACKGROUND_COLOR }}>
+                <FocusAwareStatusBar animated style='light' />
 
-            <View className='flex-1'>
-                <LinearGradient
-                    colors={gradient as any}
-                    style={{
-                        position: 'absolute',
-                        top: 400, left: 0, right: 0,
-                        height: 300,
-                        opacity: 0.35,
-                    }}
-                    pointerEvents="none"
-                />
+                <View className='flex-1'>
+                    <LinearGradient
+                        colors={[gradient[0], 'rgba(18, 18, 18, 0.5)', BACKGROUND_COLOR]}
+                        locations={[0, 0.5, 1]}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: 520,
+                        }}
+                        pointerEvents="none"
+                    />
 
-                <PlayListMusic header={<ListHeader />} />
+                    <PlayListMusic header={<ListHeader />} />
+                </View>
+
+                <MiniPlayer />
             </View>
 
-            <MiniPlayer />
-        </View>
+            <MusicList playlistId={playlistId} onMusicListOpen={handleMusicListSheet} open={musiclistSheet} />
+
+            <EditSheet reload={loadPlayList} open={editPlaylist} onClose={handleEditPlayList} />
+        </>
     );
 }

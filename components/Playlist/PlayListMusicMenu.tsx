@@ -1,15 +1,15 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
-import { Cog, EllipsisVertical, Eye, Heart, ListMusic, Trash } from 'lucide-react-native';
+import { EllipsisVertical, Heart, X } from 'lucide-react-native';
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
 import { Menu, MenuItem, MenuItemLabel } from '../ui/menu';
 
 export default function PlayListMusicMenu() {
     return (
         <Menu
-            className="bg-white border border-zinc-100 rounded-xl shadow-lg shadow-zinc-200/80 overflow-hidden min-w-[180px] right-10"
+            className="bg-neutral-900 rounded-xl border border-neutral-800 p-1 w-36 right-2 shadow-2xl"
             offset={6}
             trigger={({ ...triggerProps }) => (
                 <Pressable
@@ -20,70 +20,25 @@ export default function PlayListMusicMenu() {
                 </Pressable>
             )}
         >
-            <MenuItem
-                key="Queue"
-                textValue="Add to Queue"
-                className="px-4 py-3 flex-row items-center gap-3 active:bg-zinc-50 border-b border-zinc-100"
-            >
-                <View className="w-7 h-7 rounded-lg bg-indigo-50 items-center justify-center">
-                    <ListMusic size={14} color="#6366f1" />
-                </View>
-                <MenuItemLabel size="sm" className="text-zinc-700 font-medium tracking-wide">
-                    Add to Queue
-                </MenuItemLabel>
-            </MenuItem>
 
             <MenuItem
                 key="Favourite"
                 textValue="Favourite"
-                className="px-4 py-3 flex-row items-center gap-3 active:bg-zinc-50 border-b border-zinc-100"
+                className="w-full min-w-0 px-2 py-1.5 flex-row items-center gap-2.5 rounded-lg active:bg-neutral-800 border-b border-neutral-800 mb-0.5 pb-2"
             >
-                <View className="w-7 h-7 rounded-lg bg-rose-50 items-center justify-center">
-                    <Heart size={14} color="#f43f5e" />
-                </View>
-                <MenuItemLabel size="sm" className="text-zinc-700 font-medium tracking-wide">
+                <Heart size={14} color="#fb7185" fill={'#fb7185'} />
+                <MenuItemLabel size="sm" className="text-neutral-200 font-medium text-xs tracking-wide">
                     Favourite
-                </MenuItemLabel>
-            </MenuItem>
-
-            <MenuItem
-                key="Hide"
-                textValue="Hide"
-                className="px-4 py-3 flex-row items-center gap-3 active:bg-zinc-50 border-b border-zinc-100"
-            >
-                <View className="w-7 h-7 rounded-lg bg-emerald-50 items-center justify-center">
-                    <Eye size={14} color="#10b981" />
-                </View>
-                <MenuItemLabel size="sm" className="text-zinc-700 font-medium tracking-wide">
-                    Hide
-                </MenuItemLabel>
-            </MenuItem>
-
-
-
-            <MenuItem
-                key="Plugins"
-                textValue="Plugins"
-                className="px-4 py-3 flex-row items-center gap-3 active:bg-zinc-50"
-                onPress={() => { }}
-            >
-                <View className="w-7 h-7 rounded-lg bg-amber-50 items-center justify-center">
-                    <Cog size={14} color="#f59e0b" />
-                </View>
-                <MenuItemLabel size="sm" className="text-zinc-700 font-medium tracking-wide">
-                    Edit
                 </MenuItemLabel>
             </MenuItem>
 
             <MenuItem
                 key="Share"
                 textValue="Share"
-                className="px-4 py-3 flex-row items-center gap-3 active:bg-red-50 border-b border-zinc-100"
+                className="w-full min-w-0 px-2 py-1.5 flex-row items-center gap-2.5 rounded-lg active:bg-neutral-800"
             >
-                <View className="w-7 h-7 rounded-lg bg-red-50 items-center justify-center">
-                    <Trash size={14} color="#b91c1c" />
-                </View>
-                <MenuItemLabel size="sm" className="text-zinc-700 font-medium tracking-wide">
+                <X size={14} color="#fb7185" />
+                <MenuItemLabel size="sm" className="text-neutral-200 font-medium text-xs tracking-wide">
                     Remove
                 </MenuItemLabel>
             </MenuItem>

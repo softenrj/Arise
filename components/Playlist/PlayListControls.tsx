@@ -4,12 +4,13 @@
 import { usePlaylist } from '@/hooks/usePlaylist';
 import { formatDurationLocalString } from '@/service/MusicDuration';
 import { defaultPlayListCover } from '@/utils/constants';
-import { Dot, EllipsisVertical, Music, Play } from 'lucide-react-native';
+import { Dot, Music, Play } from 'lucide-react-native';
 import React from 'react';
-import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
+import PlaylistMenu from './playlistMenu';
 
 
-export default function PlayListControls() {
+export default function PlayListControls({ onMusicListOpen, onEditPlayList }: { onMusicListOpen: () => void, onEditPlayList: () => void }) {
     const { playlistMusics, playlist } = usePlaylist();
     const [duration, setDuration] = React.useState<string>('0 second')
 
@@ -48,12 +49,7 @@ export default function PlayListControls() {
                         </View>
                     </View>
 
-                    <Pressable>
-                        <TouchableOpacity className='flex-row items-center gap-2'>
-                            <EllipsisVertical size={12} color={'white'} />
-                            <Text className='text-white text-sm font-elms'>Options</Text>
-                        </TouchableOpacity>
-                    </Pressable>
+                    <PlaylistMenu onMusicListOpen={onMusicListOpen} onEditPlayList={onEditPlayList} />
                 </View>
 
                 <View className='bg-green-500 p-4 rounded-full'>
