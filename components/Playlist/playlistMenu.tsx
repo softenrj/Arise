@@ -9,7 +9,7 @@ import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import { Menu, MenuItem, MenuItemLabel } from '../ui/menu';
 
-const PlaylistMenu = ({ onMusicListOpen, onEditPlayList }: { onMusicListOpen: () => void, onEditPlayList: () => void }) => {
+const PlaylistMenu = ({ onMusicListOpen, onEditPlayList, onRemovePlaylist }: { onMusicListOpen: () => void, onEditPlayList: () => void, onRemovePlaylist: () => void }) => {
     const db = useSQLiteContext();
     const { playlist } = usePlaylist();
     const [pin, setPin] = React.useState<0 | 1>(0);
@@ -25,7 +25,7 @@ const PlaylistMenu = ({ onMusicListOpen, onEditPlayList }: { onMusicListOpen: ()
     }, [playlist])
     return (
         <Menu
-            className="bg-neutral-900 rounded-xl border border-neutral-800 p-1 w-36 right-2 shadow-2xl"
+            className="bg-neutral-900 rounded-xl border border-neutral-800 p-1 w-44 right-2 shadow-2xl"
             offset={6}
             trigger={({ ...triggerProps }) => (
                 <TouchableOpacity
@@ -44,7 +44,7 @@ const PlaylistMenu = ({ onMusicListOpen, onEditPlayList }: { onMusicListOpen: ()
                 onPress={onMusicListOpen}
             >
                 <ListMusic size={14} color="#818cf8" />
-                <MenuItemLabel size="sm" className="text-neutral-200 font-medium text-xs tracking-wide">
+                <MenuItemLabel size="sm" className="text-neutral-200 font-medium text-sm tracking-wide">
                     Add Music
                 </MenuItemLabel>
             </MenuItem>
@@ -56,7 +56,7 @@ const PlaylistMenu = ({ onMusicListOpen, onEditPlayList }: { onMusicListOpen: ()
                 onPress={handlePined}
             >
                 <Pin size={14} color="#fb7185" />
-                <MenuItemLabel size="sm" className="text-neutral-200 font-medium text-xs tracking-wide">
+                <MenuItemLabel size="sm" className="text-neutral-200 font-medium text-sm tracking-wide">
                     {pin === 1 ? 'unpin' : 'Pin'}
                 </MenuItemLabel>
             </MenuItem>
@@ -68,7 +68,7 @@ const PlaylistMenu = ({ onMusicListOpen, onEditPlayList }: { onMusicListOpen: ()
                 onPress={onEditPlayList}
             >
                 <Cog size={14} color="#fbbf24" />
-                <MenuItemLabel size="sm" className="text-neutral-200 font-medium text-xs tracking-wide">
+                <MenuItemLabel size="sm" className="text-neutral-200 font-medium text-sm tracking-wide">
                     Edit
                 </MenuItemLabel>
             </MenuItem>
@@ -77,10 +77,10 @@ const PlaylistMenu = ({ onMusicListOpen, onEditPlayList }: { onMusicListOpen: ()
                 key="Remove"
                 textValue="Remove"
                 className="w-full min-w-0 px-2 py-1.5 flex-row items-center gap-2.5 rounded-lg active:bg-red-950/40 mt-0.5"
-                onPress={() => { }}
+                onPress={onRemovePlaylist}
             >
                 <Trash size={14} color="#f87171" />
-                <MenuItemLabel size="sm" className="text-red-400 font-medium text-xs tracking-wide">
+                <MenuItemLabel size="sm" className="text-red-400 font-medium text-sm tracking-wide">
                     Remove
                 </MenuItemLabel>
             </MenuItem>

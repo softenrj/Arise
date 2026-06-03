@@ -7,15 +7,20 @@ import React from 'react';
 interface Refresh {
   refresh: boolean;
   onRefresh: () => Promise<void>;
+  playlistRefresh: boolean; // act as trigger
+  onPlaylistRefresh: () => void;
 }
 
 export const RefreshContext = React.createContext<Refresh>({
   refresh: false,
-  onRefresh: () => Promise.resolve()
+  onRefresh: () => Promise.resolve(),
+  playlistRefresh: false,
+  onPlaylistRefresh: () => { }
 });
 
 function RefreshProvider({ children }: { children: React.ReactNode }) {
   const [refresh, setRefresh] = React.useState<boolean>(false);
+  const [playlistRefresh, setPlayListRefresh] = React.useState<boolean>(false);
   const { onMusicRefresh } = useMusic();
 
   const handleRefresh = async () => {
@@ -28,8 +33,10 @@ function RefreshProvider({ children }: { children: React.ReactNode }) {
     setRefresh(false);
   }
 
+  const handlePlayListRefresh = React.useCallback(() => setPlayListRefresh(prev => !prev), []);
+
   return (
-    <RefreshContext.Provider value={{ refresh, onRefresh: handleRefresh }}>
+    <RefreshContext.Provider value={{ refresh, onRefresh: handleRefresh, playlistRefresh, onPlaylistRefresh: handlePlayListRefresh }}>
       {children}
     </RefreshContext.Provider>
   )

@@ -318,18 +318,20 @@ export const setPlayListMusic = async ({
 
 export const removePlayListMusic = async ({
   db,
+  musicId,
   playlistMusicId,
 }: {
   db: SQLiteDatabase;
+  musicId: string;
   playlistMusicId: string;
 }) => {
   try {
     await db.runAsync(
       `
       DELETE FROM PlayList_MUSIC
-      WHERE id = ?
+      WHERE musicId = ? AND playlistId = ?
       `,
-      [playlistMusicId],
+      [musicId, playlistMusicId],
     );
 
     return true;

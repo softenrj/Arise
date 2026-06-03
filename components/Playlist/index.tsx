@@ -23,6 +23,7 @@ import EditSheet from './EditSheet';
 import MusicList from './MusicList';
 import PlayListControls from './PlayListControls';
 import PlayListMusic from './PlayListMusic';
+import PlaylistRemoveDialog from './PlaylistRemoveDialog';
 
 const BACKGROUND_COLOR = '#121212';
 
@@ -35,11 +36,11 @@ export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
     const [gradient, setGradient] = useState<string[]>(['transparent', BACKGROUND_COLOR]);
     const [musiclistSheet, setMusicListSheet] = useState<boolean>(false);
     const [editPlaylist, setEditPlaylist] = React.useState<boolean>(false);
+    const [removeDialog, setRemovedialog] = React.useState<boolean>(false);
 
-    const handleMusicListSheet = useCallback(() => setMusicListSheet(prev => !prev), [])
-    const handleEditPlayList = React.useCallback(() => {
-        setEditPlaylist(prev => !prev);
-    }, [])
+    const handleMusicListSheet = useCallback(() => setMusicListSheet(prev => !prev), []);
+    const handleEditPlayList = React.useCallback(() => { setEditPlaylist(prev => !prev); }, []);
+    const handleRemoveDialog = React.useCallback(() => setRemovedialog(prev => !prev), []);
 
     useEffect(() => {
         if (!playlist?.cover) return;
@@ -138,7 +139,7 @@ export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
                 </View>
             </ImageBackground>
 
-            <PlayListControls onMusicListOpen={handleMusicListSheet} onEditPlayList={handleEditPlayList} />
+            <PlayListControls onMusicListOpen={handleMusicListSheet} onEditPlayList={handleEditPlayList} onRemovePlaylist={handleRemoveDialog} />
         </View>
     ), [playlist, router, handleMusicListSheet]);
 
@@ -161,7 +162,7 @@ export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
                         pointerEvents="none"
                     />
 
-                    <PlayListMusic header={<ListHeader />} />
+                    <PlayListMusic reload={loadPlayList} header={<ListHeader />} />
                 </View>
 
                 <MiniPlayer />
@@ -170,6 +171,7 @@ export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
             <MusicList playlistId={playlistId} onMusicListOpen={handleMusicListSheet} open={musiclistSheet} />
 
             <EditSheet reload={loadPlayList} open={editPlaylist} onClose={handleEditPlayList} />
+            <PlaylistRemoveDialog isVisible={removeDialog} onClose={handleRemoveDialog} />
         </>
     );
 }

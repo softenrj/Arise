@@ -292,3 +292,15 @@ export const removeMusicdb = async (db: SQLiteDatabase, musicId: string) => {
     return false;
   }
 };
+
+export const likeMusic = async (db: SQLiteDatabase, musicId: string, liked: 0 | 1) => {
+  try {
+    const sql = `UPDATE Musics SET isLiked = ${liked} WHERE id = ?`;
+
+    await db.runAsync(sql, [musicId]);
+    return true;
+  } catch (error) {
+    console.error("Failed like music from SQLite:", error);
+    return false;
+  }
+}

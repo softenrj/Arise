@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import { useAppSelector } from '@/hooks/useRedux';
 import { useTrackPanle } from '@/hooks/useTrackPanel';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronDown, EllipsisVertical, Hd, ListFilter, Music } from 'lucide-react-native';
@@ -20,6 +21,7 @@ export default function PlayerScreen() {
     const [vibrantColor, setVibrantColor] = useState<string>(BACKGROUND_COLOR);
     const { open, onClose } = useTrackPanle();
     const { height: screenHeight } = useWindowDimensions();
+    const trackSlice = useAppSelector(state => state.trackReducer);
     const insets = useSafeAreaInsets();
 
     const firstPageHeight = screenHeight - insets.top - insets.bottom;
@@ -86,7 +88,7 @@ export default function PlayerScreen() {
                                         Playing from playlist
                                     </Text>
                                     <Text className="text-white text-sm font-bold">
-                                        Liked Songs
+                                        {trackSlice.playlistName}
                                     </Text>
                                 </View>
 

@@ -2,17 +2,25 @@
 // See LICENSE for details.
 
 import { usePlaylist } from '@/hooks/usePlaylist';
+import { useAppDispatch } from '@/hooks/useRedux';
 import { formatDurationLocalString } from '@/service/MusicDuration';
-import { defaultPlayListCover } from '@/utils/constants';
+import { getTrackFromMusic } from '@/service/TrackMaker';
+import { setupQueue } from '@/store/reducer/trackplayerSlice';
+import { defaultPlayList, defaultPlayListCover } from '@/utils/constants';
 import { Dot, Music, Play } from 'lucide-react-native';
 import React from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import PlaylistMenu from './playlistMenu';
 
 
-export default function PlayListControls({ onMusicListOpen, onEditPlayList }: { onMusicListOpen: () => void, onEditPlayList: () => void }) {
+export default function PlayListControls({ onMusicListOpen, onEditPlayList, onRemovePlaylist }: { onMusicListOpen: () => void, onEditPlayList: () => void, onRemovePlaylist: () => void }) {
     const { playlistMusics, playlist } = usePlaylist();
-    const [duration, setDuration] = React.useState<string>('0 second')
+    const [duration, setDuration] = React.useState<string>('0 second');
+    const dispatch = useAppDispatch();
+
+    const streamPlayList = () => {
+        dispatch(setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList }));
+    }
 
     React.useEffect(() => {
         const totalDuration = playlistMusics.reduce(
@@ -49,12 +57,12 @@ export default function PlayListControls({ onMusicListOpen, onEditPlayList }: { 
                         </View>
                     </View>
 
-                    <PlaylistMenu onMusicListOpen={onMusicListOpen} onEditPlayList={onEditPlayList} />
+                    <PlaylistMenu onMusicListOpen={onMusicListOpen} onEditPlayList={onEditPlayList} onRemovePlaylist={onRemovePlaylist} />
                 </View>
 
-                <View className='bg-green-500 p-4 rounded-full'>
+                <TouchableOpacity className='bg-green-500 p-4 rounded-full' onPress={streamPlayList}>
                     <Play size={20} fill={'black'} />
-                </View>
+                </TouchableOpacity>
             </View>
         </View>
     )

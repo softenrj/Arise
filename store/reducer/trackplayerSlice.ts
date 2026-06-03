@@ -9,6 +9,7 @@ export type LoopMode = 'none' | 'track' | 'queue';
 interface ArisePlayerState {
     queue: Track[];
     originalQueue: Track[];
+    playlistName: string;
     currentIndex: number;
     loopMode: LoopMode;
     shuffle: boolean;
@@ -35,12 +36,12 @@ const REPEAT_MODE_MAP: Record<LoopMode, RepeatMode> = {
 
 export const setupQueue = createAsyncThunk(
     'trackplayer/setupQueue',
-    async ({ tracks, startIndex = 0 }: { tracks: Track[]; startIndex?: number }) => {
+    async ({ tracks, startIndex = 0, playlistName }: { tracks: Track[]; startIndex?: number, playlistName: string }) => {
         await TrackPlayer.reset();
         await TrackPlayer.add(tracks);
         await TrackPlayer.skip(startIndex);
         await TrackPlayer.play();
-        return { tracks, startIndex };
+        return { tracks, startIndex, playlistName };
     }
 );
 
@@ -168,6 +169,7 @@ export const clearQueue = createAsyncThunk(
 const initialState: ArisePlayerState = {
     queue: [],
     originalQueue: [],
+    playlistName: 'default',
     currentIndex: 0,
     loopMode: 'none',
     shuffle: false,
@@ -193,6 +195,7 @@ const trackPlayerSlice = createSlice({
             state.originalQueue = action.payload.tracks;
             state.currentIndex = action.payload.startIndex;
             state.isPlaying = true;
+            state.playlistName = action.payload.playlistName;
             // Reset shuffle when a new queue is loaded
             state.shuffle = false;
         });

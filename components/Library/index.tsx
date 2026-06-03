@@ -15,7 +15,7 @@ import Library from "./Library";
 
 export default function index() {
     const db = useSQLiteContext();
-    const { onRefresh } = useRefresh();
+    const { onRefresh, playlistRefresh } = useRefresh();
     const [refresh, setRefresh] = React.useState<boolean>(false);
     const [open, setOpen] = React.useState<boolean>(false);
     const [playList, setPlayList] = React.useState<PlayList[]>([]);
@@ -55,7 +55,7 @@ export default function index() {
 
     React.useEffect(() => {
         loadPlayList()
-    }, [sort])
+    }, [sort, playlistRefresh])
 
     const handleOpen = React.useCallback(() => setOpen((prev) => !prev), []);
     return (

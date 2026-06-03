@@ -13,3 +13,5 @@ export const defaultVideo: string = Image.resolveAssetSource(
 
 export const defaultPlayListCover: string =
   "https://res.cloudinary.com/dcyn3ewpv/image/upload/v1780313890/default-playlist_krm5zv.png";
+
+export const defaultPlayList = 'default'

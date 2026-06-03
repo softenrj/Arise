@@ -4,12 +4,12 @@
 import React, { ReactNode, useEffect } from "react";
 import { Pressable, View } from "react-native";
 import Animated, {
-    Extrapolation,
-    interpolate,
-    useAnimatedKeyboard,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  Extrapolation,
+  interpolate,
+  useAnimatedKeyboard,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 
 interface CustomModalProps {
@@ -17,6 +17,7 @@ interface CustomModalProps {
   onClose: () => void;
   position?: "top" | "middle" | "bottom";
   children: ReactNode;
+  className?: string
 }
 
 const CustomModal: React.FC<CustomModalProps> = ({
@@ -24,6 +25,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
   onClose,
   position = "middle",
   children,
+  className
 }) => {
   const progress = useSharedValue<number>(0);
   const keyboard = useAnimatedKeyboard();
@@ -79,7 +81,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
         pointerEvents="box-none"
       >
         <Animated.View
-          className="bg-white rounded-3xl p-6 shadow-2xl w-full"
+          className={`bg-white rounded-3xl p-6 shadow-2xl w-full ${className}`}
           style={modalStyle}
         >
           {children}

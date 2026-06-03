@@ -1,27 +1,38 @@
+// Copyright (c) 2026 Raj 
+// See LICENSE for details.
+
 import { usePlaylist } from '@/hooks/usePlaylist';
+import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { reorderPlaylistMusic } from '@/service/playlistdb';
+import { getTrackFromMusic } from '@/service/TrackMaker';
+import { playAtIndex, setupQueue } from '@/store/reducer/trackplayerSlice';
 import { IPlayListMusicTrack } from '@/types/database';
-import { defaultMusicArtWork } from '@/utils/constants';
+import { defaultMusicArtWork, defaultPlayList } from '@/utils/constants';
 import { useSQLiteContext } from 'expo-sqlite';
 import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import PlayListMusicMenu from './PlayListMusicMenu';
 
-const initialData = Array.from({ length: 10 }).map((_, index) => ({
-    id: `track-${index}`,
-    title: `Alex Warren - Ordinary`,
-}));
-
-export default function PlayListMusic({ header }: { header: React.JSX.Element }) {
+export default function PlayListMusic({ header, reload }: { header: React.JSX.Element, reload: () => void }) {
     const db = useSQLiteContext();
-    const { playlistMusics, setPlayListMusic } = usePlaylist();
+    const { playlistMusics, setPlayListMusic, playlist } = usePlaylist();
+    const track = useAppSelector(state => state.trackReducer);
+    const dispatch = useAppDispatch();
 
     const handleReorder = async (data: any) => {
         await reorderPlaylistMusic({ db, items: data });
         setPlayListMusic(data);
     }
 
+    const handlePlay = (musicId: string) => {
+        if (playlist?.title === track.playlistName) {
+            const musicIdx = playlistMusics.findIndex(item => item.id === musicId);
+            dispatch(playAtIndex(musicIdx));
+        } else {
+            dispatch(setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList }));
+        }
+    }
 
     const renderTrack = ({ item, drag, isActive }: { item: IPlayListMusicTrack, drag: any, isActive: boolean }) => (
         <ScaleDecorator>
@@ -30,6 +41,7 @@ export default function PlayListMusic({ header }: { header: React.JSX.Element })
                     onLongPress={drag}
                     disabled={isActive}
                     className='flex-1 flex-row items-center gap-3'
+                    onPress={() => handlePlay(item.id)}
                 >
                     <Image
                         source={{ uri: item.customCoverUri || defaultMusicArtWork }}
@@ -46,13 +58,13 @@ export default function PlayListMusic({ header }: { header: React.JSX.Element })
                             {item.title}
                         </Text>
                         <Text numberOfLines={1} className='text-zinc-500 text-xs mt-0.5'>
-                            Alex Warren - Ordinary
+                            {item.artist}
                         </Text>
                     </View>
                 </Pressable>
 
                 <View>
-                    <PlayListMusicMenu />
+                    <PlayListMusicMenu reload={reload} isLiked={item.isLiked ?? 0} musicId={item.musicId} />
                 </View>
             </View>
         </ScaleDecorator>
