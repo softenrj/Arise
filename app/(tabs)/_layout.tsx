@@ -7,7 +7,9 @@ import { AppTheme } from "@/components/context/apptheme";
 import TrackpanelProvider from "@/components/context/trackpanel";
 import Track from "@/components/track";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import { setDatabase } from "@/service/database-instance";
 import { TabList, Tabs, TabSlot, TabTrigger } from "expo-router/ui";
+import { useSQLiteContext } from "expo-sqlite";
 import { Home, Library, Search } from "lucide-react-native";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,12 +21,17 @@ export const AppDrawerContext = React.createContext({
 });
 
 export default function TabLayout() {
+    const db = useSQLiteContext();
     const insets = useSafeAreaInsets();
     const [open, setOpen] = React.useState<boolean>(false);
     const { theme } = useAppTheme();
 
     const handleClose = () => setOpen(false);
     const handleOpen = () => setOpen(true);
+
+    React.useEffect(() => {
+        setDatabase(db);
+    }, [db]);
 
     return (
         <>

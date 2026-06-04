@@ -4,6 +4,7 @@
 import { IMusicTrack } from "@/types/database";
 import { SQLiteDatabase } from "expo-sqlite";
 import { LyricsTable } from "./lyricsdb";
+import { initMusicAnalyticsDB, initRecentPlaysDB } from "./musicAnalyticsdb";
 import { PlayListMusicTable, PlayListTable } from "./playlistdb";
 
 export const InitiateDataBase = async (db: SQLiteDatabase) => {
@@ -65,6 +66,8 @@ const initiateTable = async (db: SQLiteDatabase) => {
     await LyricsTable(db);
     await PlayListTable(db);
     await PlayListMusicTable(db);
+    await initMusicAnalyticsDB(db);
+    await initRecentPlaysDB(db);
   } catch (error) {
     console.error(`Error while Initiate Musics db `, error);
   }

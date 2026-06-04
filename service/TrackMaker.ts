@@ -37,7 +37,7 @@ export function getFirstTrackFromMusic(music: IMusicTrack): AriseTrack {
         artist: music.artist,
         artwork: music.customCoverUri || defaultMusicArtWork,
         duration: music.duration || 0,
-        mediaId: music.id,
+        mediaId: music.musicId,
 
         isLiked: music.isLiked,
         visible: music.visible,

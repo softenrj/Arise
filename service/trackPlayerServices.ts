@@ -2,6 +2,7 @@
 // See LICENSE for details.
 
 import TrackPlayer, { Event } from 'react-native-track-player';
+import { finalizeCurrentTrack } from './musicAnalytics';
 
 export async function PlaybackService() {
 
@@ -10,6 +11,10 @@ export async function PlaybackService() {
     TrackPlayer.addEventListener(Event.RemoteStop, () => TrackPlayer.stop());
     TrackPlayer.addEventListener(Event.RemoteNext, () => TrackPlayer.skipToNext());
     TrackPlayer.addEventListener(Event.RemotePrevious, () => TrackPlayer.skipToPrevious());
+
+    TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, () => {
+        finalizeCurrentTrack();
+    });
 
     // Fired when seeking via notification scrubber
     TrackPlayer.addEventListener(Event.RemoteSeek, ({ position }) =>
