@@ -2,6 +2,8 @@
 // See LICENSE for details.
 
 import { useShorts } from '@/hooks/useShorts';
+import { AriseTrack } from '@/types/database';
+import { defaultMusicArtWork } from '@/utils/constants';
 import LottieView from 'lottie-react-native';
 import { Bookmark, EllipsisVertical, Heart, Plus, Send } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -9,14 +11,12 @@ import { Image, LayoutAnimation, Pressable, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Avatar, AvatarFallbackText, AvatarImage } from '../ui/avatar';
 
-export default function FeedOverLay({ like, onLike, animation }: { like: boolean, onLike: () => void, animation: boolean }) {
+export default function FeedOverLay({ like, onLike, animation, feed, toggleImagePreview }: { like: boolean, onLike: () => void, animation: boolean, feed: AriseTrack, toggleImagePreview: () => void }) {
     const { isHolding } = useShorts();
     const [isExpanded, setIsExpanded] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
 
     const wrapperStyle = useAnimatedStyle(() => ({ opacity: withTiming(isHolding.value ? 0 : 1, { duration: 200 }) }))
-
-    const { toggleImagePreview } = useShorts();
 
     const toggleExpand = () => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -37,7 +37,7 @@ export default function FeedOverLay({ like, onLike, animation }: { like: boolean
                             />
                         </Avatar>
                         <Text numberOfLines={1} className='text-[15px] font-bold text-white shadow-md'>
-                            @softenrj
+                            @{feed.artist}
                         </Text>
                     </View>
 
@@ -46,7 +46,7 @@ export default function FeedOverLay({ like, onLike, animation }: { like: boolean
                             numberOfLines={isExpanded ? undefined : 2}
                             className='text-white text-[14px] leading-snug shadow-md'
                         >
-                            Building an AI-first online IDE that uses WebContainers and Monaco Editor to generate full codebases. Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto, veniam!
+                            {feed.title}
                         </Text>
                         {!isExpanded && (
                             <Text className="text-white/70 font-bold text-[13px] mt-1">
@@ -125,7 +125,7 @@ export default function FeedOverLay({ like, onLike, animation }: { like: boolean
                     <Pressable onPress={toggleImagePreview} className='justify-center items-center mt-2'>
                         <View className="p-1 bg-white/20 rounded-md">
                             <Image
-                                source={{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh9ybGbX0RSnBFVlBeSOkzzlPi4O2eT5AH2w&s" }}
+                                source={{ uri: feed.artwork || defaultMusicArtWork }}
                                 className='w-10 h-10 rounded-sm'
                             />
                         </View>

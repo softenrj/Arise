@@ -1,19 +1,25 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import { AriseTrack } from "@/types/database";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import TrackPlayer, { RepeatMode, Track } from "react-native-track-player";
+import TrackPlayer, { RepeatMode } from "react-native-track-player";
 
 export type LoopMode = 'none' | 'track' | 'queue';
 
+export type TrackSourceType = 'playlist' | 'search' | 'short' | 'default';
+
 interface ArisePlayerState {
-    queue: Track[];
-    originalQueue: Track[];
+    queue: AriseTrack[];
+    originalQueue: AriseTrack[];
     playlistName: string;
     currentIndex: number;
     loopMode: LoopMode;
     shuffle: boolean;
     isPlaying: boolean;
+
+    sourceType: TrackSourceType;
+    sourceId: string | null;
 }
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -36,12 +42,12 @@ const REPEAT_MODE_MAP: Record<LoopMode, RepeatMode> = {
 
 export const setupQueue = createAsyncThunk(
     'trackplayer/setupQueue',
-    async ({ tracks, startIndex = 0, playlistName }: { tracks: Track[]; startIndex?: number, playlistName: string }) => {
+    async ({ tracks, startIndex = 0, playlistName, sourceId, sourceType, play = true }: { tracks: AriseTrack[]; startIndex?: number, playlistName: string, sourceType: TrackSourceType, sourceId: string | null, play?: boolean }) => {
         await TrackPlayer.reset();
         await TrackPlayer.add(tracks);
         await TrackPlayer.skip(startIndex);
-        await TrackPlayer.play();
-        return { tracks, startIndex, playlistName };
+        if (play) await TrackPlayer.play();
+        return { tracks, startIndex, playlistName, sourceId, sourceType };
     }
 );
 
@@ -77,7 +83,7 @@ export const skipToPrevious = createAsyncThunk(
 
 export const addToQueue = createAsyncThunk(
     'trackplayer/addToQueue',
-    async (tracks: Track[]) => {
+    async (tracks: AriseTrack[]) => {
         await TrackPlayer.add(tracks);
         return tracks;
     }
@@ -85,7 +91,7 @@ export const addToQueue = createAsyncThunk(
 
 export const playNext = createAsyncThunk(
     'trackplayer/playNext',
-    async (tracks: Track[], { getState }) => {
+    async (tracks: AriseTrack[], { getState }) => {
         const state = (getState() as { trackReducer: ArisePlayerState }).trackReducer;
         const insertAt = state.currentIndex + 1;
         await TrackPlayer.add(tracks, insertAt);
@@ -111,9 +117,17 @@ export const cycleLoopMode = createAsyncThunk(
     }
 );
 
+export const onCycleLoopMode = createAsyncThunk(
+    'trackplayer/toggleCycleLoopModeTrack',
+    async (mode: LoopMode) => {
+        await TrackPlayer.setRepeatMode(REPEAT_MODE_MAP[mode]);
+        return mode
+    }
+)
+
 export const updateMusic = createAsyncThunk(
     'trackplayer/musicUpdate',
-    async (track: Track, { getState }) => {
+    async (track: AriseTrack, { getState }) => {
         const state = (getState() as { trackReducer: ArisePlayerState }).trackReducer;
 
         const activeIndex = await TrackPlayer.getActiveTrackIndex();
@@ -174,6 +188,8 @@ const initialState: ArisePlayerState = {
     loopMode: 'none',
     shuffle: false,
     isPlaying: false,
+    sourceId: null,
+    sourceType: 'default'
 };
 
 const trackPlayerSlice = createSlice({
@@ -198,6 +214,8 @@ const trackPlayerSlice = createSlice({
             state.playlistName = action.payload.playlistName;
             // Reset shuffle when a new queue is loaded
             state.shuffle = false;
+            state.sourceType = action.payload.sourceType;
+            state.sourceId = action.payload.sourceId;
         });
 
         builder.addCase(playAtIndex.fulfilled, (state, action) => {
@@ -267,17 +285,12 @@ const trackPlayerSlice = createSlice({
                 return _track;
             });
         });
+
+        builder.addCase(onCycleLoopMode.fulfilled, (state, action) => {
+            state.loopMode = action.payload
+        })
     },
 });
 
 export const { setCurrentIndex, setIsPlaying } = trackPlayerSlice.actions;
 export default trackPlayerSlice.reducer;
-
-
-export const selectQueue = (state: { trackplayer: ArisePlayerState }) => state.trackplayer.queue;
-export const selectCurrentIndex = (state: { trackplayer: ArisePlayerState }) => state.trackplayer.currentIndex;
-export const selectCurrentTrack = (state: { trackplayer: ArisePlayerState }) => state.trackplayer.queue[state.trackplayer.currentIndex];
-export const selectLoopMode = (state: { trackplayer: ArisePlayerState }) => state.trackplayer.loopMode;
-export const selectShuffle = (state: { trackplayer: ArisePlayerState }) => state.trackplayer.shuffle;
-export const selectIsPlaying = (state: { trackplayer: ArisePlayerState }) => state.trackplayer.isPlaying;
-export const selectQueueLength = (state: { trackplayer: ArisePlayerState }) => state.trackplayer.queue.length;

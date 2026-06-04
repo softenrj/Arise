@@ -3,7 +3,6 @@
 
 import { PlayList } from '@/types/database';
 import { useRouter } from 'expo-router';
-import { EllipsisVertical } from 'lucide-react-native';
 import React, { useRef } from 'react';
 import { Animated, Image, Pressable, Text, View } from 'react-native';
 
@@ -64,9 +63,6 @@ export default function LibraryCard({ isGrid = false, playList }: LibraryCardPro
                         Playlist • Arise
                     </Text>
                 </View>
-                <Pressable hitSlop={14} onPress={() => { }}>
-                    <EllipsisVertical size={18} color='#A1A1AA' />
-                </Pressable>
             </Animated.View>
         </Pressable>
     );

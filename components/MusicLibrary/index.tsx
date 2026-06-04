@@ -42,7 +42,7 @@ export default function MusicScanScreen() {
                             </Pressable>
                         </View>
 
-                        <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-6 py-2' showsVerticalScrollIndicator={false}
+                        <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 60 }} className='flex-1 px-6 py-2' showsVerticalScrollIndicator={false}
                             refreshControl={<RefreshControl refreshing={refresh} onRefresh={onRefresh} />}>
                             <ScanMusic scanState={scanState} setScanState={handleState} />
                             <Musics scanState={scanState} />

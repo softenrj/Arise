@@ -6,9 +6,7 @@ import React from 'react';
 import { SharedValue, useSharedValue } from 'react-native-reanimated';
 
 export const ShortContext = React.createContext<ShortContextType>({
-    showImage: false,
     isHolding: { value: false } as SharedValue<boolean>,
-    toggleImagePreview: () => { },
     handleHolding: () => { }
 })
 
@@ -23,8 +21,6 @@ export default function ShortContextProvider({ children }: { children: React.Rea
     return (
         <ShortContext.Provider value={{
             isHolding: isHolding,
-            showImage,
-            toggleImagePreview,
             handleHolding
         }}>
             {children}

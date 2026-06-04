@@ -27,7 +27,7 @@ export default function Library({
             <View className="flex-row justify-between items-center pb-4 px-1">
                 <Pressable className="flex-row items-center gap-1.5" hitSlop={8} onPress={onSort}>
                     <ArrowUpDown size={14} color="#18181B" strokeWidth={2.5} />
-                    <Text className="text-zinc-900 text-[13px] font-bold">{sort === 1 ? 'Recent' : 'Oldest'}</Text>
+                    <Text className="text-zinc-900 text-[13px] font-bold">{sort === 0 ? 'Recent' : 'Oldest'}</Text>
                 </Pressable>
 
                 <View className="flex-row gap-4 items-center">

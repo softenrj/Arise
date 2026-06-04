@@ -1,11 +1,10 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
-import { IMusicTrack } from "@/types/database";
+import { AriseTrack, IMusicTrack } from "@/types/database";
 import { defaultMusicArtWork } from "@/utils/constants";
-import { Track } from "react-native-track-player";
 
-export function getTrackFromMusic(musics: IMusicTrack[]): Track[] {
+export function getTrackFromMusic(musics: IMusicTrack[]): AriseTrack[] {
     return musics.map((music: IMusicTrack, _) => ({
         id: music.id.toString(),
         url: music.uri,
@@ -13,6 +12,17 @@ export function getTrackFromMusic(musics: IMusicTrack[]): Track[] {
         artist: music.artist,
         artwork: music.customCoverUri || defaultMusicArtWork,
         duration: music.duration || 0,
-        mediaId: music.id
+        mediaId: music.id,
+
+        isLiked: music.isLiked,
+        visible: music.visible,
+
+        customCoverUri: music.customCoverUri,
+        customVideoUri: music.customVideoUri,
+        customVideoFileName: music.customVideoFileName,
+
+        lyricsId: music.lyricsId,
+        lyricsName: music.lyricsName,
+        lyricsUri: music.lyricsUri
     }))
 } 

@@ -19,7 +19,7 @@ export default function index() {
     const [refresh, setRefresh] = React.useState<boolean>(false);
     const [open, setOpen] = React.useState<boolean>(false);
     const [playList, setPlayList] = React.useState<PlayList[]>([]);
-    const [sort, setSort] = React.useState<0 | 1>(1); //? 0 - DESEC 1 - ASC
+    const [sort, setSort] = React.useState<0 | 1>(0); //? 0 - DESEC 1 - ASC
 
     const loadPlayList = async () => {
         const result = await getPlayList(db, sort);

@@ -2,10 +2,11 @@
 // See LICENSE for details.
 
 import { useCallback } from "react";
-import TrackPlayer, { State, Track, usePlaybackState } from "react-native-track-player";
+import TrackPlayer, { State, usePlaybackState } from "react-native-track-player";
 import { useAppDispatch } from "./useRedux";
 
-import { addToQueue, clearQueue, cycleLoopMode, playAtIndex, playNext, removeFromQueue, setupQueue, skipToNext, skipToPrevious, toggleShuffle, updateMusic } from "@/store/reducer/trackplayerSlice";
+import { addToQueue, clearQueue, cycleLoopMode, LoopMode, onCycleLoopMode, playAtIndex, playNext, removeFromQueue, setupQueue, skipToNext, skipToPrevious, toggleShuffle, TrackSourceType, updateMusic } from "@/store/reducer/trackplayerSlice";
+import { AriseTrack } from "@/types/database";
 
 export const useTrack = () => {
     const dispatch = useAppDispatch();
@@ -13,9 +14,11 @@ export const useTrack = () => {
 
     const isPlaying = state === State.Playing;
 
+    const handleVolume = useCallback(async (v: number) => await TrackPlayer.setVolume(v), []);
+
     const handleSetupQueue = useCallback(
-        ({ tracks, startIndex }: { tracks: Track[]; startIndex?: number }) => {
-            return dispatch(setupQueue({ tracks, startIndex }));
+        ({ tracks, startIndex, playlistName, sourceId, sourceType, play = true }: { tracks: AriseTrack[]; startIndex?: number, playlistName: string, sourceId: string | null, sourceType: TrackSourceType, play?: boolean }) => {
+            return dispatch(setupQueue({ tracks, startIndex, playlistName, sourceId, sourceType, play }));
         },
         [dispatch]
     );
@@ -36,14 +39,14 @@ export const useTrack = () => {
     }, [dispatch]);
 
     const handleAddToQueue = useCallback(
-        (tracks: Track[]) => {
+        (tracks: AriseTrack[]) => {
             return dispatch(addToQueue(tracks));
         },
         [dispatch]
     );
 
     const handlePlayNext = useCallback(
-        (tracks: Track[]) => {
+        (tracks: AriseTrack[]) => {
             return dispatch(playNext(tracks));
         },
         [dispatch]
@@ -60,7 +63,7 @@ export const useTrack = () => {
         return dispatch(cycleLoopMode());
     }, [dispatch]);
 
-    const handleUpdateMusic = useCallback((track: Track) => {
+    const handleUpdateMusic = useCallback((track: AriseTrack) => {
         return dispatch(updateMusic(track));
     },
         [dispatch]);
@@ -78,6 +81,10 @@ export const useTrack = () => {
         else await TrackPlayer.play();
     };
 
+    const handleOnCycleLoopMode = useCallback((mode: LoopMode) => {
+        return dispatch(onCycleLoopMode(mode))
+    }, [dispatch]);
+
     const seekTo = async (seconds: number) => await TrackPlayer.seekTo(seconds);
     const pause = async () => await TrackPlayer.pause();
     const play = async () => await TrackPlayer.play();
@@ -89,6 +96,8 @@ export const useTrack = () => {
         skipToPrevious: handleSkipToPrevious,
         addToQueue: handleAddToQueue,
         playNext: handlePlayNext,
+        setTrackVolume: handleVolume,
+        onCycleLoopMode: handleOnCycleLoopMode,
         removeFromQueue: handleRemoveFromQueue,
         cycleLoopMode: handleCycleLoopMode,
         updateMusic: handleUpdateMusic,

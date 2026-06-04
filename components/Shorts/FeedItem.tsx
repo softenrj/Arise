@@ -2,14 +2,17 @@
 // See LICENSE for detail
 
 import { useShorts } from '@/hooks/useShorts';
+import { useTrack } from '@/hooks/useTrack';
+import { AriseTrack } from '@/types/database';
+import { defaultMusicArtWork } from '@/utils/constants';
 import { Ionicons } from '@expo/vector-icons';
-import { useEvent } from 'expo';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import React from 'react';
 import { Image, Pressable, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+import { useProgress } from 'react-native-track-player';
 import FeedOverLay from './FeedOverLay';
 
 const SLIDER_HEIGHT = 3;
@@ -18,8 +21,28 @@ const SLIDER_HEIGHT_ACTIVE = 6;
 const HIT_SLOP = 20;
 const DOUBLE_TAP_DELAY = 300;
 
-export default function FeedItem({ containerHeight, isActive, }: { containerHeight: number; isActive: boolean }) {
-    const { showImage, isHolding, handleHolding } = useShorts();
+function FeedItem({ containerHeight, isActive, feed }: { containerHeight: number; isActive: boolean, feed: AriseTrack }) {
+    const { isHolding, handleHolding } = useShorts();
+    const [showImage, setShowImage] = React.useState<boolean>(!feed?.customVideoUri);
+    const { position, duration } = useProgress(250);
+    const { play, pause, seekTo, setTrackVolume } = useTrack();
+
+    const videoPlayer = useVideoPlayer(feed.customVideoUri ?? null, (p) => {
+        p.loop = true;
+        p.muted = true;
+    });
+
+    const seekToPosition = (pixelX: number) => {
+        if (duration <= 0) return;
+        const ratio = Math.max(0, Math.min(1, pixelX / sliderWidth.value));
+        const seconds = ratio * duration;
+        seekTo(seconds);
+    };
+
+    const handleShowImage = React.useCallback(() => {
+        if (!feed.customVideoUri) return;
+        setShowImage(prev => !prev);
+    }, [feed]);
 
     // like
     const [isLiked, setIsLiked] = React.useState(false);
@@ -37,7 +60,7 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
 
     const handleLike = React.useCallback(() => setIsLiked(true), []);
 
-    // slider property
+    // slider properties
     const sliderWidth = useSharedValue(0);
     const progressX = useSharedValue(0);
     const isDragging = useSharedValue(false);
@@ -45,44 +68,29 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
 
     const [isMuted, setIsMuted] = React.useState(false);
 
-    const player = useVideoPlayer(require('@/assets/video/sample1.mp4'), (p) => {
-        p.loop = true;
-        p.volume = 1.0;
-        p.muted = false;
-        p.timeUpdateEventInterval = 0.25;
-    });
-
-    useEvent(player, 'timeUpdate', {
-        currentTime: player.currentTime,
-        bufferedPosition: 0,
-        currentLiveTimestamp: 0,
-        currentOffsetFromLive: 0,
-    });
+    React.useEffect(() => {
+        if (!isDragging.value && duration > 0) {
+            progressX.value = withTiming((position / duration) * sliderWidth.value, { duration: 200 });
+        }
+    }, [position, duration]);
 
     React.useEffect(() => {
-        if (isDragging.value) return;
-        const pct = player.duration ? player.currentTime / player.duration : 0;
-        progressX.value = withTiming(pct * sliderWidth.value, { duration: 250 });
-    }, [player.currentTime]);
+        if (!videoPlayer) return;
+        if (isActive) videoPlayer.play();
+        else videoPlayer.pause();
+    }, [isActive, videoPlayer]);
 
-    React.useEffect(() => {
-        if (isActive) player.play();
-        else player.pause();
-    }, [isActive, player]);
+    const resumePlay = React.useCallback(() => {
+        if (videoPlayer) videoPlayer.play();
+        play();
+    }, [videoPlayer, play]);
 
-    const seekTo = React.useCallback(
-        (x: number) => {
-            const total = player.duration;
-            if (!total || isNaN(total) || sliderWidth.value === 0) return;
-            player.currentTime = Math.max(0, Math.min(1, x / sliderWidth.value)) * total;
-        },
-        [player]
-    );
+    const pausePlay = React.useCallback(() => {
+        if (videoPlayer) videoPlayer.pause();
+        pause();
+    }, [videoPlayer, pause]);
 
-    const resumePlay = React.useCallback(() => player.play(), [player]);
-    const pausePlay = React.useCallback(() => player.pause(), [player]);
-
-    //#regin slider guesture anime
+    //#region slider gesture animation
     const panGesture = Gesture.Pan()
         .hitSlop({ top: HIT_SLOP, bottom: HIT_SLOP })
         .minDistance(0)
@@ -92,12 +100,12 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
             const clamped = Math.max(0, Math.min(sliderWidth.value, e.x));
             progressX.value = clamped;
             runOnJS(pausePlay)();
-            runOnJS(seekTo)(clamped);
+            runOnJS(seekToPosition)(clamped);
         })
         .onUpdate((e) => {
             const clamped = Math.max(0, Math.min(sliderWidth.value, e.x));
             progressX.value = clamped;
-            runOnJS(seekTo)(clamped);
+            runOnJS(seekToPosition)(clamped);
         })
         .onEnd(() => {
             isDragging.value = false;
@@ -142,47 +150,55 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
     const muteOpacity = useSharedValue(0);
     const muteStyle = useAnimatedStyle(() => ({ opacity: muteOpacity.value }));
 
-    const handlePress = () => {
-        if (tapTimeoutRef.current) {
-            clearTimeout(tapTimeoutRef.current);
-            tapTimeoutRef.current = null;
-
-            handleLike();
-            // Like Animation
-            handleLikeAnimation();
-        } else {
-
-            tapTimeoutRef.current = setTimeout(() => {
-                // Time ran out! The user didn't tap a second time. 
-                tapTimeoutRef.current = null;
-
-                toggleMute();
-
-            }, DOUBLE_TAP_DELAY);
-        }
-    };
-
     const handleLikeAnimation = React.useCallback(() => {
         setShowLikeAnimation(true);
 
         if (likeAnimationTimeoutRef.current) {
-            clearImmediate(likeAnimationTimeoutRef.current);
+            clearTimeout(likeAnimationTimeoutRef.current);
         }
 
         likeAnimationTimeoutRef.current = setTimeout(() => {
             setShowLikeAnimation(false);
-        }, 700)
-    }, [])
+        }, 700);
+    }, []);
+
+    const handlePress = () => {
+        if (tapTimeoutRef.current) {
+            clearTimeout(tapTimeoutRef.current);
+            tapTimeoutRef.current = null;
+            handleLike();
+            handleLikeAnimation();
+        } else {
+            tapTimeoutRef.current = setTimeout(() => {
+                tapTimeoutRef.current = null;
+                toggleMute();
+            }, DOUBLE_TAP_DELAY);
+        }
+    };
 
     const toggleMute = () => {
         const next = !isMuted;
         setIsMuted(next);
-        player.muted = next;
+        setTrackVolume(next ? 0 : 1);
         muteOpacity.value = withSequence(
             withTiming(1, { duration: 80 }),
             withDelay(700, withTiming(0, { duration: 300 }))
         );
-    }
+    };
+
+    const handleLongPress = () => {
+        handleHolding(true);
+        if (videoPlayer) videoPlayer.pause();
+        pause();
+    };
+
+    const handlePressOut = () => {
+        if (isHolding.value) {
+            handleHolding(false);
+            if (videoPlayer) videoPlayer.play();
+            play();
+        }
+    };
 
     React.useEffect(() => {
         return () => {
@@ -190,24 +206,11 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
             if (likeAnimationTimeoutRef.current) clearTimeout(likeAnimationTimeoutRef.current);
         };
     }, []);
-
-    const handleLongPress = () => {
-        handleHolding(true);
-        player.pause();
-    };
-
-    const handlePressOut = () => {
-        if (isHolding.value) {
-            handleHolding(false)
-            player.play();
-        }
-    };
-
-    //#end
+    //#endregion
 
     return (
         <Pressable className="relative w-full" style={{ height: containerHeight }}>
-            {!showImage &&
+            {!showImage && feed.customVideoUri && videoPlayer &&
                 <VideoView
                     style={{
                         position: 'absolute',
@@ -215,19 +218,20 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
                         width: '100%', height: '100%',
                         zIndex: 0,
                     }}
-                    player={player}
+                    player={videoPlayer}
                     allowsPictureInPicture
                     contentFit="cover"
                     nativeControls={false}
                 />
-
             }
 
-            {showImage && <Image
-                source={{ uri: "https://i.pinimg.com/736x/ec/da/a4/ecdaa4dbb245fa77b72bc31381ae3b5e.jpg" }}
-                className='absolute z-0 h-full w-full'
-                resizeMode="contain"
-            />}
+            {showImage && (
+                <Image
+                    source={{ uri: feed.artwork || defaultMusicArtWork }}
+                    className='absolute z-0 h-full w-full'
+                    resizeMode="contain"
+                />
+            )}
 
             <Pressable
                 onPress={handlePress}
@@ -270,7 +274,7 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
                 />
             </Animated.View>
 
-            <FeedOverLay like={isLiked} onLike={toggleLike} animation={showLikeAnimation} />
+            <FeedOverLay like={isLiked} onLike={toggleLike} animation={showLikeAnimation} feed={feed} toggleImagePreview={handleShowImage} />
 
             <GestureDetector gesture={panGesture}>
                 <View
@@ -293,7 +297,8 @@ export default function FeedItem({ containerHeight, isActive, }: { containerHeig
                     <Animated.View style={thumbStyle} />
                 </View>
             </GestureDetector>
-
         </Pressable>
     );
 }
+
+export default React.memo(FeedItem);

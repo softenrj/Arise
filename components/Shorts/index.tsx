@@ -3,7 +3,10 @@
 
 import FeedItem from "@/components/Shorts/FeedItem";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import { useAppSelector } from "@/hooks/useRedux";
 import { useRefresh } from "@/hooks/useRefresh";
+import { useTrack } from "@/hooks/useTrack";
+import { AriseTrack } from "@/types/database";
 import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -18,24 +21,40 @@ export default function index() {
     const [activeIndex, setActiveIndex] = React.useState(0);
     const { setTheme } = useAppTheme();
     const { refresh, onRefresh } = useRefresh();
+    const queue = useAppSelector(state => state.trackReducer).queue;
+    const { playAtIndex, onCycleLoopMode, setTrackVolume } = useTrack();
 
 
     const onViewableItemsChanged = React.useCallback(({ viewableItems }: any) => {
         if (viewableItems.length > 0) {
+            playAtIndex(viewableItems[0].index);
             setActiveIndex(viewableItems[0].index);
         }
-
     }, []);
 
     useFocusEffect(React.useCallback(() => {
+        onCycleLoopMode('track')
         setTheme(AppTheme.dark);
 
         return () => {
             setTheme(AppTheme.light);
+            onCycleLoopMode('none');
+            setTrackVolume(1);
         };
     }, []));
 
     const viewabilityConfig = React.useRef({ itemVisiblePercentThreshold: 50 }).current;
+
+    const renderItem = React.useCallback(
+        ({ index, item }: { index: number, item: AriseTrack }) => (
+            <FeedItem
+                containerHeight={containerHeight}
+                isActive={index === activeIndex}
+                feed={item}
+            />
+        ),
+        [containerHeight, activeIndex]
+    );
 
     return (
         <View className="flex-1 bg-black">
@@ -51,7 +70,7 @@ export default function index() {
                     >
                         {containerHeight > 0 && (
                             <FlashList
-                                data={Array.from({ length: 4 })}
+                                data={queue}
 
                                 showsVerticalScrollIndicator={false}
                                 pagingEnabled={true}
@@ -64,12 +83,7 @@ export default function index() {
                                 onViewableItemsChanged={onViewableItemsChanged}
                                 viewabilityConfig={viewabilityConfig}
 
-                                renderItem={({ index }) => (
-                                    <FeedItem
-                                        containerHeight={containerHeight}
-                                        isActive={index === activeIndex}
-                                    />
-                                )}
+                                renderItem={renderItem}
                             />
                         )}
                     </View>

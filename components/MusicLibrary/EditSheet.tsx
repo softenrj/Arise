@@ -129,8 +129,16 @@ export default function EditSheet() {
             title, artist, lyricsId, customCoverUri: imageMediaUri, customVideoUri: videoMediaUri, customVideoFileName
         }) as IMusicTrack;
 
-        onMusicUpdate(updatedMusic);
-        closeSheet();
+        if (updatedMusic) {
+            setTitle('');
+            setArtist('');
+            setLyrics(null);
+            setCustomeImage(null);
+            setCustomeVideo(null);
+            setCustomVideoFileName(null);
+            onMusicUpdate(updatedMusic);
+            closeSheet();
+        }
     };
 
     return (

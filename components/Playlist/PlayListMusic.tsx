@@ -2,10 +2,10 @@
 // See LICENSE for details.
 
 import { usePlaylist } from '@/hooks/usePlaylist';
-import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
+import { useAppSelector } from '@/hooks/useRedux';
+import { useTrack } from '@/hooks/useTrack';
 import { reorderPlaylistMusic } from '@/service/playlistdb';
 import { getTrackFromMusic } from '@/service/TrackMaker';
-import { playAtIndex, setupQueue } from '@/store/reducer/trackplayerSlice';
 import { IPlayListMusicTrack } from '@/types/database';
 import { defaultMusicArtWork, defaultPlayList } from '@/utils/constants';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -16,9 +16,9 @@ import PlayListMusicMenu from './PlayListMusicMenu';
 
 export default function PlayListMusic({ header, reload }: { header: React.JSX.Element, reload: () => void }) {
     const db = useSQLiteContext();
+    const { setupQueue, playAtIndex } = useTrack();
     const { playlistMusics, setPlayListMusic, playlist } = usePlaylist();
     const track = useAppSelector(state => state.trackReducer);
-    const dispatch = useAppDispatch();
 
     const handleReorder = async (data: any) => {
         await reorderPlaylistMusic({ db, items: data });
@@ -28,9 +28,9 @@ export default function PlayListMusic({ header, reload }: { header: React.JSX.El
     const handlePlay = (musicId: string) => {
         if (playlist?.title === track.playlistName) {
             const musicIdx = playlistMusics.findIndex(item => item.id === musicId);
-            dispatch(playAtIndex(musicIdx));
+            playAtIndex(musicIdx);
         } else {
-            dispatch(setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList }));
+            setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id! });
         }
     }
 

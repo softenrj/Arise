@@ -1,6 +1,8 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import { Track } from "react-native-track-player";
+
 export interface IMusicTrack {
   id: string;
   uri: string;
@@ -22,6 +24,19 @@ export interface IMusicTrack {
 
   isLiked?: 0 | 1;
   visible: 0 | 1;
+  customCoverUri?: string | null;
+  customVideoUri?: string | null;
+  customVideoFileName?: string | null;
+
+  lyricsId?: string | null;
+  lyricsName?: string | null;
+  lyricsUri?: string | null;
+}
+
+export interface AriseTrack extends Track {
+  isLiked?: 0 | 1;
+  visible: 0 | 1;
+
   customCoverUri?: string | null;
   customVideoUri?: string | null;
   customVideoFileName?: string | null;
@@ -64,4 +79,4 @@ export interface PlayListMusic {
 }
 
 export interface IPlayListMusicTrack
-  extends Omit<IMusicTrack, "id">, PlayListMusic {}
+  extends Omit<IMusicTrack, "id">, PlayListMusic { }

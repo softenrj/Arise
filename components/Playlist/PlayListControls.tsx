@@ -2,11 +2,12 @@
 // See LICENSE for details.
 
 import { usePlaylist } from '@/hooks/usePlaylist';
-import { useAppDispatch } from '@/hooks/useRedux';
+import { useAppSelector } from '@/hooks/useRedux';
+import { useTrack } from '@/hooks/useTrack';
 import { formatDurationLocalString } from '@/service/MusicDuration';
 import { getTrackFromMusic } from '@/service/TrackMaker';
-import { setupQueue } from '@/store/reducer/trackplayerSlice';
 import { defaultPlayList, defaultPlayListCover } from '@/utils/constants';
+import { useRouter } from 'expo-router';
 import { Dot, Music, Play } from 'lucide-react-native';
 import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
@@ -16,10 +17,19 @@ import PlaylistMenu from './playlistMenu';
 export default function PlayListControls({ onMusicListOpen, onEditPlayList, onRemovePlaylist }: { onMusicListOpen: () => void, onEditPlayList: () => void, onRemovePlaylist: () => void }) {
     const { playlistMusics, playlist } = usePlaylist();
     const [duration, setDuration] = React.useState<string>('0 second');
-    const dispatch = useAppDispatch();
+    const track = useAppSelector(state => state.trackReducer);
+    const { setupQueue } = useTrack();
+    const router = useRouter();
 
-    const streamPlayList = () => {
-        dispatch(setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList }));
+    const streamPlayList = (play: boolean = true) => {
+        if (playlistMusics.length === 0) return;
+        setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id!, play });
+    }
+
+    const handlePlayInShort = () => {
+        if (playlistMusics.length === 0) return;
+        if (track.sourceId !== playlist?.id) streamPlayList(false);
+        router.push('/(tabs)/shorts');
     }
 
     React.useEffect(() => {
@@ -49,10 +59,12 @@ export default function PlayListControls({ onMusicListOpen, onEditPlayList, onRe
                             <Image source={{ uri: playlist?.cover || defaultPlayListCover }} resizeMode='cover' className='h-full w-full' />
                         </View>
                         <View className='justify-center items-center gap-1 w-20'>
-                            <View className='flex-row items-center gap-3'>
-                                <Play size={12} fill={'white'} />
-                                <Text className='text-white'>Play</Text>
-                            </View>
+                            <TouchableOpacity onPress={handlePlayInShort}>
+                                <View className='flex-row items-center gap-3'>
+                                    <Play size={12} fill={'white'} />
+                                    <Text className='text-white'>Play</Text>
+                                </View>
+                            </TouchableOpacity>
                             <Text numberOfLines={1} className='text-sm pl-1 whitespace-nowrap font-elms text-gray-400'>in Shots</Text>
                         </View>
                     </View>
@@ -60,7 +72,7 @@ export default function PlayListControls({ onMusicListOpen, onEditPlayList, onRe
                     <PlaylistMenu onMusicListOpen={onMusicListOpen} onEditPlayList={onEditPlayList} onRemovePlaylist={onRemovePlaylist} />
                 </View>
 
-                <TouchableOpacity className='bg-green-500 p-4 rounded-full' onPress={streamPlayList}>
+                <TouchableOpacity className='bg-green-500 p-4 rounded-full' onPress={() => streamPlayList(true)}>
                     <Play size={20} fill={'black'} />
                 </TouchableOpacity>
             </View>
