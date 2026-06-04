@@ -132,7 +132,8 @@ export const updateMusic = createAsyncThunk(
 
         const activeIndex = await TrackPlayer.getActiveTrackIndex();
 
-        const queueIndex = state.queue.findIndex(_track => _track.mediaId === track.mediaId);
+        const queueIndex = state.queue.findIndex(_track => _track.musicId === track.musicId);
+        if (queueIndex == -1) return null;
 
         if (activeIndex === queueIndex) {
             await TrackPlayer.updateNowPlayingMetadata(track);
@@ -276,14 +277,20 @@ const trackPlayerSlice = createSlice({
         });
 
         builder.addCase(updateMusic.fulfilled, (state, action) => {
-            const updatedTrack = action.payload
+            if (!action.payload) return;
+            const updatedTrack = action.payload;
 
-            state.queue = state.queue.map(_track => {
-                if (_track.mediaId === updatedTrack.mediaId) {
-                    return updatedTrack;
-                }
-                return _track;
-            });
+            state.queue = state.queue.map(track =>
+                track.mediaId === updatedTrack.mediaId
+                    ? { ...track, ...updatedTrack }
+                    : track
+            );
+
+            state.originalQueue = state.originalQueue.map(track =>
+                track.mediaId === updatedTrack.mediaId
+                    ? { ...track, ...updatedTrack }
+                    : track
+            );
         });
 
         builder.addCase(onCycleLoopMode.fulfilled, (state, action) => {

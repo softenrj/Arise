@@ -15,8 +15,8 @@ export async function LyricsTable(db: SQLiteDatabase) {
                 mimeType TEXT DEFAULT 'text/plain',
                 name TEXT DEFAULT '',
                 size INTEGER DEFAULT 0,
-                uri TEXT
-                musicId TEXT
+                uri TEXT,
+                musicId TEXT UNIQUE
             );
         `);
     } catch (error) {

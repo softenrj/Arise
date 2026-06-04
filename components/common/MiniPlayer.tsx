@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import { useAppSelector } from '@/hooks/useRedux';
 import { useTrack } from '@/hooks/useTrack';
 import { useTrackPanle } from '@/hooks/useTrackPanel';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,7 +11,7 @@ import { Image, Pressable, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { getColors } from 'react-native-image-colors';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import TrackPlayer, { State, useActiveTrack, usePlaybackState, useProgress } from 'react-native-track-player';
+import TrackPlayer, { State, usePlaybackState, useProgress } from 'react-native-track-player';
 import MiniPlayerTrackDetails from './MiniPlayerTrackDetails';
 
 export type GradientColors = [string, string, string];
@@ -22,7 +23,8 @@ const HIT_SLOP = 20;
 
 export default function MiniPlayer() {
     const { onOpen } = useTrackPanle();
-    const track = useActiveTrack();
+    const { queue, currentIndex, playlistName } = useAppSelector((state) => state.trackReducer);
+    const track = queue[currentIndex];
     const { state } = usePlaybackState();
     const { position, duration } = useProgress(250);
     const { togglePlay } = useTrack();

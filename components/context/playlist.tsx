@@ -1,57 +1,66 @@
-// Copyright (c) 2026 Raj 
+// Copyright (c) 2026 Raj
 // See LICENSE for details.
 
 import { useMusic } from '@/hooks/useMusic';
 import { IMusicTrack, IPlayListMusicTrack, PlayList, PlayListMusic } from '@/types/database';
-import React from 'react';
+import React, { createContext, useMemo, useState } from 'react';
 
-interface PlayListContext {
+interface PlaylistContextType {
+    playlist: PlayList | null;
     playlistMusics: IPlayListMusicTrack[];
-    playlist: PlayList | null
+    setPlayList: (playlist: PlayList) => void;
     setPlayListMusic: (musics: PlayListMusic[]) => void;
-    setPlayList: (p: PlayList) => void
 }
 
-export const PlaylistContext = React.createContext<PlayListContext>({
+export const PlaylistContext = createContext<PlaylistContextType>({
     playlist: null,
     playlistMusics: [],
+    setPlayList: () => { },
     setPlayListMusic: () => { },
-    setPlayList: () => { }
-})
-const PlayListProvider = ({ children }: { children: React.ReactNode }) => {
+});
+
+export default function PlayListProvider({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
     const { musics } = useMusic();
-    const [music, setMusic] = React.useState<IPlayListMusicTrack[]>([]);
-    const [playlist, setPlaylist] = React.useState<PlayList | null>(null);
 
-    const handleSetPlayList = (p: PlayList) => setPlaylist(p);
+    const [playlist, setPlaylist] = useState<PlayList | null>(null);
+    const [playlistEntries, setPlaylistEntries] = useState<PlayListMusic[]>([]);
 
-    const handleSetMusic = (playlistMusics: PlayListMusic[]) => {
-        const musicMap = new Map<string, IMusicTrack>();
+    const playlistMusics = useMemo<IPlayListMusicTrack[]>(() => {
+        const musicMap = new Map<string, IMusicTrack>(
+            musics.map((music) => [music.id, music])
+        );
 
-        for (const music of musics) {
-            musicMap.set(music.id, music);
-        }
+        return playlistEntries.reduce<IPlayListMusicTrack[]>(
+            (result, playlistMusic) => {
+                const music = musicMap.get(playlistMusic.musicId);
 
-        const result = playlistMusics
-            .map((playlistMusic) => {
-                const metadata = musicMap.get(playlistMusic.musicId);
+                if (!music) return result;
 
-                if (!metadata) return null;
-
-                return {
-                    ...metadata,
+                result.push({
+                    ...music,
                     ...playlistMusic,
-                };
-            })
-            .filter(Boolean) as IPlayListMusicTrack[];
+                });
 
-        setMusic(result);
-    };
+                return result;
+            },
+            []
+        );
+    }, [playlistEntries, musics]);
+
     return (
-        <PlaylistContext.Provider value={{ playlist: playlist, playlistMusics: music, setPlayList: handleSetPlayList, setPlayListMusic: handleSetMusic }}>
+        <PlaylistContext.Provider
+            value={{
+                playlist,
+                playlistMusics,
+                setPlayList: setPlaylist,
+                setPlayListMusic: setPlaylistEntries,
+            }}
+        >
             {children}
         </PlaylistContext.Provider>
-    )
+    );
 }
-
-export default PlayListProvider

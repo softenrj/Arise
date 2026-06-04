@@ -7,7 +7,7 @@ import { updateMusicdb } from '@/service/database';
 import { createOrUpdateLyrics } from '@/service/lyricsdb';
 import { saveMedia } from '@/service/persistMedia';
 import { IMusicTrack } from '@/types/database';
-import { defaultMusicArtWork, defaultVideo } from '@/utils/constants';
+import { defaultMusicArtWork } from '@/utils/constants';
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from 'expo-image-picker';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -30,8 +30,9 @@ export default function EditSheet() {
     const [customeImage, setCustomeImage] = React.useState<string | null>(null);
     const [customeVideo, setCustomeVideo] = React.useState<string | null>(null);
     const [customVideoFileName, setCustomVideoFileName] = React.useState<string | null>(null);
+    const [loading, setLoading] = React.useState<boolean>(false);
 
-    const player = useVideoPlayer(defaultVideo, (p) => {
+    const player = useVideoPlayer(music?.customVideoUri ?? null, (p) => {
         p.loop = true;
         p.volume = 1.0;
         p.muted = false;
@@ -111,6 +112,7 @@ export default function EditSheet() {
 
     const handleSave = async () => {
         if (!music) return;
+        setLoading(true);
         let lyricsId = null;
 
         if (lyrics) {
@@ -139,6 +141,8 @@ export default function EditSheet() {
             onMusicUpdate(updatedMusic);
             closeSheet();
         }
+
+        setLoading(false);
     };
 
     return (
@@ -222,14 +226,14 @@ export default function EditSheet() {
                         <Text className='text-xs font-elms text-black uppercase tracking-wider'>
                             Short Clip
                         </Text>
-                        <View className='w-full h-48 rounded-xl overflow-hidden bg-slate-200'>
+                        {music?.customVideoUri || customeVideo && <View className='w-full h-48 rounded-xl overflow-hidden bg-slate-200'>
                             <VideoView
                                 style={{ width: '100%', height: '100%' }}
                                 player={player}
                                 allowsPictureInPicture
                                 contentFit="cover"
                             />
-                        </View>
+                        </View>}
 
                         <TouchableOpacity
                             activeOpacity={0.7}
@@ -248,6 +252,7 @@ export default function EditSheet() {
                     activeOpacity={0.8}
                     onPress={handleSave}
                     className='mt-8 bg-slate-900 py-4 rounded-xl items-center shadow-sm'
+                    disabled={loading}
                 >
                     <Text className='text-white text-lg font-elms-bold'>Save Changes</Text>
                 </TouchableOpacity>

@@ -7,6 +7,7 @@ import { defaultMusicArtWork } from "@/utils/constants";
 export function getTrackFromMusic(musics: IMusicTrack[]): AriseTrack[] {
     return musics.map((music: IMusicTrack, _) => ({
         id: music.id.toString(),
+        musicId: music.musicId,
         url: music.uri,
         title: music.filename,
         artist: music.artist,
@@ -25,4 +26,28 @@ export function getTrackFromMusic(musics: IMusicTrack[]): AriseTrack[] {
         lyricsName: music.lyricsName,
         lyricsUri: music.lyricsUri
     }))
+}
+
+export function getFirstTrackFromMusic(music: IMusicTrack): AriseTrack {
+    return {
+        id: music.id.toString(),
+        musicId: music.musicId,
+        url: music.uri,
+        title: music.filename,
+        artist: music.artist,
+        artwork: music.customCoverUri || defaultMusicArtWork,
+        duration: music.duration || 0,
+        mediaId: music.id,
+
+        isLiked: music.isLiked,
+        visible: music.visible,
+
+        customCoverUri: music.customCoverUri,
+        customVideoUri: music.customVideoUri,
+        customVideoFileName: music.customVideoFileName,
+
+        lyricsId: music.lyricsId,
+        lyricsName: music.lyricsName,
+        lyricsUri: music.lyricsUri
+    }
 } 

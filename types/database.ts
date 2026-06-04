@@ -31,11 +31,13 @@ export interface IMusicTrack {
   lyricsId?: string | null;
   lyricsName?: string | null;
   lyricsUri?: string | null;
+  [key: string]: any;
 }
 
 export interface AriseTrack extends Track {
   isLiked?: 0 | 1;
   visible: 0 | 1;
+  musicId: string;
 
   customCoverUri?: string | null;
   customVideoUri?: string | null;
@@ -79,4 +81,4 @@ export interface PlayListMusic {
 }
 
 export interface IPlayListMusicTrack
-  extends Omit<IMusicTrack, "id">, PlayListMusic { }
+  extends IMusicTrack, PlayListMusic { }

@@ -1,12 +1,15 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for detail
 
+import { useMusic } from '@/hooks/useMusic';
 import { useShorts } from '@/hooks/useShorts';
 import { useTrack } from '@/hooks/useTrack';
+import { likeMusic } from '@/service/database';
 import { AriseTrack } from '@/types/database';
 import { defaultMusicArtWork } from '@/utils/constants';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import React from 'react';
 import { Image, Pressable, View } from 'react-native';
@@ -22,10 +25,12 @@ const HIT_SLOP = 20;
 const DOUBLE_TAP_DELAY = 300;
 
 function FeedItem({ containerHeight, isActive, feed }: { containerHeight: number; isActive: boolean, feed: AriseTrack }) {
+    const db = useSQLiteContext();
     const { isHolding, handleHolding } = useShorts();
     const [showImage, setShowImage] = React.useState<boolean>(!feed?.customVideoUri);
     const { position, duration } = useProgress(250);
     const { play, pause, seekTo, setTrackVolume } = useTrack();
+    const { setLike } = useMusic();
 
     const videoPlayer = useVideoPlayer(feed.customVideoUri ?? null, (p) => {
         p.loop = true;
@@ -45,20 +50,30 @@ function FeedItem({ containerHeight, isActive, feed }: { containerHeight: number
     }, [feed]);
 
     // like
-    const [isLiked, setIsLiked] = React.useState(false);
+    const [isLiked, setIsLiked] = React.useState(feed.isLiked === 1);
     const tapTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const likeAnimationTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [showLikeAnimation, setShowLikeAnimation] = React.useState<boolean>(false);
 
-    const toggleLike = React.useCallback(() => {
-        setIsLiked(prev => {
-            if (!prev) handleLikeAnimation();
-            return !prev;
-        });
-    }, []);
+    const toggleLike = async () => {
+        if (!feed.musicId) return;
+        const likeState = isLiked ? 0 : 1;
+        const response = await likeMusic(db, feed.musicId, likeState);
+        if (response) {
+            setIsLiked(prev => !prev);
+            setLike(feed.musicId, likeState);
+        }
+    };
 
-    const handleLike = React.useCallback(() => setIsLiked(true), []);
+    const handleLike = async () => {
+        if (!feed.musicId) return;
+        const response = await likeMusic(db, feed.musicId, 1);
+        if (response) {
+            setIsLiked(true);
+            setLike(feed.musicId, 1)
+        }
+    };
 
     // slider properties
     const sliderWidth = useSharedValue(0);
@@ -122,7 +137,6 @@ function FeedItem({ containerHeight, isActive, feed }: { containerHeight: number
             stiffness: 200,
         }),
         borderRadius: 4,
-        opacity: withTiming(showImage ? 0 : 1, { duration: 200 }),
         backgroundColor: 'rgba(255,255,255,0.35)',
         overflow: 'hidden' as const,
     }));
