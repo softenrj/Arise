@@ -1,6 +1,9 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useMusic } from '@/hooks/useMusic';
+import { IMusicTrack } from '@/types/database';
+import { defaultMusicArtWork } from '@/utils/constants';
 import { ImageBackground } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { EllipsisVertical, MoveRight } from 'lucide-react-native';
@@ -8,6 +11,9 @@ import React from 'react';
 import { FlatList, Image, Text, View } from 'react-native';
 
 export default function Shorts() {
+    const { shorts } = useMusic();
+
+    if (shorts.length === 0) return null;
     return (
         <View>
             <View className='flex-col items-start'>
@@ -23,13 +29,13 @@ export default function Shorts() {
             </View>
 
             <FlatList
-                data={Array.from({ length: 4 })}
+                data={shorts}
                 scrollEnabled={false}
                 numColumns={2}
                 columnWrapperStyle={{ gap: 15 }}
                 contentContainerStyle={{ gap: 15 }}
                 className='mx-2 my-2'
-                renderItem={() => (
+                renderItem={({ item }: { item: IMusicTrack }) => (
                     <View style={{
                         flex: 1,
                         borderRadius: 14,
@@ -42,7 +48,7 @@ export default function Shorts() {
                     }}>
                         <View style={{ borderRadius: 14, overflow: 'hidden' }}>
                             <ImageBackground
-                                source={{ uri: "https://mikiki.ismcdn.jp/mwimgs/2/3/-/img_2376de839abfe22c91f4117a7100c41f641127.jpg" }}
+                                source={{ uri: item?.customCoverUri || defaultMusicArtWork }}
                                 style={{ width: '100%', aspectRatio: 2 / 3 }}
                             >
                                 <LinearGradient
@@ -55,10 +61,10 @@ export default function Shorts() {
 
                                     <View className='flex-col gap-0.5'>
                                         <Text numberOfLines={2} className='text-white text-sm font-elms-med leading-tight'>
-                                            Tada Koe Hitotsu - Rokudenashi
+                                            {item.title}
                                         </Text>
                                         <Text numberOfLines={1} className='text-white/60 text-xs font-elms'>
-                                            ロクデナシ
+                                            {item.artist}
                                         </Text>
                                     </View>
                                 </LinearGradient>

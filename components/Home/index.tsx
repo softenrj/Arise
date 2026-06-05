@@ -2,18 +2,27 @@
 // See LICENSE for details.
 
 import { NavBar } from '@/config/viewRegistry/navbar';
+import { useAppDrawer } from '@/hooks/useAppDrawer';
+import { useMusic } from '@/hooks/useMusic';
 import { useRefresh } from '@/hooks/useRefresh';
 import Renderer from '@/renderer/renderer';
+import { defaultMusicArtWork } from '@/utils/constants';
 import React from 'react';
-import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
-
-
-const categories = ['All', 'Recent', 'Recomended'];
 
 export default function index({ children }: { children: React.ReactNode }) {
     const [activeTab, setActiveTab] = React.useState('All');
-    const { refresh, onRefresh } = useRefresh();
+    const { onReloadHomeData, musics, recent, recommendedMusic } = useMusic();
+    const { onOpen } = useAppDrawer();
+    const { refresh, onRefresh, setRefresh } = useRefresh();
+    const noMusic = musics.length === 0;
+
+    let categories = [];
+
+    if (musics.length > 0) categories.push('All');
+    if (recent.length > 0) categories.push('Recent');
+    if (recommendedMusic.length > 0) categories.push('Recommended');
 
     const navSeen = {
         ...NavBar['nav'],
@@ -23,12 +32,31 @@ export default function index({ children }: { children: React.ReactNode }) {
         ]
     };
 
+    const handleLoadHome = async () => {
+        await onReloadHomeData();
+    }
+
+    const handleRefresh = async () => {
+        setRefresh(true);
+        await onReloadHomeData();
+        onRefresh();
+    }
+
+    React.useEffect(() => {
+        handleLoadHome();
+    }, []);
+
     return (
         <View className='bg-white flex-1'>
             <Renderer scene={navSeen} />
             <FocusAwareStatusBar style='dark' />
-            <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-4 py-2' showsVerticalScrollIndicator={false}
-                refreshControl={<RefreshControl refreshing={refresh} onRefresh={onRefresh} />}>
+
+            <ScrollView
+                contentContainerStyle={{ gap: 20, paddingBottom: 10, flexGrow: 1 }}
+                className='flex-1 px-4 py-2'
+                showsVerticalScrollIndicator={false}
+                refreshControl={<RefreshControl refreshing={refresh} onRefresh={handleRefresh} />}
+            >
                 <View>
                     <ScrollView
                         horizontal
@@ -57,8 +85,42 @@ export default function index({ children }: { children: React.ReactNode }) {
                     </ScrollView>
                 </View>
 
+                {noMusic && (
+                    <View className='flex-1 justify-center items-center py-20 px-6'>
+                        <View className='mb-8 rounded-[32px] bg-gray-50 p-2 border border-gray-100'>
+                            <Image
+                                source={{ uri: defaultMusicArtWork }}
+                                className='w-32 h-32 rounded-2xl opacity-90'
+                                resizeMode='cover'
+                            />
+                        </View>
+
+                        <Text className='text-2xl font-extrabold text-gray-800 mb-2 text-center tracking-tight'>
+                            It's quiet in here
+                        </Text>
+
+                        <Text className='text-base text-gray-500 text-center leading-6 mb-8 px-2'>
+                            Your library is empty. Let's find your local tracks to get the party started.
+                        </Text>
+
+                        <TouchableOpacity
+                            activeOpacity={0.8}
+                            className='bg-[#27272A] px-8 py-4 rounded-full flex-row items-center shadow-sm'
+                            onPress={onOpen}
+                        >
+                            <Text className='text-white font-semibold text-base'>
+                                Open Menu
+                            </Text>
+                        </TouchableOpacity>
+
+                        <Text className='text-xs text-gray-400 mt-6 text-center'>
+                            (You can also open the menu by tapping your avatar)
+                        </Text>
+                    </View>
+                )}
+
                 {children}
             </ScrollView>
         </View>
-    )
+    );
 }

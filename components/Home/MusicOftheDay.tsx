@@ -1,11 +1,17 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useMusic } from '@/hooks/useMusic';
+import { IMusicTrack } from '@/types/database';
+import { defaultMusicArtWork } from '@/utils/constants';
 import { Asterisk, EllipsisVertical, MoveRight } from 'lucide-react-native';
 import React from 'react';
 import { Image, ScrollView, Text, View } from 'react-native';
 
 export default function MusicoftheDay() {
+    const { handpickedMusic } = useMusic();
+
+    if (handpickedMusic.length === 0) return null;
     return (
         <View>
             <View className='flex-row items-start gap-3'>
@@ -30,19 +36,19 @@ export default function MusicoftheDay() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 10 }} className='my-2 mx-3'>
-                {Array.from({ length: 4 }).map((_, i) => (
-                    <View key={i} className='flex-row items-center w-full gap-3'>
+                {handpickedMusic.map((item: IMusicTrack) => (
+                    <View key={item.id} className='flex-row items-center w-full gap-3'>
                         <Image
-                            source={{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh9ybGbX0RSnBFVlBeSOkzzlPi4O2eT5AH2w&s" }}
+                            source={{ uri: item.customCoverUri || defaultMusicArtWork }}
                             className='w-16 h-16 rounded-sm'
                         />
 
                         <View className='flex-1 flex-col justify-center'>
                             <Text numberOfLines={1} className='text-black text-sm font-jakarta tracking-tight' style={{ fontWeight: 500 }}>
-                                Tada Koe Hitotsu - Rokudenashi 「ロクデナシ」[ Lyrics ] | Aru
+                                {item.title}
                             </Text>
                             <Text numberOfLines={1} className='text-zinc-500 text-xs mt-0.5'>
-                                琳琪玥雪
+                                {item.artist}
                             </Text>
                         </View>
 

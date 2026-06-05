@@ -1,10 +1,16 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useMusic } from '@/hooks/useMusic';
+import { formatDurationLocalString } from '@/service/MusicDuration';
+import { defaultPlayListCover } from '@/utils/constants';
 import React from 'react';
 import { Image, Text, View } from 'react-native';
 
 export default function Playlist() {
+    const { playlist } = useMusic();
+
+    if (!playlist) return null;
     return (
         <View className='w-full'>
 
@@ -20,7 +26,7 @@ export default function Playlist() {
                     backgroundColor: '#fff',
                 }}>
                 <Image
-                    source={{ uri: "https://thewildcattribune.com/wp-content/uploads/2023/05/52890928681_a467a529c4_o-e1685030922246.jpg" }}
+                    source={{ uri: playlist?.cover || defaultPlayListCover }}
                     className='w-full'
                     style={{ aspectRatio: 1 }}
                 />
@@ -28,10 +34,10 @@ export default function Playlist() {
 
             <View className='px-1 mt-2'>
                 <Text className='text-black text-2xl font-elms-med tracking-tighter'>
-                    Anime Chill Mix
+                    {playlist?.title}
                 </Text>
                 <Text className='text-zinc-400 text-sm font-elms mt-0.5'>
-                    42 songs • 2h 38m
+                    {playlist?.numberOfSongs} songs • {formatDurationLocalString(playlist?.totalSeconds || 0)}
                 </Text>
             </View>
 

@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import { initializeCurrentSession } from "@/service/musicAnalytics";
 import { AriseTrack } from "@/types/database";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import TrackPlayer, { RepeatMode } from "react-native-track-player";
@@ -46,7 +47,10 @@ export const setupQueue = createAsyncThunk(
         await TrackPlayer.reset();
         await TrackPlayer.add(tracks);
         await TrackPlayer.skip(startIndex);
-        if (play) await TrackPlayer.play();
+        if (play) {
+            await TrackPlayer.play()
+            await initializeCurrentSession()
+        };
         return { tracks, startIndex, playlistName, sourceId, sourceType };
     }
 );
@@ -57,6 +61,7 @@ export const playAtIndex = createAsyncThunk(
     async (index: number) => {
         await TrackPlayer.skip(index);
         await TrackPlayer.play();
+        await initializeCurrentSession()
         return index;
     }
 );

@@ -2,18 +2,25 @@
 // See LICENSE for details.
 
 import TrackPlayer, { Event } from 'react-native-track-player';
-import { finalizeCurrentTrack } from './musicAnalytics';
+import { finalizeCurrentTrack, initializeCurrentSession } from './musicAnalytics';
 
 export async function PlaybackService() {
 
-    TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play());
+    TrackPlayer.addEventListener(Event.RemotePlay, () => {
+        TrackPlayer.play();
+        initializeCurrentSession();
+    });
     TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
     TrackPlayer.addEventListener(Event.RemoteStop, () => TrackPlayer.stop());
     TrackPlayer.addEventListener(Event.RemoteNext, () => TrackPlayer.skipToNext());
     TrackPlayer.addEventListener(Event.RemotePrevious, () => TrackPlayer.skipToPrevious());
 
-    TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, () => {
-        finalizeCurrentTrack();
+    TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
+        if (!event.lastTrack) return;
+
+        const duration = event.lastTrack.duration ?? 0;
+        const position = event.lastPosition ?? 0;
+        finalizeCurrentTrack(position, duration);
     });
 
     // Fired when seeking via notification scrubber

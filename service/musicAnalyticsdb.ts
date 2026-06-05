@@ -1,7 +1,11 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { IMusicTrack, MusicAnalytics } from "@/types/database";
+import * as Crypto from "expo-crypto";
 import { SQLiteDatabase } from "expo-sqlite";
+
+const getId = () => Crypto.randomUUID();
 
 export const initMusicAnalyticsDB = async (db: SQLiteDatabase) => {
     try {
@@ -17,7 +21,9 @@ export const initMusicAnalyticsDB = async (db: SQLiteDatabase) => {
                 lastPlayedAt INTEGER DEFAULT NULL,
 
                 createdAt INTEGER NOT NULL,
-                updatedAt INTEGER NOT NULL
+                updatedAt INTEGER NOT NULL,
+
+                FOREIGN KEY (musicId) REFERENCES Musics(id) ON DELETE CASCADE
             )
         `
 
@@ -35,6 +41,12 @@ interface UpdateMusicAnalytics {
     musicDuration: number;
 }
 
+/**
+ * Gets the music analytics for a given music.
+ * @param db 
+ * @param musicId 
+ * @returns Promise<any | null>
+ */
 export const getMusicAnalytics = async (db: SQLiteDatabase, musicId: string): Promise<any | null> => {
     try {
         const sqlCommand = `
@@ -124,14 +136,21 @@ export const initRecentPlaysDB = async (db: SQLiteDatabase) => {
     }
 }
 
+/**
+ * Adds a recent play entry for a given music.
+ * @param db 
+ * @param musicId 
+ * @returns Promise<void>
+ */
 export const addRecentPlay = async (db: SQLiteDatabase, musicId: string) => {
     try {
         const now = Date.now();
+        const id = getId();
         const sqlCommand = `
             INSERT INTO RecentPlays (id, musicId, playedAt)
             VALUES (?, ?, ?);
         `;
-        await db.runAsync(sqlCommand, [crypto.randomUUID(), musicId, now]);
+        await db.runAsync(sqlCommand, [id, musicId, now]);
 
         await db.runAsync(`
             DELETE FROM RecentPlays
@@ -144,5 +163,105 @@ export const addRecentPlay = async (db: SQLiteDatabase, musicId: string) => {
             `, [150]);
     } catch (error) {
         console.error("Error adding recent play:", error);
+    }
+}
+
+/**
+ * gets last 20 played musics
+ * @param db 
+ * @param limit 
+ * @returns Promise<IMusicTrack[]>
+ */
+export const getRecentPlays = async (db: SQLiteDatabase, limit: number = 20): Promise<IMusicTrack[]> => {
+    try {
+        const sql = `
+            SELECT music.*
+            FROM Musics AS music
+            INNER JOIN (
+                SELECT musicId, MAX(playedAt) AS lastPlayed
+                FROM RecentPlays
+                GROUP BY musicId
+            ) rp
+            ON music.id = rp.musicId
+            ORDER BY rp.lastPlayed DESC
+            LIMIT ?;
+        `;
+
+        const recent = await db.getAllAsync(sql, [limit]) as IMusicTrack[];
+        return recent;
+    } catch (error) {
+        console.error("Error fetching recent plays database:", error);
+        return [];
+    }
+}
+
+/**
+ * Gets recomendations based on user listening history
+ * @param db 
+ * @param limit 
+ * @returns Promise<IMusicTrack[]>
+ */
+export const getRecomendations = async (db: SQLiteDatabase, limit: number = 20): Promise<IMusicTrack[]> => {
+    try {
+        const sqlCommand = `
+            SELECT music.isLiked, music.creationTime , music_a.* 
+            FROM music_analytics AS music_a
+            LEFT JOIN Musics as music ON music_a.musicId = music.id
+            WHERE music_a.playCount > 1
+        `
+
+        const dbResult = await db.getAllAsync(sqlCommand) as (MusicAnalytics & { isLiked: boolean, creationTime: number })[];
+
+        /**
+         * Scoring algorithm
+         */
+        const scoredData = dbResult.map((item) => {
+            const now = Date.now();
+            const hoursSincePlayed = (now - item.lastPlayedAt) / (1000 * 60 * 60);
+
+            const recencyScore = 100 / (1 + hoursSincePlayed / 24);
+            const engagement = item.completedCount * 50;
+            const liking = item.isLiked ? 1 * 25 : 0;
+            const playScore = item.playCount * 10;
+
+            const skipPenalty = item.skipCount * -5;
+            const totalListeningSeconds = (item.totalListeningSeconds / (1000 * 60 * 60)) * 10;
+            const daysOld = (now - item.creationTime) / (1000 * 60 * 60 * 24);
+
+            const freshnessScore = Math.max(0, 30 - daysOld);
+
+            const musicPreferenceScore = engagement + liking + skipPenalty + totalListeningSeconds + playScore;
+            const adjustedScore = musicPreferenceScore * 0.7 + recencyScore * 0.3 + freshnessScore * 0.1;
+            return {
+                id: item.musicId,
+                score: adjustedScore,
+            };
+        })
+
+        // Sort by score
+        scoredData.sort((a, b) => b.score - a.score);
+
+        // Return top N
+        const recommendedIds = scoredData.slice(0, limit).map((item) => item.id);
+
+        if (recommendedIds.length > 0) {
+            const placeholders = recommendedIds.map(() => "?").join(",");
+            const query = `SELECT * FROM Musics WHERE id IN (${placeholders});`;
+
+            const recommendedTracks = (await db.getAllAsync(query, recommendedIds)) as IMusicTrack[];
+            return recommendedTracks;
+        }
+
+        // Get most played songs
+        const recents = await getRecentPlays(db, limit);
+
+        if (recents.length > 0) {
+            return recents;
+        }
+
+        return [];
+    } catch (error) {
+        console.error("Error fetching recomendations:", error);
+        return [];
     }
 }

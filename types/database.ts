@@ -71,6 +71,12 @@ export interface PlayList {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface PlayListRecomendation extends PlayList {
+  numberOfSongs: number;
+  totalSeconds: number;
+}
+
 export interface PlayListMusic {
   id: string;
   musicId: string;
@@ -82,3 +88,16 @@ export interface PlayListMusic {
 
 export interface IPlayListMusicTrack
   extends IMusicTrack, PlayListMusic { }
+
+
+export interface MusicAnalytics {
+  musicId: string,
+  playCount: number,
+  skipCount: number,
+  completedCount: number,
+  totalListeningSeconds: number,
+  firstPlayedAt: number,
+  lastPlayedAt: number,
+  createdAt: number,
+  updatedAt: number,
+}

@@ -3,10 +3,10 @@
 
 import { useMusic } from '@/hooks/useMusic';
 import { useMusicLib } from '@/hooks/useMusicLib';
-import { hideMusicdb, removeMusicdb } from '@/service/database';
+import { hideAllMusic, hideMusicdb, removeMusicdb } from '@/service/database';
 import { IMusicTrack } from '@/types/database';
 import { useSQLiteContext } from 'expo-sqlite';
-import { Cog, EllipsisVertical, Eye, ListMusic, Trash } from 'lucide-react-native';
+import { Cog, EllipsisVertical, Eye, EyeClosed, ListMusic, Trash } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Menu, MenuItem, MenuItemLabel } from '../ui/menu';
@@ -35,6 +35,11 @@ export default function MusicMenu({ musicId }: { musicId: string }) {
         await removeMusicdb(db, musicId);
         closeSheet();
     }, [music])
+
+    const handleHideAllMusic = React.useCallback(async () => {
+        await hideAllMusic(db);
+        closeSheet();
+    }, [])
 
     React.useEffect(() => {
         const track = musics.find(m => m.id === editMusicId);
@@ -96,6 +101,20 @@ export default function MusicMenu({ musicId }: { musicId: string }) {
                 </View>
                 <MenuItemLabel size="sm" className="text-zinc-700 font-medium tracking-wide">
                     {visibility === 1 ? 'Hide' : 'UnHide'}
+                </MenuItemLabel>
+            </MenuItem>
+
+            <MenuItem
+                key="HideAll"
+                textValue="Hide All"
+                className="px-4 py-3 flex-row items-center gap-3 active:bg-zinc-50 border-b border-zinc-100"
+                onPress={handleHideAllMusic}
+            >
+                <View className="w-7 h-7 rounded-lg bg-emerald-50 items-center justify-center">
+                    <EyeClosed size={14} color="#10b981" />
+                </View>
+                <MenuItemLabel size="sm" className="text-zinc-700 font-medium tracking-wide">
+                    Hide All
                 </MenuItemLabel>
             </MenuItem>
 

@@ -307,3 +307,15 @@ export const likeMusic = async (db: SQLiteDatabase, musicId: string, liked: 0 | 
     return false;
   }
 }
+
+
+export const hideAllMusic = async (db: SQLiteDatabase) => {
+  try {
+    const sql = `UPDATE Musics SET visible = 0`;
+    await db.runAsync(sql);
+    return true;
+  } catch (error) {
+    console.error("Failed hide all music from SQLite:", error);
+    return false;
+  }
+}

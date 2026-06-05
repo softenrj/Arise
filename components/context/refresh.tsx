@@ -7,6 +7,7 @@ import React from 'react';
 interface Refresh {
   refresh: boolean;
   onRefresh: () => Promise<void>;
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   playlistRefresh: boolean; // act as trigger
   onPlaylistRefresh: () => void;
 }
@@ -14,6 +15,7 @@ interface Refresh {
 export const RefreshContext = React.createContext<Refresh>({
   refresh: false,
   onRefresh: () => Promise.resolve(),
+  setRefresh: () => { },
   playlistRefresh: false,
   onPlaylistRefresh: () => { }
 });
@@ -36,7 +38,7 @@ function RefreshProvider({ children }: { children: React.ReactNode }) {
   const handlePlayListRefresh = React.useCallback(() => setPlayListRefresh(prev => !prev), []);
 
   return (
-    <RefreshContext.Provider value={{ refresh, onRefresh: handleRefresh, playlistRefresh, onPlaylistRefresh: handlePlayListRefresh }}>
+    <RefreshContext.Provider value={{ refresh, onRefresh: handleRefresh, setRefresh, playlistRefresh, onPlaylistRefresh: handlePlayListRefresh }}>
       {children}
     </RefreshContext.Provider>
   )

@@ -1,11 +1,13 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { IMusicTrack } from '@/types/database';
+import { defaultMusicArtWork } from '@/utils/constants';
 import { MoveRight, Zap } from 'lucide-react-native';
 import React from 'react';
 import { Image, ScrollView, Text, View } from 'react-native';
 
-export default function MusicLinearList({ title, subTitle, Icon = Zap }: { title: string, subTitle: string, Icon?: React.ElementType }) {
+export default function MusicLinearList({ title, subTitle, Icon = Zap, music = [] }: { title: string, subTitle: string, Icon?: React.ElementType, music: IMusicTrack[] }) {
     return (
         <View>
             <View className='flex-col items-start'>
@@ -21,21 +23,21 @@ export default function MusicLinearList({ title, subTitle, Icon = Zap }: { title
             </View>
 
             <ScrollView horizontal contentContainerStyle={{ gap: 6 }} className='my-2' showsHorizontalScrollIndicator={false}>
-                {Array.from({ length: 8 }).map((_, i) => (
-                    <View key={i} className='w-36'>
+                {music.map((item: IMusicTrack) => (
+                    <View key={item.id} className='w-36'>
 
                         <Image
-                            source={{ uri: "https://i1.sndcdn.com/artworks-TxxgGadkRxbMvkJ8-vKrXig-t500x500.jpg" }}
+                            source={{ uri: item.customCoverUri || defaultMusicArtWork }}
                             className='w-[8.5rem] h-[8.5rem]'
                         />
 
                         <View className='items-center'>
                             <Text numberOfLines={1} className='text-black text-sm font-jakarta mt-2.5 tracking-tight'>
-                                Rokudenashi
+                                {item.title}
                             </Text>
 
                             <Text numberOfLines={1} className='text-zinc-500 text-xs font-normal mt-1'>
-                                琳琪玥雪
+                                {item.artist}
                             </Text>
                         </View>
 

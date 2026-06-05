@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
-import { PlayList, PlayListMusic } from "@/types/database";
+import { PlayList, PlayListMusic, PlayListRecomendation } from "@/types/database";
 import { defaultPlayListCover } from "@/utils/constants";
 import * as Crypto from "expo-crypto";
 import { SQLiteDatabase } from "expo-sqlite";
@@ -39,8 +39,8 @@ export async function PlayListMusicTable(db: SQLiteDatabase) {
             createdAt INTEGER,
             updatedAt INTEGER,
 
-            FOREIGN KEY (musicId) REFERENCES Musics(id),
-            FOREIGN KEY (playlistId) REFERENCES PlayList(id),
+            FOREIGN KEY (musicId) REFERENCES Musics(id) ON DELETE CASCADE,
+            FOREIGN KEY (playlistId) REFERENCES PlayList(id) ON DELETE CASCADE,
 
             UNIQUE (playlistId, musicId)
         )
@@ -405,5 +405,46 @@ export const pinPlayList = async (db: SQLiteDatabase, pin: 0 | 1, playlistId: st
   } catch (error) {
     console.error("Failed to pin playlist :", error);
     return false;
+  }
+}
+
+/**
+ * 
+ * @param db
+ * @returns 
+ */
+export const getPlayListRecomendation = async (db: SQLiteDatabase): Promise<PlayListRecomendation | null> => {
+  try {
+    const sqlCommand = `
+      SELECT p.*, COUNT(plm.musicId) as numberOfMusic,
+      SUM(m.duration) as totalSeconds,
+      SUM(m.isLiked) as numberOfLikes
+      FROM PlayList p
+      LEFT JOIN PlayList_MUSIC plm on p.id = plm.playlistId
+      LEFT JOIN Musics m on plm.musicId = m.id
+      GROUP BY p.id
+    `;
+
+    const playlists = (await db.getAllAsync(sqlCommand)) as (PlayListRecomendation & { numberOfLikes: number, numberOfMusic: number, totalSeconds: number })[];
+
+    /**
+     * formula : 
+     * score = each like worth 5 points
+     * each music worth 2 points
+     * each minute worth 1 point
+     */
+    const scoredPlaylists = playlists.map((playlist) => ({
+      ...playlist,
+      score: playlist.numberOfLikes * 5 + playlist.numberOfMusic * 2 + playlist.totalSeconds / 60,
+    }));
+
+    const result = scoredPlaylists.sort((a, b) => b.score - a.score)[0]
+
+    if (!result) return null;
+
+    return result
+  } catch (error) {
+    console.error("Error getting playlist recomendation:", error);
+    return null;
   }
 }

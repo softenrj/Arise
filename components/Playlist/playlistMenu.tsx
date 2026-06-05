@@ -29,10 +29,10 @@ const PlaylistMenu = ({ onMusicListOpen, onEditPlayList, onRemovePlaylist }: { o
             offset={6}
             trigger={({ ...triggerProps }) => (
                 <TouchableOpacity
-                    className="flex-row items-center gap-1.5 bg-neutral-800 px-2.5 py-1.5 rounded-full border border-neutral-700 active:bg-neutral-700"
+                    className="flex-row items-center justify-center gap-1.5 bg-neutral-800 px-2 py-1.5 rounded-full border border-neutral-700 active:bg-neutral-700"
                     {...triggerProps}
                 >
-                    <EllipsisVertical size={14} color="#e5e5e5" />
+                    <EllipsisVertical size={12} color="#e5e5e5" />
                     <Text className="text-neutral-200 text-xs font-semibold tracking-wide">Options</Text>
                 </TouchableOpacity>
             )}

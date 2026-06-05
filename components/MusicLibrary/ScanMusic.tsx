@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import { useMusic } from '@/hooks/useMusic';
 import { createMultipleMusics } from '@/service/database';
 import { extractAudioMetadata } from '@/service/metaDataExtractor';
 import { Audio } from '@/types/audioMetadata';
@@ -26,6 +27,8 @@ export default function ScanMusic({ scanState, setScanState }: { scanState: Scan
     const iconPulse = React.useRef(new Animated.Value(1)).current;
     const checkPop = React.useRef(new Animated.Value(0)).current;
     const counterFade = React.useRef(new Animated.Value(0)).current;
+
+    const { onReloadHomeData } = useMusic();
 
     const db = useSQLiteContext();
 
@@ -143,6 +146,7 @@ export default function ScanMusic({ scanState, setScanState }: { scanState: Scan
             }
 
             setScanState('done');
+            await onReloadHomeData();
             await createMultipleMusics(musics as any, db);
         } catch (e: any) {
             setScanState('error');

@@ -12,13 +12,22 @@ interface TrackSession {
 
 let currentSession: TrackSession | null = null;
 
-export const finalizeCurrentTrack = async () => {
+export const initializeCurrentSession = async () => {
+    if (currentSession) return;
+    const activeTrack = await TrackPlayer.getActiveTrack();
+    if (!activeTrack?.musicId) {
+        currentSession = null;
+        return;
+    }
+    currentSession = { musicId: activeTrack.musicId, startedAt: Date.now() };
+}
+
+export const finalizeCurrentTrack = async (position: number, duration: number) => {
     const db = getDatabase();
     if (!db) return;
 
     try {
         if (currentSession) {
-            const { position, duration } = await TrackPlayer.getProgress();
 
             await updateMusicAnalytics(db, {
                 musicId: currentSession?.musicId,
@@ -33,12 +42,12 @@ export const finalizeCurrentTrack = async () => {
 
         const activeTrack = await TrackPlayer.getActiveTrack();
 
-        if (!activeTrack?.mediaId) {
+        if (!activeTrack?.musicId) {
             currentSession = null;
             return;
         }
 
-        currentSession = { musicId: activeTrack.mediaId, startedAt: Date.now() };
+        currentSession = { musicId: activeTrack.musicId, startedAt: Date.now() };
     } catch (error) {
         console.error("Failed to finalize track analytics:", error);
     }

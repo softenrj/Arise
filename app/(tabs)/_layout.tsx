@@ -50,7 +50,7 @@ export default function TabLayout() {
                         <TabTrigger name="setting" href={'/setting'} style={{ display: 'none' }} />
                         <TabTrigger name="music library" href={'/(tabs)/music_library'} style={{ display: 'none' }} />
                         {/* <TabTrigger name="playlist" href={'/(tabs)/playlist'} style={{ display: 'none' }} /> */}
-                        <TabTrigger name="Home" href={"/home"}>
+                        <TabTrigger name="index" href={"/home"}>
                             <CustomeTab name="Home" Icon={Home} />
                         </TabTrigger>
 

@@ -8,7 +8,7 @@ import { formatDurationLocalString } from '@/service/MusicDuration';
 import { getTrackFromMusic } from '@/service/TrackMaker';
 import { defaultPlayList, defaultPlayListCover } from '@/utils/constants';
 import { useRouter } from 'expo-router';
-import { Dot, Music, Play } from 'lucide-react-native';
+import { Dot, Music, Pause, Play } from 'lucide-react-native';
 import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import PlaylistMenu from './playlistMenu';
@@ -73,7 +73,7 @@ export default function PlayListControls({ onMusicListOpen, onEditPlayList, onRe
                 </View>
 
                 <TouchableOpacity className='bg-green-500 p-4 rounded-full' onPress={() => streamPlayList(true)}>
-                    <Play size={20} fill={'black'} />
+                    {track.sourceId === playlist?.id ? <Pause size={20} fill={'black'} /> : <Play size={20} fill={'black'} />}
                 </TouchableOpacity>
             </View>
         </View>
