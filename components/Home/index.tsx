@@ -6,10 +6,12 @@ import { useAppDrawer } from '@/hooks/useAppDrawer';
 import { useMusic } from '@/hooks/useMusic';
 import { useRefresh } from '@/hooks/useRefresh';
 import Renderer from '@/renderer/renderer';
+import { Section } from '@/types/screenMap';
 import { defaultMusicArtWork } from '@/utils/constants';
 import React from 'react';
 import { Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
+import MiniPlayer from '../common/MiniPlayer';
 
 export default function index({ children }: { children: React.ReactNode }) {
     const [activeTab, setActiveTab] = React.useState('All');
@@ -21,7 +23,7 @@ export default function index({ children }: { children: React.ReactNode }) {
     let categories = [];
 
     if (musics.length > 0) categories.push('All');
-    if (recent.length > 0) categories.push('Recent');
+    if (recent.length > 0) categories.push('Top Picks');
     if (recommendedMusic.length > 0) categories.push('Recommended');
 
     const navSeen = {
@@ -31,6 +33,37 @@ export default function index({ children }: { children: React.ReactNode }) {
             { key: 'NavTime' }
         ]
     };
+
+    const homeSeen: Section = React.useMemo(() => {
+        const children = [
+            { key: 'Recent' },
+            { key: 'Shorts' },
+            { key: 'Playlist' },
+            { key: 'Recommendations' },
+            { key: 'Music_Of_The_Day' },
+        ];
+
+        const map: Record<string, string> = {
+            'Top Picks': 'Music_Of_The_Day',
+            Recommended: 'Recommendations',
+        };
+
+        const activeKey = map[activeTab];
+
+        if (activeKey) {
+            const index = children.findIndex(x => x.key === activeKey);
+
+            if (index > 0) {
+                const [selected] = children.splice(index, 1);
+                children.unshift(selected);
+            }
+        }
+
+        return {
+            key: 'Virtual',
+            children
+        };
+    }, [activeTab]);
 
     const handleLoadHome = async () => {
         await onReloadHomeData();
@@ -46,81 +79,85 @@ export default function index({ children }: { children: React.ReactNode }) {
         handleLoadHome();
     }, []);
 
+
     return (
-        <View className='bg-white flex-1'>
-            <Renderer scene={navSeen} />
-            <FocusAwareStatusBar style='dark' />
+        <>
+            <View className='bg-white flex-1'>
+                <Renderer scene={navSeen} />
+                <FocusAwareStatusBar style='dark' />
 
-            <ScrollView
-                contentContainerStyle={{ gap: 20, paddingBottom: 10, flexGrow: 1 }}
-                className='flex-1 px-4 py-2'
-                showsVerticalScrollIndicator={false}
-                refreshControl={<RefreshControl refreshing={refresh} onRefresh={handleRefresh} />}
-            >
-                <View>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ gap: 12 }}
-                    >
-                        {categories.map((tab) => {
-                            const isActive = activeTab === tab;
-
-                            return (
-                                <TouchableOpacity
-                                    key={tab}
-                                    onPress={() => setActiveTab(tab)}
-                                    activeOpacity={0.7}
-                                    className={`px-3 py-1.5 rounded-full border ${isActive
-                                        ? 'bg-white border-gray-300'
-                                        : 'bg-[#27272A] border-transparent'
-                                        }`}
-                                >
-                                    <Text className={`text-sm font-elms-med ${isActive ? 'text-black' : 'text-[#A1A1AA]'}`}>
-                                        {tab}
-                                    </Text>
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </ScrollView>
-                </View>
-
-                {noMusic && (
-                    <View className='flex-1 justify-center items-center py-20 px-6'>
-                        <View className='mb-8 rounded-[32px] bg-gray-50 p-2 border border-gray-100'>
-                            <Image
-                                source={{ uri: defaultMusicArtWork }}
-                                className='w-32 h-32 rounded-2xl opacity-90'
-                                resizeMode='cover'
-                            />
-                        </View>
-
-                        <Text className='text-2xl font-extrabold text-gray-800 mb-2 text-center tracking-tight'>
-                            It's quiet in here
-                        </Text>
-
-                        <Text className='text-base text-gray-500 text-center leading-6 mb-8 px-2'>
-                            Your library is empty. Let's find your local tracks to get the party started.
-                        </Text>
-
-                        <TouchableOpacity
-                            activeOpacity={0.8}
-                            className='bg-[#27272A] px-8 py-4 rounded-full flex-row items-center shadow-sm'
-                            onPress={onOpen}
+                <ScrollView
+                    contentContainerStyle={{ gap: 20, paddingBottom: 10, flexGrow: 1 }}
+                    className='flex-1 px-4 py-2'
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={<RefreshControl refreshing={refresh} onRefresh={handleRefresh} />}
+                >
+                    {categories.length >= 2 && <View>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ gap: 12 }}
                         >
-                            <Text className='text-white font-semibold text-base'>
-                                Open Menu
+                            {categories.map((tab) => {
+                                const isActive = activeTab === tab;
+
+                                return (
+                                    <TouchableOpacity
+                                        key={tab}
+                                        onPress={() => setActiveTab(tab)}
+                                        activeOpacity={0.7}
+                                        className={`px-3 py-1.5 rounded-full border ${isActive
+                                            ? 'bg-white border-gray-300'
+                                            : 'bg-[#27272A] border-transparent'
+                                            }`}
+                                    >
+                                        <Text className={`text-sm font-elms-med ${isActive ? 'text-black' : 'text-[#A1A1AA]'}`}>
+                                            {tab}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </ScrollView>
+                    </View>}
+
+                    {noMusic && (
+                        <View className='flex-1 justify-center items-center py-20 px-6'>
+                            <View className='mb-8 rounded-[32px] bg-gray-50 p-2 border border-gray-100'>
+                                <Image
+                                    source={{ uri: defaultMusicArtWork }}
+                                    className='w-32 h-32 rounded-2xl opacity-90'
+                                    resizeMode='cover'
+                                />
+                            </View>
+
+                            <Text className='text-2xl font-extrabold text-gray-800 mb-2 text-center tracking-tight'>
+                                It's quiet in here
                             </Text>
-                        </TouchableOpacity>
 
-                        <Text className='text-xs text-gray-400 mt-6 text-center'>
-                            (You can also open the menu by tapping your avatar)
-                        </Text>
-                    </View>
-                )}
+                            <Text className='text-base text-gray-500 text-center leading-6 mb-8 px-2'>
+                                Your library is empty. Let's find your local tracks to get the party started.
+                            </Text>
 
-                {children}
-            </ScrollView>
-        </View>
+                            <TouchableOpacity
+                                activeOpacity={0.8}
+                                className='bg-[#27272A] px-8 py-4 rounded-full flex-row items-center shadow-sm'
+                                onPress={onOpen}
+                            >
+                                <Text className='text-white font-semibold text-base'>
+                                    Open Menu
+                                </Text>
+                            </TouchableOpacity>
+
+                            <Text className='text-xs text-gray-400 mt-6 text-center'>
+                                (You can also open the menu by tapping your avatar)
+                            </Text>
+                        </View>
+                    )}
+
+                    <Renderer scene={homeSeen} />
+                </ScrollView>
+            </View>
+            <MiniPlayer />
+        </>
     );
 }

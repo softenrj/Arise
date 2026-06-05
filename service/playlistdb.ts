@@ -416,16 +416,30 @@ export const pinPlayList = async (db: SQLiteDatabase, pin: 0 | 1, playlistId: st
 export const getPlayListRecomendation = async (db: SQLiteDatabase): Promise<PlayListRecomendation | null> => {
   try {
     const sqlCommand = `
-      SELECT p.*, COUNT(plm.musicId) as numberOfMusic,
-      SUM(m.duration) as totalSeconds,
-      SUM(m.isLiked) as numberOfLikes
-      FROM PlayList p
-      LEFT JOIN PlayList_MUSIC plm on p.id = plm.playlistId
-      LEFT JOIN Musics m on plm.musicId = m.id
-      GROUP BY p.id
+        SELECT p.*,
+        COUNT(plm.musicId) as numberOfMusic,
+        SUM(ma.playCount) as totalPlayCount,
+        SUM(ma.skipCount) as totalSkipCount,
+        SUM(ma.completedCount) as totalCompletedCount,
+        SUM(m.duration) as totalSeconds,
+
+        SUM(ma.totalListeningSeconds) as totalListeningSeconds,
+        SUM(m.isLiked) as numberOfLikes
+
+        FROM PlayList p
+        LEFT JOIN PlayList_MUSIC plm
+            ON p.id = plm.playlistId
+
+        LEFT JOIN Musics m
+            ON plm.musicId = m.id
+
+        LEFT JOIN music_analytics ma
+            ON plm.musicId = ma.musicId
+
+        GROUP BY p.id
     `;
 
-    const playlists = (await db.getAllAsync(sqlCommand)) as (PlayListRecomendation & { numberOfLikes: number, numberOfMusic: number, totalSeconds: number })[];
+    const playlists = (await db.getAllAsync(sqlCommand)) as (PlayListRecomendation & { numberOfLikes: number, numberOfMusic: number, totalSeconds: number, totalPlayCount: number, totalSkipCount: number, totalCompletedCount: number, totalListeningSeconds: number })[];
 
     /**
      * formula : 
@@ -435,7 +449,7 @@ export const getPlayListRecomendation = async (db: SQLiteDatabase): Promise<Play
      */
     const scoredPlaylists = playlists.map((playlist) => ({
       ...playlist,
-      score: playlist.numberOfLikes * 5 + playlist.numberOfMusic * 2 + playlist.totalSeconds / 60,
+      score: playlist.pined * 100 + playlist.numberOfLikes * 25 + playlist.totalPlayCount * 2 + playlist.totalCompletedCount * 10 - playlist.totalSkipCount * 5 + (playlist.totalListeningSeconds / (60 * 60))
     }));
 
     const result = scoredPlaylists.sort((a, b) => b.score - a.score)[0]

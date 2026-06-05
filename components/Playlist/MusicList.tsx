@@ -18,7 +18,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const MusicList = ({ playlistId, onMusicListOpen, open }: { playlistId: string, onMusicListOpen: () => void, open: boolean }) => {
     const db = useSQLiteContext();
-    const { filteredMusic } = useMusic();
+    const { musics } = useMusic();
     const [selectedMusicIds, setSelectedMusicIds] = useState<string[]>([]);
     const { setPlayListMusic: setMusic, playlistMusics } = usePlaylist();
 
@@ -78,7 +78,7 @@ const MusicList = ({ playlistId, onMusicListOpen, open }: { playlistId: string, 
                 </Text>
 
                 <FlatList
-                    data={filteredMusic}
+                    data={musics}
                     extraData={selectedMusicIds}
                     className='flex-1 px-2 py-2'
                     keyExtractor={(item) => item.id}

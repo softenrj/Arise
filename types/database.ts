@@ -73,7 +73,7 @@ export interface PlayList {
 }
 
 export interface PlayListRecomendation extends PlayList {
-  numberOfSongs: number;
+  numberOfMusic: number;
   totalSeconds: number;
 }
 

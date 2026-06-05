@@ -2,14 +2,28 @@
 // See LICENSE for details.
 
 import { useMusic } from '@/hooks/useMusic';
+import { useAppSelector } from '@/hooks/useRedux';
+import { useTrack } from '@/hooks/useTrack';
+import { getTrackFromMusic } from '@/service/TrackMaker';
 import { IMusicTrack } from '@/types/database';
 import { defaultMusicArtWork } from '@/utils/constants';
 import { Asterisk, EllipsisVertical, MoveRight } from 'lucide-react-native';
 import React from 'react';
-import { Image, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 
 export default function MusicoftheDay() {
     const { handpickedMusic } = useMusic();
+    const { setupQueue, playAtIndex } = useTrack();
+    const tracks = useAppSelector(state => state.trackReducer);
+
+    const handlePlay = (musicId: string) => {
+        if (tracks.playlistName === 'Music of the Day') {
+            const indx = handpickedMusic.findIndex(m => m.id === musicId);
+            playAtIndex(indx);
+        } else {
+            setupQueue({ tracks: getTrackFromMusic(handpickedMusic), playlistName: 'Music of the Day', sourceId: null, sourceType: 'default' });
+        }
+    }
 
     if (handpickedMusic.length === 0) return null;
     return (
@@ -37,7 +51,7 @@ export default function MusicoftheDay() {
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 10 }} className='my-2 mx-3'>
                 {handpickedMusic.map((item: IMusicTrack) => (
-                    <View key={item.id} className='flex-row items-center w-full gap-3'>
+                    <Pressable key={item.id} className='flex-row items-center w-full gap-3' onPress={() => handlePlay(item.id)}>
                         <Image
                             source={{ uri: item.customCoverUri || defaultMusicArtWork }}
                             className='w-16 h-16 rounded-sm'
@@ -53,7 +67,7 @@ export default function MusicoftheDay() {
                         </View>
 
                         <EllipsisVertical size={18} color='#d4d4d8' />
-                    </View>
+                    </Pressable>
                 ))}
             </ScrollView>
         </View>

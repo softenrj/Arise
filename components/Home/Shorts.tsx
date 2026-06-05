@@ -2,16 +2,35 @@
 // See LICENSE for details.
 
 import { useMusic } from '@/hooks/useMusic';
+import { useAppSelector } from '@/hooks/useRedux';
+import { useTrack } from '@/hooks/useTrack';
+import { getTrackFromMusic } from '@/service/TrackMaker';
 import { IMusicTrack } from '@/types/database';
 import { defaultMusicArtWork } from '@/utils/constants';
 import { ImageBackground } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { EllipsisVertical, MoveRight } from 'lucide-react-native';
 import React from 'react';
-import { FlatList, Image, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, Text, View } from 'react-native';
 
 export default function Shorts() {
     const { shorts } = useMusic();
+    const { setupQueue } = useTrack();
+    const router = useRouter();
+
+    const track = useAppSelector(state => state.trackReducer);
+
+    const streamPlayList = (play: boolean = true) => {
+        if (shorts.length === 0) return;
+        setupQueue({ tracks: getTrackFromMusic(shorts), playlistName: 'Shorts', sourceType: 'short', sourceId: null, play });
+    }
+
+    const handlePlayInShort = () => {
+        if (shorts.length === 0) return;
+        if (track.playlistName !== 'Shorts') streamPlayList(false);
+        router.push('/(tabs)/shorts');
+    }
 
     if (shorts.length === 0) return null;
     return (
@@ -46,7 +65,7 @@ export default function Shorts() {
                         elevation: 6,
                         backgroundColor: '#fff',
                     }}>
-                        <View style={{ borderRadius: 14, overflow: 'hidden' }}>
+                        <Pressable onPress={handlePlayInShort} style={{ borderRadius: 14, overflow: 'hidden' }}>
                             <ImageBackground
                                 source={{ uri: item?.customCoverUri || defaultMusicArtWork }}
                                 style={{ width: '100%', aspectRatio: 2 / 3 }}
@@ -69,7 +88,7 @@ export default function Shorts() {
                                     </View>
                                 </LinearGradient>
                             </ImageBackground>
-                        </View>
+                        </Pressable>
                     </View>
                 )}
             />

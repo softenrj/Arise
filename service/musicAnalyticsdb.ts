@@ -181,9 +181,10 @@ export const getRecentPlays = async (db: SQLiteDatabase, limit: number = 20): Pr
                 SELECT musicId, MAX(playedAt) AS lastPlayed
                 FROM RecentPlays
                 GROUP BY musicId
-            ) rp
-            ON music.id = rp.musicId
-            ORDER BY rp.lastPlayed DESC
+                ) rp
+                ON music.id = rp.musicId
+                WHERE music.visible = 1 
+                ORDER BY rp.lastPlayed DESC
             LIMIT ?;
         `;
 
@@ -207,7 +208,7 @@ export const getRecomendations = async (db: SQLiteDatabase, limit: number = 20):
             SELECT music.isLiked, music.creationTime , music_a.* 
             FROM music_analytics AS music_a
             LEFT JOIN Musics as music ON music_a.musicId = music.id
-            WHERE music_a.playCount > 1
+            WHERE music_a.playCount > 1 AND music.visible = 1
         `
 
         const dbResult = await db.getAllAsync(sqlCommand) as (MusicAnalytics & { isLiked: boolean, creationTime: number })[];

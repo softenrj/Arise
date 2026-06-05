@@ -3,6 +3,7 @@
 
 import MiniPlayer from "@/components/common/MiniPlayer";
 import NavBar, { ChipSnippts, GreetSnippts, TimeSnippts } from "@/components/common/NavBar";
+import VertualFC from "@/components/common/VertualFC";
 import GetStarted from "@/components/GetStarted";
 import AriseLogo from "@/components/GetStarted/Arise";
 import Home from "@/components/Home";
@@ -44,5 +45,6 @@ export const sectionsRegistry: Record<string, ComponentType<any>> = {
     Library: Library,
 
     //? miniplayer
-    MiniPlayer: MiniPlayer
+    MiniPlayer: MiniPlayer,
+    Virtual: VertualFC
 }

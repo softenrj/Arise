@@ -58,7 +58,9 @@ export const setupQueue = createAsyncThunk(
 
 export const playAtIndex = createAsyncThunk(
     'trackplayer/playAtIndex',
-    async (index: number) => {
+    async (index: number, { getState }) => {
+        const state = (getState() as { trackReducer: ArisePlayerState }).trackReducer;
+        if (index === state.currentIndex) return;
         await TrackPlayer.skip(index);
         await TrackPlayer.play();
         await initializeCurrentSession()
@@ -225,6 +227,7 @@ const trackPlayerSlice = createSlice({
         });
 
         builder.addCase(playAtIndex.fulfilled, (state, action) => {
+            if (!action.payload) return;
             state.currentIndex = action.payload;
             state.isPlaying = true;
         });

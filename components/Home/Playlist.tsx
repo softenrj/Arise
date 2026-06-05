@@ -2,17 +2,60 @@
 // See LICENSE for details.
 
 import { useMusic } from '@/hooks/useMusic';
+import { useAppSelector } from '@/hooks/useRedux';
+import { useTrack } from '@/hooks/useTrack';
 import { formatDurationLocalString } from '@/service/MusicDuration';
-import { defaultPlayListCover } from '@/utils/constants';
+import { getPlayListMusic } from '@/service/playlistdb';
+import { getTrackFromMusic } from '@/service/TrackMaker';
+import { IMusicTrack, IPlayListMusicTrack, PlayListMusic } from '@/types/database';
+import { defaultPlayList, defaultPlayListCover } from '@/utils/constants';
+import { useSQLiteContext } from 'expo-sqlite';
 import React from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 
 export default function Playlist() {
     const { playlist } = useMusic();
+    const db = useSQLiteContext();
+    const { musics } = useMusic();
+    const { setupQueue } = useTrack();
+    const tracks = useAppSelector(state => state.trackReducer);
 
+    const getPlaylistMusic = async () => {
+        const res = await getPlayListMusic(db, playlist?.id!);
+        return res ?? [];
+    }
+
+    const playlistMusics = (playlistEntries: PlayListMusic[]) => {
+        const musicMap = new Map<string, IMusicTrack>(
+            musics.map((music) => [music.id, music])
+        );
+
+        return playlistEntries.reduce<IPlayListMusicTrack[]>(
+            (result, playlistMusic) => {
+                const music = musicMap.get(playlistMusic.musicId);
+
+                if (!music) return result;
+
+                result.push({
+                    ...music,
+                    ...playlistMusic,
+                });
+
+                return result;
+            },
+            []
+        )
+    }
+
+    const handlePlay = async () => {
+        if (tracks.sourceId !== playlist?.id) {
+            const pm = await getPlaylistMusic();
+            setupQueue({ tracks: getTrackFromMusic(playlistMusics(pm)), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id! });
+        }
+    }
     if (!playlist) return null;
     return (
-        <View className='w-full'>
+        <Pressable className='w-full' onPress={handlePlay}>
 
             <View
                 className='overflow-hidden'
@@ -37,10 +80,10 @@ export default function Playlist() {
                     {playlist?.title}
                 </Text>
                 <Text className='text-zinc-400 text-sm font-elms mt-0.5'>
-                    {playlist?.numberOfSongs} songs • {formatDurationLocalString(playlist?.totalSeconds || 0)}
+                    {playlist?.numberOfMusic} songs • {formatDurationLocalString(playlist?.totalSeconds || 0)}
                 </Text>
             </View>
 
-        </View>
+        </Pressable>
     );
 }

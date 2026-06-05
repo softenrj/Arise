@@ -1,13 +1,26 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useAppSelector } from '@/hooks/useRedux';
+import { useTrack } from '@/hooks/useTrack';
+import { getTrackFromMusic } from '@/service/TrackMaker';
 import { IMusicTrack } from '@/types/database';
 import { defaultMusicArtWork } from '@/utils/constants';
 import { MoveRight, Zap } from 'lucide-react-native';
 import React from 'react';
-import { Image, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 
 export default function MusicLinearList({ title, subTitle, Icon = Zap, music = [] }: { title: string, subTitle: string, Icon?: React.ElementType, music: IMusicTrack[] }) {
+    const { setupQueue, playAtIndex } = useTrack();
+    const tracks = useAppSelector(state => state.trackReducer);
+    const handlePlay = (musicId: string) => {
+        if (tracks.playlistName === title) {
+            const indx = music.findIndex(m => m.id === musicId);
+            playAtIndex(indx);
+        } else {
+            setupQueue({ tracks: getTrackFromMusic(music), playlistName: title, sourceId: null, sourceType: 'default' });
+        }
+    }
     return (
         <View>
             <View className='flex-col items-start'>
@@ -24,24 +37,26 @@ export default function MusicLinearList({ title, subTitle, Icon = Zap, music = [
 
             <ScrollView horizontal contentContainerStyle={{ gap: 6 }} className='my-2' showsHorizontalScrollIndicator={false}>
                 {music.map((item: IMusicTrack) => (
-                    <View key={item.id} className='w-36'>
+                    <Pressable key={item.id} onPress={() => handlePlay(item.id)}>
+                        <View className='w-36'>
 
-                        <Image
-                            source={{ uri: item.customCoverUri || defaultMusicArtWork }}
-                            className='w-[8.5rem] h-[8.5rem]'
-                        />
+                            <Image
+                                source={{ uri: item.customCoverUri || defaultMusicArtWork }}
+                                className='w-[8.5rem] h-[8.5rem]'
+                            />
 
-                        <View className='items-center'>
-                            <Text numberOfLines={1} className='text-black text-sm font-jakarta mt-2.5 tracking-tight'>
-                                {item.title}
-                            </Text>
+                            <View className='items-center'>
+                                <Text numberOfLines={1} className='text-black text-sm font-jakarta mt-2.5 tracking-tight'>
+                                    {item.title}
+                                </Text>
 
-                            <Text numberOfLines={1} className='text-zinc-500 text-xs font-normal mt-1'>
-                                {item.artist}
-                            </Text>
+                                <Text numberOfLines={1} className='text-zinc-500 text-xs font-normal mt-1'>
+                                    {item.artist}
+                                </Text>
+                            </View>
+
                         </View>
-
-                    </View>
+                    </Pressable>
                 ))}
             </ScrollView>
         </View>

@@ -59,7 +59,7 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
   const [musics, setMusics] = React.useState<IMusicTrack[]>([]);
   const [loading, setLoading] = React.useState(false);
-  const filteredMusic = React.useMemo(() => musics.filter((music) => !music.visible), [musics]);
+  const filteredMusic = React.useMemo(() => musics.filter((music) => music.visible !== 0), [musics]);
 
   // Home Screen Data
   const [recent, setRecent] = React.useState<IMusicTrack[]>([]);
@@ -77,14 +77,12 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
 
   const handleShorts = React.useCallback(async () => {
     const shuffled = [...filteredMusic];
-    console.log(shuffled.length)
 
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     setShorts(shuffled.slice(0, 4))
-    console.log(shorts)
   }, [filteredMusic])
 
   const handlePlaylist = React.useCallback(async () => {

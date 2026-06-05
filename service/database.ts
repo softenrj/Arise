@@ -277,8 +277,9 @@ export const hideMusicdb = async (
   musicId: string,
 ) => {
   try {
+    const value = visibility === 1 ? 0 : 1;
     const sql = `UPDATE Musics SET visible = ? WHERE id = ?`;
-    await db.runAsync(sql, [visibility, musicId]);
+    await db.runAsync(sql, [value, musicId]);
   } catch (error) {
     console.error("Failed update visibility music from SQLite:", error);
     return null;
@@ -312,7 +313,7 @@ export const likeMusic = async (db: SQLiteDatabase, musicId: string, liked: 0 | 
 export const hideAllMusic = async (db: SQLiteDatabase) => {
   try {
     const sql = `UPDATE Musics SET visible = 0`;
-    await db.runAsync(sql);
+    const re = await db.runAsync(sql);
     return true;
   } catch (error) {
     console.error("Failed hide all music from SQLite:", error);

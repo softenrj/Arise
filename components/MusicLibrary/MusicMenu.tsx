@@ -13,8 +13,8 @@ import { Menu, MenuItem, MenuItemLabel } from '../ui/menu';
 
 export default function MusicMenu({ musicId }: { musicId: string }) {
     const db = useSQLiteContext();
-    const { musics, onMusicUpdate } = useMusic();
-    const { closeSheet, editMusicId, setEditMusicId, openSheet } = useMusicLib();
+    const { musics, onMusicRefresh } = useMusic();
+    const { closeSheet, setEditMusicId, openSheet } = useMusicLib();
     const [music, setMusic] = React.useState<IMusicTrack | null>(null);
     const [visibility, setVisibility] = React.useState<0 | 1>(1);
 
@@ -38,17 +38,18 @@ export default function MusicMenu({ musicId }: { musicId: string }) {
 
     const handleHideAllMusic = React.useCallback(async () => {
         await hideAllMusic(db);
+        await onMusicRefresh();
         closeSheet();
-    }, [])
+    }, [db, onMusicRefresh, closeSheet]);
 
     React.useEffect(() => {
-        const track = musics.find(m => m.id === editMusicId);
+        const track = musics.find(m => m.id === musicId);
         if (track) {
             setMusic(track);
             setVisibility(track.visible)
 
         }
-    }, [editMusicId, musics]);
+    }, [musicId, musics]);
 
 
     return (
