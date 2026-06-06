@@ -225,7 +225,7 @@ export const getMusic = async (
 interface UpdateMusic {
   title: string;
   artist: string;
-  youtube_uri?: string;
+  youtube_uri?: string | null;
   lyricsId?: string | null;
   customCoverUri?: string | null;
   customVideoUri?: string | null;

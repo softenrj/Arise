@@ -17,11 +17,11 @@ export default function MusicoftheDay() {
     const tracks = useAppSelector(state => state.trackReducer);
 
     const handlePlay = (musicId: string) => {
+        const indx = handpickedMusic.findIndex(m => m.id === musicId);
         if (tracks.playlistName === 'Music of the Day') {
-            const indx = handpickedMusic.findIndex(m => m.id === musicId);
             playAtIndex(indx);
         } else {
-            setupQueue({ tracks: getTrackFromMusic(handpickedMusic), playlistName: 'Music of the Day', sourceId: null, sourceType: 'default' });
+            setupQueue({ tracks: getTrackFromMusic(handpickedMusic), playlistName: 'Music of the Day', sourceId: null, sourceType: 'default', startIndex: indx });
         }
     }
 

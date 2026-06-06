@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useMusic } from '@/hooks/useMusic';
 import { usePlaylist } from '@/hooks/usePlaylist';
 import { likeMusic } from '@/service/database';
 import { removePlayListMusic } from '@/service/playlistdb';
@@ -13,6 +14,7 @@ import { Menu, MenuItem, MenuItemLabel } from '../ui/menu';
 export default function PlayListMusicMenu({ isLiked, musicId, reload }: { isLiked: 0 | 1, musicId: string, reload: () => void }) {
     const db = useSQLiteContext();
     const { playlist } = usePlaylist();
+    const { onMusicLike } = useMusic();
     const [like, setLike] = React.useState<0 | 1>(isLiked);
 
     const handleSetLike = (v: 0 | 1) => setLike(v);
@@ -21,17 +23,24 @@ export default function PlayListMusicMenu({ isLiked, musicId, reload }: { isLike
         const setLike = like === 1 ? 0 : 1;
         const response = await likeMusic(db, musicId, setLike);
 
-        if (response) handleSetLike(setLike);
+        if (response) {
+            handleSetLike(setLike);
+            onMusicLike(musicId, setLike);
+        }
     }
 
     const handleRemove = async () => {
         if (!musicId || !playlist?.id) return;
         const response = await removePlayListMusic({
-            db, musicId, playlistMusicId: playlist?.id
+            db, musicId, playlistId: playlist?.id
         })
 
         if (response) reload();
     }
+
+    React.useEffect(() => {
+        setLike(isLiked);
+    }, [isLiked])
     return (
         <Menu
             className="bg-neutral-900 rounded-xl border border-neutral-800 p-1 w-36 right-2 shadow-2xl"

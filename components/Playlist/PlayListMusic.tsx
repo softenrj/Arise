@@ -26,11 +26,11 @@ export default function PlayListMusic({ header, reload }: { header: React.JSX.El
     }
 
     const handlePlay = (musicId: string) => {
+        const musicIdx = playlistMusics.findIndex(item => item.id === musicId);
         if (playlist?.title === track.playlistName) {
-            const musicIdx = playlistMusics.findIndex(item => item.id === musicId);
             playAtIndex(musicIdx);
         } else {
-            setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id! });
+            setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id!, startIndex: musicIdx });
         }
     }
 

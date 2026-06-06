@@ -31,6 +31,7 @@ export interface IMusicTrack {
   lyricsId?: string | null;
   lyricsName?: string | null;
   lyricsUri?: string | null;
+  youtube_uri?: string | null;
   [key: string]: any;
 }
 
@@ -42,6 +43,8 @@ export interface AriseTrack extends Track {
   customCoverUri?: string | null;
   customVideoUri?: string | null;
   customVideoFileName?: string | null;
+
+  youtube_uri?: string | null;
 
   lyricsId?: string | null;
   lyricsName?: string | null;

@@ -31,6 +31,7 @@ interface IMusicContext {
   setLike: (musicId: string, likeValue: 0 | 1) => void;
   onMusicRefresh: () => Promise<void>;
   onMusicUpdate: (music: IMusicTrack) => Promise<void>;
+  onMusicLike: (musicId: string, likeValue: 0 | 1) => Promise<void>;
 }
 
 export const musicContext = React.createContext<IMusicContext>({
@@ -52,6 +53,7 @@ export const musicContext = React.createContext<IMusicContext>({
   onMusicRefresh: async () => { },
   onMusicUpdate: async () => { },
   onReloadHomeData: async () => { },
+  onMusicLike: async () => { },
 });
 
 function MusicContextProvider({ children }: { children: React.ReactNode }) {
@@ -152,6 +154,19 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
     [dispatch]
   );
 
+  const handleMusicLike = React.useCallback(
+    async (musicId: string, v: 0 | 1) => {
+      const music = musics.find(item => item.id === musicId);
+
+      if (!music) return;
+
+      const updatedMusicTrack = { ...music, isLiked: v, musicId: music.id };
+      setMusics(prev => prev.map(item => item.id === musicId ? updatedMusicTrack : item));
+      dispatch(updateMusic(getFirstTrackFromMusic(updatedMusicTrack)));
+    },
+    [dispatch, musics]
+  );
+
 
 
   React.useEffect(() => {
@@ -165,11 +180,13 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
       recent, shorts, playlist, recommendedMusic, handpickedMusic,
       setRecent, setShorts, setPlaylist, setRecommendedMusic, setHandpickedMusic,
       onReloadHomeData: handleHomeData,
+      onMusicLike: handleMusicLike,
     }),
     [musics, filteredMusic, loading, handleSetMusic, handleSetLike,
       handleRefresh, handleUpdateMusic, recent, shorts, playlist,
       recommendedMusic, handpickedMusic, setRecent, setShorts,
       setPlaylist, setRecommendedMusic, setHandpickedMusic, handleHomeData,
+      handleMusicLike,
     ]
   );
 

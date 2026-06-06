@@ -5,7 +5,8 @@ import { useMusic } from '@/hooks/useMusic';
 import { useMusicLib } from '@/hooks/useMusicLib';
 import { updateMusicdb } from '@/service/database';
 import { createOrUpdateLyrics } from '@/service/lyricsdb';
-import { saveMedia } from '@/service/persistMedia';
+import { extractVideoId } from '@/service/MusicDuration';
+import { saveLyrics, saveMedia } from '@/service/persistMedia';
 import { IMusicTrack } from '@/types/database';
 import { defaultMusicArtWork } from '@/utils/constants';
 import * as DocumentPicker from "expo-document-picker";
@@ -15,7 +16,7 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 import { FileArchive } from 'lucide-react-native';
 import React from 'react';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-// import { WebView } from 'react-native-webview';
+import { YouTubeEmbed } from '../common/YouTubeEmbed';
 import SheetProvider from '../ui/Sheet';
 
 export default function EditSheet() {
@@ -32,6 +33,7 @@ export default function EditSheet() {
     const [customeVideo, setCustomeVideo] = React.useState<string | null>(null);
     const [customVideoFileName, setCustomVideoFileName] = React.useState<string | null>(null);
     const [loading, setLoading] = React.useState<boolean>(false);
+    const [youtubeUrl, setYoutubeUrl] = React.useState<string>('');
 
     const player = useVideoPlayer(music?.customVideoUri ?? null, (p) => {
         p.loop = true;
@@ -107,7 +109,9 @@ export default function EditSheet() {
                 player.replace(track?.customVideoUri);
                 setCustomVideoFileName(track.customVideoFileName)
             }
-
+            if (track.youtube_uri) {
+                setYoutubeUrl(track.youtube_uri)
+            }
         }
     }, [editMusicId, musics]);
 
@@ -117,8 +121,21 @@ export default function EditSheet() {
         let lyricsId = null;
 
         if (lyrics) {
-            const lyricsObject = { ...lyrics, musicId: music?.id }
-            lyricsId = await createOrUpdateLyrics(lyricsObject, db);
+            const lyricsUri = await saveLyrics(
+                lyrics.uri,
+                music.id
+            );
+
+            const lyricsObject = {
+                ...lyrics,
+                uri: lyricsUri,
+                musicId: music.id,
+            };
+
+            lyricsId = await createOrUpdateLyrics(
+                lyricsObject,
+                db
+            );
         }
 
         let imageMediaUri = null;
@@ -129,7 +146,7 @@ export default function EditSheet() {
 
 
         const updatedMusic = await updateMusicdb(db, music?.id!, {
-            title, artist, lyricsId, customCoverUri: imageMediaUri, customVideoUri: videoMediaUri, customVideoFileName
+            title, artist, lyricsId, customCoverUri: imageMediaUri, customVideoUri: videoMediaUri, customVideoFileName, youtube_uri: extractVideoId(youtubeUrl) ?? null
         }) as IMusicTrack;
 
         if (updatedMusic) {
@@ -140,6 +157,7 @@ export default function EditSheet() {
             setCustomeVideo(null);
             setCustomVideoFileName(null);
             onMusicUpdate(updatedMusic);
+            setYoutubeUrl('');
             closeSheet();
         }
 
@@ -209,6 +227,20 @@ export default function EditSheet() {
 
                     <View>
                         <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
+                            Youtube Video
+                        </Text>
+                        <TextInput
+                            value={youtubeUrl}
+                            onChangeText={setYoutubeUrl}
+                            placeholder="Enter youtube url"
+                            placeholderTextColor="#94a3b8"
+                            className='bg-slate-100 px-4 py-3 rounded-xl text-base font-elms text-slate-900'
+                        />
+                        {youtubeUrl ? <YouTubeEmbed id={extractVideoId(youtubeUrl) ?? ''} /> : null}
+                    </View>
+
+                    <View>
+                        <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
                             Lyrics
                         </Text>
                         <TouchableOpacity
@@ -227,14 +259,16 @@ export default function EditSheet() {
                         <Text className='text-xs font-elms text-black uppercase tracking-wider'>
                             Short Clip
                         </Text>
-                        {music?.customVideoUri || customeVideo && <View className='w-full h-48 rounded-xl overflow-hidden bg-slate-200'>
-                            <VideoView
-                                style={{ width: '100%', height: '100%' }}
-                                player={player}
-                                allowsPictureInPicture
-                                contentFit="cover"
-                            />
-                        </View>}
+                        {(music?.customVideoUri || customeVideo) ? (
+                            <View className='w-full h-48 rounded-xl overflow-hidden bg-slate-200'>
+                                <VideoView
+                                    style={{ width: '100%', height: '100%' }}
+                                    player={player}
+                                    allowsPictureInPicture
+                                    contentFit="cover"
+                                />
+                            </View>
+                        ) : null}
 
                         <TouchableOpacity
                             activeOpacity={0.7}
@@ -248,17 +282,7 @@ export default function EditSheet() {
                         </TouchableOpacity>
                     </View>
 
-                    <View>
-                        {/* <WebView
-                            source={{
-                                uri: 'https://www.youtube.com/embed/5GUaMOpfmr8'
-                            }}
-                            style={{
-                                height: 220,
-                                width: '100%'
-                            }}
-                        /> */}
-                    </View>
+
                 </View>
 
                 <TouchableOpacity

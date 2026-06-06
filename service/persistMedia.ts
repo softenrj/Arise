@@ -40,3 +40,25 @@ export async function saveMedia(
 
     return destFile.uri;
 }
+
+export async function saveLyrics(
+    sourceUri: string,
+    musicId: string
+): Promise<string> {
+    const dir = new Directory(Paths.document, "lyrics");
+
+    if (!dir.exists) {
+        dir.create();
+    }
+
+    const destFile = new File(dir, `${musicId}.lrc`);
+
+    if (destFile.exists) {
+        destFile.delete();
+    }
+
+    const sourceFile = new File(sourceUri);
+    sourceFile.copy(destFile);
+
+    return destFile.uri;
+}

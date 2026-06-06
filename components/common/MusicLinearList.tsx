@@ -14,11 +14,11 @@ export default function MusicLinearList({ title, subTitle, Icon = Zap, music = [
     const { setupQueue, playAtIndex } = useTrack();
     const tracks = useAppSelector(state => state.trackReducer);
     const handlePlay = (musicId: string) => {
+        const indx = music.findIndex(m => m.id === musicId);
         if (tracks.playlistName === title) {
-            const indx = music.findIndex(m => m.id === musicId);
             playAtIndex(indx);
         } else {
-            setupQueue({ tracks: getTrackFromMusic(music), playlistName: title, sourceId: null, sourceType: 'default' });
+            setupQueue({ tracks: getTrackFromMusic(music), playlistName: title, sourceId: null, sourceType: 'default', startIndex: indx });
         }
     }
     return (

@@ -227,7 +227,7 @@ const trackPlayerSlice = createSlice({
         });
 
         builder.addCase(playAtIndex.fulfilled, (state, action) => {
-            if (!action.payload) return;
+            if (action.payload === null || action.payload === undefined) return;
             state.currentIndex = action.payload;
             state.isPlaying = true;
         });
@@ -285,7 +285,8 @@ const trackPlayerSlice = createSlice({
         });
 
         builder.addCase(updateMusic.fulfilled, (state, action) => {
-            if (!action.payload) return;
+            if (action.payload === null || action.payload === undefined) return;
+
             const updatedTrack = action.payload;
 
             state.queue = state.queue.map(track =>
@@ -299,6 +300,8 @@ const trackPlayerSlice = createSlice({
                     ? { ...track, ...updatedTrack }
                     : track
             );
+
+
         });
 
         builder.addCase(onCycleLoopMode.fulfilled, (state, action) => {

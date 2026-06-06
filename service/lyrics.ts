@@ -55,7 +55,6 @@ export const LyricsService = {
 
     async loadLyricsFromFile(source: string): Promise<LyricLine[]> {
         try {
-            if (!source.startsWith('file:///')) return [];
             const text = await new FileSystem.File(source).text();
             const rawText = await text.toString();
             const lyrics: LyricLine[] = this.parse(rawText);

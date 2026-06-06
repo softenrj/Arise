@@ -24,7 +24,8 @@ export async function LyricsTable(db: SQLiteDatabase) {
     }
 }
 
-/**
+
+/**1ea458b3-1bba-4ebe-8a56-ab9adabbb747
  * create lyrics
  */
 
@@ -37,18 +38,15 @@ export async function createOrUpdateLyrics(
     db: SQLiteDatabase
 ) {
     try {
-        const id = getId();
+        const existingRecord = await db.getFirstAsync<{ id: string }>(
+            "SELECT id FROM Lyrics WHERE musicId = ?",
+            [lyrics.musicId]
+        );
 
+        const id = existingRecord ? existingRecord.id : getId();
         await db.runAsync(
             `
-            INSERT INTO Lyrics (
-                id,
-                mimeType,
-                name,
-                size,
-                uri,
-                musicId
-            )
+            INSERT INTO Lyrics (id, mimeType, name, size, uri, musicId)
             VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT(musicId)
             DO UPDATE SET

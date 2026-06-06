@@ -49,7 +49,6 @@ const AddToPlayList = ({ musicId, isVisible, onClose }: { musicId: string, isVis
     const handleRemoveFromPlayList = React.useCallback(async (playlistId: string) => {
         if (!musicId) return false;
         const res = await removePlayListMusic({ db, musicId, playlistId })
-        console.log(res)
         return true;
     }, [musicId]);
 

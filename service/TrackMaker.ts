@@ -13,7 +13,9 @@ export function getTrackFromMusic(musics: IMusicTrack[]): AriseTrack[] {
         artist: music.artist,
         artwork: music.customCoverUri || defaultMusicArtWork,
         duration: music.duration || 0,
-        mediaId: music.id,
+        mediaId: music.musicId,
+
+        youtube_uri: music.youtube_uri,
 
         isLiked: music.isLiked,
         visible: music.visible,
