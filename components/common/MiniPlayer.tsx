@@ -12,6 +12,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { getColors } from 'react-native-image-colors';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import TrackPlayer, { State, usePlaybackState, useProgress } from 'react-native-track-player';
+import AddToPlayList from './AddToPlayList';
 import MiniPlayerTrackDetails from './MiniPlayerTrackDetails';
 
 export type GradientColors = [string, string, string];
@@ -30,6 +31,11 @@ export default function MiniPlayer() {
     const { togglePlay } = useTrack();
     const isPlaying = state === State.Playing;
     const artwork = track?.artwork;
+    const [openAddtoPlaylist, setOpenAddtoPlaylist] = React.useState(false);
+
+    const handleOpenAddToPlayList = React.useCallback(() => { setOpenAddtoPlaylist(true) }, []);
+
+    const handleOnCloseAddToPlayList = React.useCallback(() => { setOpenAddtoPlaylist(false) }, []);
 
     const [gradient, setGradient] = React.useState<GradientColors>(DEFAULT_COLORS);
 
@@ -137,58 +143,60 @@ export default function MiniPlayer() {
     if (!track) return null;
 
     return (
-        <Pressable onPress={onOpen} className='absolute h-16 mx-1 left-0 right-0 bottom-0 rounded-lg overflow-hidden'>
-            <LinearGradient
-                colors={gradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1.3, y: 0 }}
-                className='absolute inset-0 h-full rounded-lg'
-                pointerEvents="none"
-            />
+        <>
+            <Pressable onPress={onOpen} className='absolute h-16 mx-1 left-0 right-0 bottom-0 rounded-lg overflow-hidden'>
+                <LinearGradient
+                    colors={gradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1.3, y: 0 }}
+                    className='absolute inset-0 h-full rounded-lg'
+                    pointerEvents="none"
+                />
 
-            <View
-                className='p-2 flex-row items-center justify-between w-full h-full'
-                onLayout={(e) => { sliderWidth.value = e.nativeEvent.layout.width; }}
-            >
-                <View className='flex-row items-center gap-3 flex-1 pr-4'>
-                    {artwork ? (
-                        <Image source={{ uri: artwork }} className='h-full aspect-square rounded-md' />
-                    ) : (
-                        <View className='h-full aspect-square rounded-md bg-white/20' />
-                    )}
+                <View
+                    className='p-2 flex-row items-center justify-between w-full h-full'
+                    onLayout={(e) => { sliderWidth.value = e.nativeEvent.layout.width; }}
+                >
+                    <View className='flex-row items-center gap-3 flex-1 pr-4'>
+                        {artwork ? (
+                            <Image source={{ uri: artwork }} className='h-full aspect-square rounded-md' />
+                        ) : (
+                            <View className='h-full aspect-square rounded-md bg-white/20' />
+                        )}
 
-                    <MiniPlayerTrackDetails />
-                </View>
-
-                <View className='flex-row items-center gap-4 px-2'>
-                    <TouchableOpacity onPress={togglePlay} hitSlop={8}>
-                        <PlusCircle size={20} color='white' />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={togglePlay} hitSlop={8}>
-                        {isPlaying
-                            ? <Pause size={20} color='white' fill='white' />
-                            : <Play size={20} color='white' fill='white' />
-                        }
-                    </TouchableOpacity>
-                </View>
-
-                <GestureDetector gesture={panGesture}>
-                    <View
-                        style={{
-                            position: 'absolute',
-                            bottom: 0, left: 0, right: 0,
-                            zIndex: 50,
-                            justifyContent: 'flex-end',
-                        }}
-                        onLayout={(e) => { sliderWidth.value = e.nativeEvent.layout.width; }}
-                    >
-                        <Animated.View style={trackStyle}>
-                            <Animated.View style={[fillStyle, { backgroundColor: gradient[0] }]} />
-                        </Animated.View>
-                        <Animated.View style={[thumbStyle, { backgroundColor: gradient[0] }]} />
+                        <MiniPlayerTrackDetails />
                     </View>
-                </GestureDetector>
-            </View>
-        </Pressable>
+
+                    <View className='flex-row items-center gap-4 px-2'>
+                        <TouchableOpacity onPress={handleOpenAddToPlayList} hitSlop={8}>
+                            <PlusCircle size={20} color='white' />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={togglePlay} hitSlop={8}>
+                            {isPlaying
+                                ? <Pause size={20} color='white' fill='white' />
+                                : <Play size={20} color='white' fill='white' />
+                            }
+                        </TouchableOpacity>
+                    </View>
+
+                    <GestureDetector gesture={panGesture}>
+                        <View
+                            style={{
+                                position: 'absolute',
+                                bottom: 0, left: 0, right: 0,
+                                zIndex: 50,
+                                justifyContent: 'flex-end',
+                            }}
+                            onLayout={(e) => { sliderWidth.value = e.nativeEvent.layout.width; }}
+                        >
+                            <Animated.View style={trackStyle}>
+                                <Animated.View style={[fillStyle, { backgroundColor: gradient[0] }]} />
+                            </Animated.View>
+                            <Animated.View style={[thumbStyle, { backgroundColor: gradient[0] }]} />
+                        </View>
+                    </GestureDetector>
+                </View>
+            </Pressable>
+            <AddToPlayList musicId={track.mediaId!} isVisible={openAddtoPlaylist} onClose={handleOnCloseAddToPlayList} /></>
     );
 }

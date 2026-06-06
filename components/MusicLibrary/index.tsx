@@ -7,6 +7,7 @@ import { ArrowLeft, Music2 } from 'lucide-react-native';
 import React from 'react';
 import { Animated, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AddToPlayList from '../common/AddToPlayList';
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
 import MiniPlayer from '../common/MiniPlayer';
 import MusicLibProvider from '../context/musicLib';
@@ -24,6 +25,18 @@ export default function MusicScanScreen() {
     const { onRefresh, refresh } = useRefresh();
 
     const handleState = (action: ScanState) => setScanState(action);
+    const [targetMusicId, setTargetMusicId] = React.useState<string | null>(null);
+    const [openAddtoPlaylist, setOpenAddtoPlaylist] = React.useState(false);
+
+    const handleOpenAddToPlayList = (musicId: string) => {
+        setTargetMusicId(musicId);
+        setOpenAddtoPlaylist(true);
+    }
+
+    const handleOnCloseAddToPlayList = React.useCallback(() => {
+        setOpenAddtoPlaylist(false);
+        setTargetMusicId(null);
+    }, []);
 
     return (
         <MusicLibProvider>
@@ -45,13 +58,14 @@ export default function MusicScanScreen() {
                         <ScrollView contentContainerStyle={{ gap: 20, paddingBottom: 60 }} className='flex-1 px-6 py-2' showsVerticalScrollIndicator={false}
                             refreshControl={<RefreshControl refreshing={refresh} onRefresh={onRefresh} />}>
                             <ScanMusic scanState={scanState} setScanState={handleState} />
-                            <Musics scanState={scanState} />
+                            <Musics scanState={scanState} onOpenAddToPlayList={handleOpenAddToPlayList} />
                         </ScrollView>
                     </Animated.View>
                 </SafeAreaView>
             </View>
             <MiniPlayer />
             <EditSheet />
+            {targetMusicId && <AddToPlayList musicId={targetMusicId} isVisible={openAddtoPlaylist} onClose={handleOnCloseAddToPlayList} />}
         </MusicLibProvider>
     );
 }

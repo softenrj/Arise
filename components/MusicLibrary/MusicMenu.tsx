@@ -11,7 +11,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Menu, MenuItem, MenuItemLabel } from '../ui/menu';
 
-export default function MusicMenu({ musicId }: { musicId: string }) {
+export default function MusicMenu({ musicId, onAddToPlayList }: { musicId: string, onAddToPlayList: () => void }) {
     const db = useSQLiteContext();
     const { musics, onMusicRefresh } = useMusic();
     const { closeSheet, setEditMusicId, openSheet } = useMusicLib();
@@ -69,6 +69,7 @@ export default function MusicMenu({ musicId }: { musicId: string }) {
                 key="Queue"
                 textValue="Add to Queue"
                 className="px-4 py-3 flex-row items-center gap-3 active:bg-zinc-50 border-b border-zinc-100"
+                onPress={onAddToPlayList}
             >
                 <View className="w-7 h-7 rounded-lg bg-indigo-50 items-center justify-center">
                     <ListMusic size={14} color="#6366f1" />

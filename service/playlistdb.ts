@@ -123,6 +123,34 @@ export const getPlayListById = async (db: SQLiteDatabase, id: string) => {
   }
 };
 
+export interface PlayListByMusicId {
+  id: string;
+  title: string;
+  cover: string;
+  isAdded: 0 | 1;
+}
+
+/**
+ * Get all playList by musicId
+ * @param param0 
+ * @returns 
+ */
+export const getAllPlayListByMusicId = async ({ db, musicId }: { db: SQLiteDatabase, musicId: string }): Promise<PlayListByMusicId[]> => {
+  try {
+    const sqlCommand = `
+      SELECT id, title, cover, EXISTS (SELECT 1 FROM PlayList_MUSIC WHERE playlistId = pl.id AND musicId = ?) as isAdded FROM PlayList as pl
+      ORDER BY pined DESC, updatedAt DESC
+    `;
+
+    const playList = (await db.getAllAsync(sqlCommand, [musicId])) as PlayListByMusicId[];
+
+    return playList;
+  } catch (error) {
+    console.error("Error while getting playlist by musicId:", error);
+    return [];
+  }
+}
+
 interface UpdatePlayList {
   db: SQLiteDatabase;
   playList: {
@@ -319,11 +347,11 @@ export const setPlayListMusic = async ({
 export const removePlayListMusic = async ({
   db,
   musicId,
-  playlistMusicId,
+  playlistId,
 }: {
   db: SQLiteDatabase;
   musicId: string;
-  playlistMusicId: string;
+  playlistId: string;
 }) => {
   try {
     await db.runAsync(
@@ -331,7 +359,7 @@ export const removePlayListMusic = async ({
       DELETE FROM PlayList_MUSIC
       WHERE musicId = ? AND playlistId = ?
       `,
-      [musicId, playlistMusicId],
+      [musicId, playlistId],
     );
 
     return true;

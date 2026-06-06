@@ -21,7 +21,7 @@ const cleanFilename = (filename: string): string => {
 
 const normalize = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-export default function Musics({ scanState }: { scanState: ScanState }) {
+export default function Musics({ scanState, onOpenAddToPlayList }: { scanState: ScanState, onOpenAddToPlayList: (musicId: string) => void }) {
     const [query, setQuery] = useState('');
     const [focused, setFocused] = useState(false);
     const inputRef = useRef<TextInput>(null);
@@ -110,7 +110,7 @@ export default function Musics({ scanState }: { scanState: ScanState }) {
                     </View>
                 </Pressable>
 
-                <MusicMenu musicId={item.id} />
+                <MusicMenu musicId={item.id} onAddToPlayList={() => onOpenAddToPlayList(item.id)} />
             </View>
         ),
         [playTrack],

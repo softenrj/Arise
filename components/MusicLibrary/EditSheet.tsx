@@ -15,6 +15,7 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 import { FileArchive } from 'lucide-react-native';
 import React from 'react';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+// import { WebView } from 'react-native-webview';
 import SheetProvider from '../ui/Sheet';
 
 export default function EditSheet() {
@@ -245,6 +246,18 @@ export default function EditSheet() {
                             </Text>
                             <FileArchive size={20} color="#94a3b8" />
                         </TouchableOpacity>
+                    </View>
+
+                    <View>
+                        {/* <WebView
+                            source={{
+                                uri: 'https://www.youtube.com/embed/5GUaMOpfmr8'
+                            }}
+                            style={{
+                                height: 220,
+                                width: '100%'
+                            }}
+                        /> */}
                     </View>
                 </View>
 
