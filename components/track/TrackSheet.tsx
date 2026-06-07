@@ -9,7 +9,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-export default function TrackSheet({ open, onClose, snap = 1, className, children }: { open?: boolean, onClose?: () => void, snap?: number, className?: string, children: React.JSX.Element }) {
+export default function TrackSheet({ open, onClose, snap = 1, className, children }: { open?: boolean, onClose?: () => void, snap?: number, className?: string, children: React.ReactNode }) {
     const translateY = useSharedValue(SCREEN_HEIGHT);
     const context = useSharedValue(0);
     const SHEET_HEIGHT = SCREEN_HEIGHT * snap;

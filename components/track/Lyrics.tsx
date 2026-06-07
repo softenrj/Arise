@@ -1,39 +1,43 @@
-import { useMusic } from '@/hooks/useMusic';
+// Copyright (c) 2026 Raj
+// See LICENSE for details.
+
 import { useAppSelector } from '@/hooks/useRedux';
+import { useTrack } from '@/hooks/useTrack';
 import { LyricLine, LyricsService } from '@/service/lyrics';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React from 'react';
 import { FlatList, Modal, Pressable, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    withSpring,
-    withTiming,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import { useProgress } from 'react-native-track-player';
 
-const AnimatedLyricText = React.memo(
-    ({ text, isActive }: { text: string; isActive: boolean }) => {
-        const animatedStyle = useAnimatedStyle(() => {
-            return {
-                opacity: withTiming(isActive ? 1 : 0.3, { duration: 300 }),
-                transform: [
-                    { scale: withSpring(isActive ? 1.04 : 0.90, { damping: 15, stiffness: 150 }) }
-                ]
-            };
-        }, [isActive]);
+const AnimatedLyricText = React.memo(({ text, isActive, time }: { text: string; isActive: boolean; time: number }) => {
+    const { seekTo } = useTrack();
 
-        return (
+    const handleSeekToThatTime = () => {
+        seekTo(time / 1000);
+    }
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            opacity: withTiming(isActive ? 1 : 0.3, { duration: 300 }),
+            transform: [
+                { scale: withSpring(isActive ? 1.04 : 0.90, { damping: 15, stiffness: 150 }) }
+            ]
+        };
+    }, [isActive]);
+
+    return (
+        <TouchableOpacity onPress={handleSeekToThatTime}>
             <Animated.Text
                 className={`text-white font-elms-bold ${isActive ? 'text-3xl' : 'text-2xl'} text-center`}
                 style={[animatedStyle, { paddingVertical: 12 }]}
             >
                 {text}
             </Animated.Text>
-        );
-    },
-    (prevProps, nextProps) => {
-        return prevProps.isActive === nextProps.isActive && prevProps.text === nextProps.text;
-    }
+        </TouchableOpacity>
+    );
+},
+    (prevProps, nextProps) => { return prevProps.isActive === nextProps.isActive && prevProps.text === nextProps.text }
 );
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<LyricLine>);
@@ -42,26 +46,25 @@ export default function Lyrics({ color }: { color: string }) {
     const { queue, currentIndex } = useAppSelector((state) => state.trackReducer);
     const { position } = useProgress();
     const track = queue[currentIndex];
-    const { filteredMusic } = useMusic();
 
-    // console.log(filteredMusic)
+    const [lyrics, setLyrics] = React.useState<LyricLine[]>([]);
+    const [isExpanded, setIsExpanded] = React.useState(false);
+    const inlineListRef = React.useRef<FlatList<LyricLine>>(null);
+    const modalListRef = React.useRef<FlatList<LyricLine>>(null);
 
-    const [lyrics, setLyrics] = useState<LyricLine[]>([]);
-    const [isExpanded, setIsExpanded] = useState(false);
-    const flatListRef = useRef<FlatList<LyricLine>>(null);
-
-    const handleLoadLyrics = useCallback(async () => {
+    const handleLoadLyrics = React.useCallback(async () => {
         if (track?.lyricsUri) {
             const loadedLyrics = await LyricsService.loadLyricsFromFile(track.lyricsUri);
             setLyrics(loadedLyrics);
         }
     }, [track]);
 
-    useEffect(() => {
+    React.useEffect(() => {
+        setLyrics([]);
         handleLoadLyrics();
     }, [track]);
 
-    const activeIndex = useMemo(() => {
+    const activeIndex = React.useMemo(() => {
         if (!lyrics || lyrics.length === 0) return 0;
         const currentMs = position * 1000;
 
@@ -76,14 +79,20 @@ export default function Lyrics({ color }: { color: string }) {
         return index !== -1 ? index : 0;
     }, [position, lyrics]);
 
-    useEffect(() => {
-        if (flatListRef.current && lyrics.length > 0 && activeIndex >= 0) {
+    React.useEffect(() => {
+        if (lyrics.length > 0 && activeIndex >= 0) {
             setTimeout(() => {
-                flatListRef.current?.scrollToIndex({
+                const scrollConfig = {
                     index: activeIndex,
                     animated: true,
                     viewPosition: 0.5,
-                });
+                };
+
+                if (isExpanded) {
+                    modalListRef.current?.scrollToIndex(scrollConfig);
+                } else {
+                    inlineListRef.current?.scrollToIndex(scrollConfig);
+                }
             }, 100);
         }
     }, [activeIndex, lyrics.length, isExpanded]);
@@ -104,39 +113,40 @@ export default function Lyrics({ color }: { color: string }) {
 
                 <Text className="text-white font-bold text-lg z-10">Lyrics</Text>
 
-                <View className='py-4 h-[300px] overflow-hidden'>
-                    <AnimatedFlatList
-                        ref={!isExpanded ? flatListRef : null}
-                        scrollEnabled={false}
-                        data={lyrics}
-                        keyExtractor={(_, index) => index.toString()}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{
-                            paddingTop: 120,
-                            paddingBottom: 120,
-                        }}
-                        onScrollToIndexFailed={(info) => {
-                            const offset = info.averageItemLength * info.index;
-                            flatListRef.current?.scrollToOffset({ offset, animated: true });
-                        }}
-                        renderItem={({ item, index }) => (
-                            <AnimatedLyricText
-                                text={item.text}
-                                isActive={index === activeIndex}
-                            />
-                        )}
-                        initialNumToRender={10}
-                        maxToRenderPerBatch={10}
-                        windowSize={5}
-                        removeClippedSubviews={false}
-                    />
+                <View className={`py-4  overflow-hidden ${lyrics.length === 0 ? 'h-fit' : 'h-[280px]'}`}>
+                    {lyrics.length > 0 && (
+                        <AnimatedFlatList
+                            ref={inlineListRef}
+                            scrollEnabled={false}
+                            data={lyrics}
+                            keyExtractor={(_, index) => index.toString()}
+                            showsVerticalScrollIndicator={false}
+                            onScrollToIndexFailed={(info) => { const offset = info.averageItemLength * info.index; inlineListRef.current?.scrollToOffset({ offset, animated: true }) }}
+                            renderItem={({ item, index }) => (
+                                <AnimatedLyricText
+                                    text={item.text}
+                                    time={item.time}
+                                    isActive={index === activeIndex}
+                                />
+                            )}
+                            initialNumToRender={10}
+                            maxToRenderPerBatch={10}
+                            windowSize={5}
+                            removeClippedSubviews={false}
+                        />
+                    )}
+
+                    {lyrics.length === 0 &&
+                        <Text className='text-white/90 font-elms-bold text-center text-xl'>Import Lyrics By Editing Music</Text>}
                 </View>
 
-                <Pressable className="bg-white/20 px-2 py-1.5 w-[7.5rem] justify-center items-center rounded-full mt-6">
-                    <TouchableOpacity onPress={() => setIsExpanded(true)}>
-                        <Text className="text-white text-sm font-elms-bold">Show Lyrics</Text>
-                    </TouchableOpacity>
-                </Pressable>
+                {lyrics.length > 0 && (
+                    <Pressable className="bg-white/20 px-2 py-1.5 w-[7.5rem] justify-center items-center rounded-full mt-6">
+                        <TouchableOpacity onPress={() => setIsExpanded(true)}>
+                            <Text className="text-white text-sm font-elms-bold">Show Lyrics</Text>
+                        </TouchableOpacity>
+                    </Pressable>
+                )}
             </View>
 
             <Modal visible={isExpanded} animationType="slide" transparent={true}>
@@ -154,22 +164,16 @@ export default function Lyrics({ color }: { color: string }) {
 
                         <View className="flex-1 overflow-hidden">
                             <AnimatedFlatList
-                                ref={isExpanded ? flatListRef : null}
+                                ref={modalListRef}
                                 scrollEnabled={true}
                                 data={lyrics}
                                 keyExtractor={(_, index) => index.toString()}
                                 showsVerticalScrollIndicator={false}
-                                contentContainerStyle={{
-                                    paddingTop: 300,
-                                    paddingBottom: 300,
-                                }}
-                                onScrollToIndexFailed={(info) => {
-                                    const offset = info.averageItemLength * info.index;
-                                    flatListRef.current?.scrollToOffset({ offset, animated: true });
-                                }}
+                                onScrollToIndexFailed={(info) => { const offset = info.averageItemLength * info.index; modalListRef.current?.scrollToOffset({ offset, animated: true }) }}
                                 renderItem={({ item, index }) => (
                                     <AnimatedLyricText
                                         text={item.text}
+                                        time={item.time}
                                         isActive={index === activeIndex}
                                     />
                                 )}
@@ -180,7 +184,7 @@ export default function Lyrics({ color }: { color: string }) {
                             />
                         </View>
 
-                        <Pressable className="bg-white/20 px-2 py-3 w-[8.5rem] justify-center items-center rounded-full mt-6 self-center mb-4">
+                        <Pressable hitSlop={14} className="bg-white/20 px-2 py-3 w-[8.5rem] justify-center items-center rounded-full mt-6 self-center mb-4">
                             <TouchableOpacity onPress={() => setIsExpanded(false)}>
                                 <Text className="text-white text-sm font-elms-bold">Close Lyrics</Text>
                             </TouchableOpacity>

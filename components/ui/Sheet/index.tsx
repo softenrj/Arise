@@ -9,7 +9,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-export default function SheetProvider({ open, onClose, snap = 0.6, className, children }: { open?: boolean, onClose?: () => void, snap?: number, className?: string, children: React.JSX.Element }) {
+export default function SheetProvider({ open, onClose, snap = 0.6, className, children, closeClassName }: { open?: boolean, onClose?: () => void, snap?: number, className?: string, children: React.JSX.Element, closeClassName?: string }) {
     const translateY = useSharedValue(SCREEN_HEIGHT);
     const context = useSharedValue(0);
     const SHEET_HEIGHT = SCREEN_HEIGHT * snap;
@@ -87,7 +87,7 @@ export default function SheetProvider({ open, onClose, snap = 0.6, className, ch
                         }
                     ]}
                 >
-                    <View className="w-12 h-1.5 bg-zinc-200 self-center rounded-full" />
+                    <View className={` w-12 h-1.5 bg-zinc-200 self-center rounded-full ${closeClassName}`} />
                     {children}
                 </Animated.View>
             </GestureDetector>

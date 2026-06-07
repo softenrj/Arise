@@ -14,6 +14,7 @@ import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useProgress } from 'react-native-track-player';
+import { WaveThumb } from '../common/WaveThumb';
 
 const SLIDER_HEIGHT = 3;
 const SLIDER_HEIGHT_ACTIVE = 6;
@@ -21,7 +22,7 @@ const HIT_SLOP = 20;
 
 export default function TrackController() {
     const { queue, currentIndex } = useAppSelector((state) => state.trackReducer);
-    const { onMusicLike } = useMusic();
+    const { onMusicLike, waveProgress } = useMusic();
     const track = queue[currentIndex];
 
     const sliderWidth = useSharedValue(0);
@@ -207,10 +208,12 @@ export default function TrackController() {
                             sliderWidth.value = e.nativeEvent.layout.width;
                         }}
                     >
-                        <Animated.View style={trackStyle}>
-                            <Animated.View style={fillStyle} />
-                        </Animated.View>
-                        <Animated.View style={thumbStyle} />
+                        {waveProgress ? <WaveThumb sliderWidth={sliderWidth} isPlaying={isPlaying} progressX={progressX} /> :
+                            <>
+                                <Animated.View style={trackStyle}>
+                                    <Animated.View style={fillStyle} />
+                                </Animated.View>
+                                <Animated.View style={thumbStyle} /></>}
                     </View>
                 </GestureDetector>
 

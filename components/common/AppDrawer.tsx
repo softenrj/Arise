@@ -1,6 +1,8 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useAppSelector } from '@/hooks/useRedux';
+import { defaultAvtar } from '@/utils/constants';
 import { Link } from 'expo-router';
 import { Home, Library, Music, Music2, Search, Settings } from 'lucide-react-native';
 import React, { useEffect } from 'react';
@@ -22,6 +24,8 @@ export default function AppDrawer({ open, onClose }: { open: boolean; onClose: (
     const translateX = useSharedValue(-DRAWER_WIDTH);
     const opacity = useSharedValue(0);
     const context = useSharedValue(0);
+
+    const { avatar, name } = useAppSelector(state => state.userReducer);
 
     useEffect(() => {
         if (open) {
@@ -82,20 +86,20 @@ export default function AppDrawer({ open, onClose }: { open: boolean; onClose: (
                     <View className='flex-row items-center justify-between px-5 pt-14 pb-5 border-b border-zinc-100'>
                         <View className='flex-row gap-3 items-center'>
                             <Avatar size="md">
-                                <AvatarFallbackText>Raj</AvatarFallbackText>
+                                <AvatarFallbackText>{name}</AvatarFallbackText>
                                 <AvatarImage
                                     source={{
-                                        uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQsIKyVHCLjg95THmDo9ePbUjZtcHH_t0Jqg&s',
+                                        uri: avatar || defaultAvtar,
                                     }}
                                 />
                             </Avatar>
 
                             <View className="flex flex-col justify-center">
                                 <Text className="text-lg font-elms-med text-black mb-0.5">
-                                    Raj
+                                    {name}
                                 </Text>
                                 <Text className="text-sm font-elms text-gray-500 leading-none tracking-tight">
-                                    softenrj
+                                    Arise
                                 </Text>
                             </View>
                         </View>

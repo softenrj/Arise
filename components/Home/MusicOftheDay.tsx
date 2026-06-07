@@ -7,7 +7,7 @@ import { useTrack } from '@/hooks/useTrack';
 import { getTrackFromMusic } from '@/service/TrackMaker';
 import { IMusicTrack } from '@/types/database';
 import { defaultMusicArtWork } from '@/utils/constants';
-import { Asterisk, EllipsisVertical, MoveRight } from 'lucide-react-native';
+import { Asterisk, MoveRight } from 'lucide-react-native';
 import React from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 
@@ -57,7 +57,7 @@ export default function MusicoftheDay() {
                             className='w-16 h-16 rounded-sm'
                         />
 
-                        <View className='flex-1 flex-col justify-center'>
+                        <View className='flex-1 flex-col justify-center max-w-[78%]'>
                             <Text numberOfLines={1} className='text-black text-sm font-jakarta tracking-tight' style={{ fontWeight: 500 }}>
                                 {item.title}
                             </Text>
@@ -65,8 +65,6 @@ export default function MusicoftheDay() {
                                 {item.artist}
                             </Text>
                         </View>
-
-                        <EllipsisVertical size={18} color='#d4d4d8' />
                     </Pressable>
                 ))}
             </ScrollView>

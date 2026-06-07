@@ -87,7 +87,7 @@ export default function index({ children }: { children: React.ReactNode }) {
                 <FocusAwareStatusBar style='dark' />
 
                 <ScrollView
-                    contentContainerStyle={{ gap: 20, paddingBottom: 10, flexGrow: 1 }}
+                    contentContainerStyle={{ gap: 20, paddingBottom: 60, flexGrow: 1 }}
                     className='flex-1 px-4 py-2'
                     showsVerticalScrollIndicator={false}
                     refreshControl={<RefreshControl refreshing={refresh} onRefresh={handleRefresh} />}

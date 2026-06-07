@@ -175,29 +175,30 @@ export const addRecentPlay = async (db: SQLiteDatabase, musicId: string) => {
 export const getRecentPlays = async (db: SQLiteDatabase, limit: number = 20): Promise<IMusicTrack[]> => {
     try {
         const sql = `
-    SELECT
-        music.*,
-        Lyrics.name AS lyricsName,
-        Lyrics.uri AS lyricsUri
-    FROM Musics AS music
+            SELECT
+                music.*,
+                music.id as musicId,
+                Lyrics.name AS lyricsName,
+                Lyrics.uri AS lyricsUri
+            FROM Musics AS music
 
-    LEFT JOIN Lyrics
-        ON music.lyricsId = Lyrics.id
+            LEFT JOIN Lyrics
+                ON music.lyricsId = Lyrics.id
 
-    INNER JOIN (
-        SELECT
-            musicId,
-            MAX(playedAt) AS lastPlayed
-        FROM RecentPlays
-        GROUP BY musicId
-    ) rp
-        ON music.id = rp.musicId
+            INNER JOIN (
+                SELECT
+                    musicId,
+                    MAX(playedAt) AS lastPlayed
+                FROM RecentPlays
+                GROUP BY musicId
+            ) rp
+                ON music.id = rp.musicId
 
-    WHERE music.visible = 1
+            WHERE music.visible = 1
 
-    ORDER BY rp.lastPlayed DESC
-    LIMIT ?;
-`;
+            ORDER BY rp.lastPlayed DESC
+            LIMIT ?;
+        `;
 
         const recent = await db.getAllAsync(sql, [limit]) as IMusicTrack[];
         return recent;
@@ -259,15 +260,16 @@ export const getRecomendations = async (db: SQLiteDatabase, limit: number = 20):
         if (recommendedIds.length > 0) {
             const placeholders = recommendedIds.map(() => "?").join(",");
             const query = `
-    SELECT
-        Musics.*,
-        Lyrics.name AS lyricsName,
-        Lyrics.uri AS lyricsUri
-    FROM Musics
-    LEFT JOIN Lyrics ON Musics.lyricsId = Lyrics.id
-    WHERE Musics.id IN (${placeholders})
-    ORDER BY Musics.modificationTime DESC;
-`;
+                    SELECT
+                        Musics.*,
+                        Musics.id as musicId,
+                        Lyrics.name AS lyricsName,
+                        Lyrics.uri AS lyricsUri
+                    FROM Musics
+                    LEFT JOIN Lyrics ON Musics.lyricsId = Lyrics.id
+                    WHERE Musics.id IN (${placeholders})
+                    ORDER BY Musics.modificationTime DESC;
+                `;
 
             const recommendedTracks = (await db.getAllAsync(query, recommendedIds)) as IMusicTrack[];
             return recommendedTracks;

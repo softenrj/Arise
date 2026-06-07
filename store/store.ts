@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import TrackReducer from "./reducer/trackplayerSlice";
+import UserReducer from "./reducer/userSlice";
 
 export const store = configureStore({
     reducer: {
-        trackReducer: TrackReducer
+        trackReducer: TrackReducer,
+        userReducer: UserReducer
     }
 });
 

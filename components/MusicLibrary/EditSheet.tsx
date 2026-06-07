@@ -48,7 +48,7 @@ export default function EditSheet() {
             const result = await DocumentPicker.getDocumentAsync({
                 type: ["text/plain", "*/*"],
                 multiple: false,
-                copyToCacheDirectory: false
+                copyToCacheDirectory: true
             })
 
             if (result.canceled || !result.assets || result.assets.length === 0) {
@@ -116,52 +116,56 @@ export default function EditSheet() {
     }, [editMusicId, musics]);
 
     const handleSave = async () => {
-        if (!music) return;
-        setLoading(true);
-        let lyricsId = null;
+        try {
+            if (!music) return;
+            setLoading(true);
+            let lyricsId = null;
 
-        if (lyrics) {
-            const lyricsUri = await saveLyrics(
-                lyrics.uri,
-                music.id
-            );
+            if (lyrics) {
+                const lyricsUri = await saveLyrics(
+                    lyrics.uri,
+                    music.id
+                );
 
-            const lyricsObject = {
-                ...lyrics,
-                uri: lyricsUri,
-                musicId: music.id,
-            };
+                const lyricsObject = {
+                    ...lyrics,
+                    uri: lyricsUri,
+                    musicId: music.id,
+                };
 
-            lyricsId = await createOrUpdateLyrics(
-                lyricsObject,
-                db
-            );
+                lyricsId = await createOrUpdateLyrics(
+                    lyricsObject,
+                    db
+                );
+            }
+
+            let imageMediaUri = null;
+            let videoMediaUri = null;
+
+            if (customeImage) imageMediaUri = await saveMedia(customeImage, 'image', music.id);
+            if (customeVideo) videoMediaUri = await saveMedia(customeVideo, 'video', music.id)
+
+
+            const updatedMusic = await updateMusicdb(db, music?.id!, {
+                title, artist, lyricsId, customCoverUri: imageMediaUri, customVideoUri: videoMediaUri, customVideoFileName, youtube_uri: extractVideoId(youtubeUrl) ?? null
+            }) as IMusicTrack;
+
+            if (updatedMusic) {
+                setTitle('');
+                setArtist('');
+                setLyrics(null);
+                setCustomeImage(null);
+                setCustomeVideo(null);
+                setCustomVideoFileName(null);
+                onMusicUpdate(updatedMusic);
+                setYoutubeUrl('');
+                closeSheet();
+            }
+        } catch (error) {
+            console.log("Error saving music:", error);
+        } finally {
+            setLoading(false);
         }
-
-        let imageMediaUri = null;
-        let videoMediaUri = null;
-
-        if (customeImage) imageMediaUri = await saveMedia(customeImage, 'image', music.id);
-        if (customeVideo) videoMediaUri = await saveMedia(customeVideo, 'video', music.id)
-
-
-        const updatedMusic = await updateMusicdb(db, music?.id!, {
-            title, artist, lyricsId, customCoverUri: imageMediaUri, customVideoUri: videoMediaUri, customVideoFileName, youtube_uri: extractVideoId(youtubeUrl) ?? null
-        }) as IMusicTrack;
-
-        if (updatedMusic) {
-            setTitle('');
-            setArtist('');
-            setLyrics(null);
-            setCustomeImage(null);
-            setCustomeVideo(null);
-            setCustomVideoFileName(null);
-            onMusicUpdate(updatedMusic);
-            setYoutubeUrl('');
-            closeSheet();
-        }
-
-        setLoading(false);
     };
 
     return (

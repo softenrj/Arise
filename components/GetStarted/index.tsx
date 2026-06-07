@@ -1,17 +1,35 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { useAppSelector } from '@/hooks/useRedux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Dimensions, ImageBackground, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Arise from './Arise';
+import StaterModel from './StaterModel';
 
 const { width } = Dimensions.get('window');
 
 export default function index() {
+    const router = useRouter();
     const translateX = useRef(new Animated.Value(0)).current;
+    const [open, setOpen] = React.useState<boolean>(false);
+    const { name } = useAppSelector(state => state.userReducer);
+
+    const handleOpen = React.useCallback(() => setOpen(prev => !prev), []);
+
+    const handleContinue = () => {
+        if (name === 'default') {
+            handleOpen();
+            return;
+        }
+        AsyncStorage.setItem("continue", JSON.stringify(true));
+        router.replace("/(tabs)/home")
+    }
 
     useEffect(() => {
         Animated.loop(
@@ -23,45 +41,53 @@ export default function index() {
         ).start();
     }, [translateX]);
 
+    React.useEffect(() => {
+        AsyncStorage.getItem('continue', (err, value) => {
+            if (value && JSON.parse(value)) router.replace("/(tabs)/home")
+        })
+    }, [])
+
     return (
-        <ImageBackground
-            source={require("@/assets/images/landing.jpg")}
-            className='flex-1'
-            resizeMode="cover"
-        >
+        <>
+            <ImageBackground
+                source={require("@/assets/images/landing.jpg")}
+                className='flex-1'
+                resizeMode="cover"
+            >
 
-            <SafeAreaView>
-                <View className='flex justify-center items-center my-6'>
+                <SafeAreaView>
+                    <View className='flex justify-center items-center my-6'>
 
-                    <MaskedView
-                        maskElement={
-                            <Text className='text-5xl font-ostt text-center bg-transparent'>
-                                Welcome
-                            </Text>
-                        }
-                        style={{ height: 60, width: '100%' }}
-                    >
-
-                        <Animated.View
-                            style={{
-                                width: width * 2,
-                                height: '100%',
-                                transform: [{ translateX }]
-                            }}
+                        <MaskedView
+                            maskElement={
+                                <Text className='text-5xl font-ostt text-center bg-transparent'>
+                                    Welcome
+                                </Text>
+                            }
+                            style={{ height: 60, width: '100%' }}
                         >
-                            <LinearGradient
-                                colors={['#3b82f6', '#ec4899', '#8b5cf6', '#ec4899', '#3b82f6']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                style={{ flex: 1 }}
-                            />
-                        </Animated.View>
-                    </MaskedView>
 
-                </View>
-            </SafeAreaView>
+                            <Animated.View
+                                style={{
+                                    width: width * 2,
+                                    height: '100%',
+                                    transform: [{ translateX }]
+                                }}
+                            >
+                                <LinearGradient
+                                    colors={['#3b82f6', '#ec4899', '#8b5cf6', '#ec4899', '#3b82f6']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={{ flex: 1 }}
+                                />
+                            </Animated.View>
+                        </MaskedView>
 
-            <Arise />
-        </ImageBackground>
+                    </View>
+                </SafeAreaView>
+
+                <Arise handleContinue={handleContinue} />
+            </ImageBackground>
+            <StaterModel open={open} onClose={handleOpen} handleContinue={handleContinue} /></>
     )
 }

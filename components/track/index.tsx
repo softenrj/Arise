@@ -11,9 +11,11 @@ import { getColors } from 'react-native-image-colors';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useVideoPlayer, VideoView } from 'expo-video';
+import AddToPlayList from '../common/AddToPlayList';
 import { YouTubeEmbed } from '../common/YouTubeEmbed';
 import Lyrics from './Lyrics';
 import TrackController from './TrackController';
+import TrackMusicList from './TrackMusicList';
 import TrackSheet from './TrackSheet';
 
 const BACKGROUND_COLOR = '#121212';
@@ -30,6 +32,11 @@ export default function PlayerScreen() {
 
     const { queue, currentIndex, playlistName } = useAppSelector((state) => state.trackReducer);
     const track = queue[currentIndex];
+
+    const [openPlayListMenu, setOpenPlayListMenu] = React.useState<boolean>(false);
+    const handlePlayListMenu = React.useCallback(() => setOpenPlayListMenu(prev => !prev), []);
+    const [openAddToPlaylist, setOpenAddToPlaylist] = React.useState<boolean>(false);
+    const handleAddToPlaylist = React.useCallback(() => setOpenAddToPlaylist(prev => !prev), []);
 
     const videoPlayer = useVideoPlayer(track?.customVideoUri ?? null, (p) => {
         p.loop = true;
@@ -152,7 +159,7 @@ export default function PlayerScreen() {
                                     </Text>
                                 </View>
 
-                                <TouchableOpacity hitSlop={15}>
+                                <TouchableOpacity hitSlop={15} onPress={handleAddToPlaylist}>
                                     <EllipsisVertical size={24} color="#fff" />
                                 </TouchableOpacity>
                             </View>
@@ -184,7 +191,9 @@ export default function PlayerScreen() {
                             ) : (
                                 <Hd size={20} color="white" opacity={0.2} />
                             )}
-                            <ListFilter size={20} color="white" opacity={0.8} />
+                            <TouchableOpacity hitSlop={12} onPress={handlePlayListMenu}>
+                                <ListFilter size={20} color="white" opacity={0.8} />
+                            </TouchableOpacity>
                         </View>
 
                         <Lyrics color={vibrantColor} />
@@ -198,6 +207,9 @@ export default function PlayerScreen() {
                     </SafeAreaView>
                 </ScrollView>
             </View>
+
+            <TrackMusicList open={openPlayListMenu} onClose={handlePlayListMenu} />
+            <AddToPlayList isVisible={openAddToPlaylist} musicId={track?.id || ''} onClose={handleAddToPlaylist} />
         </TrackSheet>
     );
 }

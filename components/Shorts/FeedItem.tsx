@@ -288,7 +288,7 @@ function FeedItem({ containerHeight, isActive, feed }: { containerHeight: number
                 />
             </Animated.View>
 
-            <FeedOverLay like={isLiked} onLike={toggleLike} animation={showLikeAnimation} feed={feed} toggleImagePreview={handleShowImage} />
+            <FeedOverLay like={isLiked} onLike={toggleLike} animation={showLikeAnimation} feed={feed} toggleImagePreview={handleShowImage} musicId={feed?.id} />
 
             <GestureDetector gesture={panGesture}>
                 <View

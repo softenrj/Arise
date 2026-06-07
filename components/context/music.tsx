@@ -32,6 +32,8 @@ interface IMusicContext {
   onMusicRefresh: () => Promise<void>;
   onMusicUpdate: (music: IMusicTrack) => Promise<void>;
   onMusicLike: (musicId: string, likeValue: 0 | 1) => Promise<void>;
+  waveProgress: boolean;
+  toggleWaveProgress: () => void;
 }
 
 export const musicContext = React.createContext<IMusicContext>({
@@ -54,6 +56,8 @@ export const musicContext = React.createContext<IMusicContext>({
   onMusicUpdate: async () => { },
   onReloadHomeData: async () => { },
   onMusicLike: async () => { },
+  waveProgress: false,
+  toggleWaveProgress: () => { },
 });
 
 function MusicContextProvider({ children }: { children: React.ReactNode }) {
@@ -62,6 +66,9 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
   const [musics, setMusics] = React.useState<IMusicTrack[]>([]);
   const [loading, setLoading] = React.useState(false);
   const filteredMusic = React.useMemo(() => musics.filter((music) => music.visible !== 0), [musics]);
+  const [waveProgress, setWaveProgress] = React.useState<boolean>(false);
+
+  const toggleWaveProgress = React.useCallback(() => setWaveProgress(prev => !prev), []);
 
   // Home Screen Data
   const [recent, setRecent] = React.useState<IMusicTrack[]>([]);
@@ -180,13 +187,13 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
       recent, shorts, playlist, recommendedMusic, handpickedMusic,
       setRecent, setShorts, setPlaylist, setRecommendedMusic, setHandpickedMusic,
       onReloadHomeData: handleHomeData,
-      onMusicLike: handleMusicLike,
+      onMusicLike: handleMusicLike, waveProgress, toggleWaveProgress,
     }),
     [musics, filteredMusic, loading, handleSetMusic, handleSetLike,
       handleRefresh, handleUpdateMusic, recent, shorts, playlist,
       recommendedMusic, handpickedMusic, setRecent, setShorts,
       setPlaylist, setRecommendedMusic, setHandpickedMusic, handleHomeData,
-      handleMusicLike,
+      handleMusicLike, waveProgress, toggleWaveProgress,
     ]
   );
 

@@ -3,9 +3,11 @@
 
 import FeedItem from "@/components/Shorts/FeedItem";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import { useMusic } from "@/hooks/useMusic";
 import { useAppSelector } from "@/hooks/useRedux";
 import { useRefresh } from "@/hooks/useRefresh";
 import { useTrack } from "@/hooks/useTrack";
+import { getTrackFromMusic } from "@/service/TrackMaker";
 import { AriseTrack } from "@/types/database";
 import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect } from "expo-router";
@@ -20,9 +22,10 @@ export default function index() {
     const [containerHeight, setContainerHeight] = React.useState(0);
     const [activeIndex, setActiveIndex] = React.useState(0);
     const { setTheme } = useAppTheme();
+    const { musics } = useMusic();
     const { refresh, onRefresh } = useRefresh();
     const queue = useAppSelector(state => state.trackReducer).queue;
-    const { playAtIndex, onCycleLoopMode, setTrackVolume } = useTrack();
+    const { playAtIndex, onCycleLoopMode, setTrackVolume, setupQueue } = useTrack();
 
 
     const onViewableItemsChanged = React.useCallback(({ viewableItems }: any) => {
@@ -55,6 +58,12 @@ export default function index() {
         ),
         [containerHeight, activeIndex]
     );
+
+    React.useEffect(() => {
+        if (queue.length === 0) {
+            setupQueue({ tracks: getTrackFromMusic(musics), playlistName: 'default', sourceType: 'default', sourceId: null, play: true });
+        }
+    }, [queue])
 
     return (
         <View className="flex-1 bg-black">

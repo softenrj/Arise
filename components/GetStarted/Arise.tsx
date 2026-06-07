@@ -1,7 +1,6 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
-import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -10,8 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 import TermAndCondition from './TermAndCondition';
 
-export default function Arise() {
-    const router = useRouter();
+export default function Arise({ handleContinue }: { handleContinue: () => void }) {
     const opacity = useSharedValue(0);
     const translateY = useSharedValue(30);
     const scale = useSharedValue(1);
@@ -57,7 +55,7 @@ export default function Arise() {
 
     const handlePressIn = () => {
         scale.value = withTiming(0.92);
-        router.push("/(tabs)/home")
+        handleContinue();
     };
 
     const handlePressOut = () => {
@@ -78,7 +76,7 @@ export default function Arise() {
         };
     });
 
-    // const handleContinue = () => AsyncStorage.setItem("continue", JSON.stringify(true));
+
 
     return (
         <Animated.View
