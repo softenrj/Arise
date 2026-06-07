@@ -24,7 +24,7 @@ export default function index() {
     const { setTheme } = useAppTheme();
     const { musics } = useMusic();
     const { refresh, onRefresh } = useRefresh();
-    const queue = useAppSelector(state => state.trackReducer).queue;
+    const { queue, sourceType } = useAppSelector(state => state.trackReducer);
     const { playAtIndex, onCycleLoopMode, setTrackVolume, setupQueue } = useTrack();
 
 
@@ -60,8 +60,8 @@ export default function index() {
     );
 
     React.useEffect(() => {
-        if (queue.length === 0) {
-            setupQueue({ tracks: getTrackFromMusic(musics), playlistName: 'default', sourceType: 'default', sourceId: null, play: true });
+        if (queue.length === 0 && sourceType === 'start') {
+            setupQueue({ tracks: getTrackFromMusic(musics), playlistName: 'default', sourceType: 'start', sourceId: null, play: true });
         }
     }, [queue])
 

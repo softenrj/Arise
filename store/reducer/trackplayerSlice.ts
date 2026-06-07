@@ -8,7 +8,7 @@ import TrackPlayer, { RepeatMode } from "react-native-track-player";
 
 export type LoopMode = 'none' | 'track' | 'queue';
 
-export type TrackSourceType = 'playlist' | 'search' | 'short' | 'default';
+export type TrackSourceType = 'playlist' | 'search' | 'short' | 'default' | 'start';
 
 interface ArisePlayerState {
     queue: AriseTrack[];
@@ -197,7 +197,7 @@ const initialState: ArisePlayerState = {
     shuffle: false,
     isPlaying: false,
     sourceId: null,
-    sourceType: 'default'
+    sourceType: 'start'
 };
 
 const trackPlayerSlice = createSlice({
