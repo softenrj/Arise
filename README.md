@@ -12,12 +12,6 @@
   Your music · Your phone · No cloud · No subscription
 </p>
 
-<p align="center">
-  <a href="#why-arise">Why Arise</a> ·
-  <a href="#what-you-get">What You Get</a> ·
-  <a href="#getting-started">Get Started</a> ·
-  <a href="#controls">Controls</a>
-</p>
 
 <br />
 
