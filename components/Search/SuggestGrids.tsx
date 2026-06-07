@@ -9,36 +9,12 @@ import Animated, {
     useSharedValue
 } from 'react-native-reanimated';
 
-const dummy = [
-    {
-        label: 'Recent',
-        tag: 'Updated today',
-        color: ['#7c3aed', '#4f46e5'] as const,
-        uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8wK5jmP5hbFhyYEFjOzUGSE1x_8IxL_HBlQ&s',
-    },
-    {
-        label: 'Linked',
-        tag: '12 tracks',
-        color: ['#059669', '#0d9488'] as const,
-        uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVyKaoQcjUPMj6Abi-Y0xR_z21a25rbVr_yg&s',
-    },
-    {
-        label: 'Suggested',
-        tag: 'For you',
-        color: ['#0369a1', '#0891b2'] as const,
-        uri: 'https://static0.srcdn.com/wordpress/wp-content/uploads/2025/10/reze-and-denji-from-chainsaw-man_-the-movie-reze-arc.jpg',
-    },
-    {
-        label: 'Top Pick',
-        tag: '🔥 Trending',
-        color: ['#be185d', '#e11d48'] as const,
-        uri: 'https://static0.cbrimages.com/wordpress/wp-content/uploads/2025/10/7e51da1c-af57-4072-aaad-dc2c4d690ca7.jpeg',
-    },
-];
+
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+interface Card { label: string, tag: string, color: string[], uri: string, callback: () => void }
 
-function GridCard({ item }: { item: typeof dummy[0] }) {
+function GridCard({ item }: { item: Card }) {
     const scale = useSharedValue(1);
     const opacity = useSharedValue(1);
 
@@ -52,8 +28,7 @@ function GridCard({ item }: { item: typeof dummy[0] }) {
             className="flex-1"
             style={animatedStyle}
             activeOpacity={1}
-            onPressIn={() => { }}
-            onPressOut={() => { }}
+            onPress={item.callback}
         >
             <View className="overflow-hidden rounded-2xl aspect-video">
                 <Image
@@ -88,12 +63,44 @@ function GridCard({ item }: { item: typeof dummy[0] }) {
     );
 }
 
-export default function SuggestGrids() {
+export default function SuggestGrids({ onLiked, onRecent, onSuggested, onTopPick }: { onRecent: () => void, onLiked: () => void, onSuggested: () => void, onTopPick: () => void }) {
+    const cards: Card[] = [
+        {
+            label: 'Recent',
+            tag: 'Updated today',
+            color: ['#7c3aed', '#4f46e5'] as const,
+            uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8wK5jmP5hbFhyYEFjOzUGSE1x_8IxL_HBlQ&s',
+            callback: onRecent
+        },
+        {
+            label: 'Linked',
+            tag: '12 tracks',
+            color: ['#059669', '#0d9488'] as const,
+            uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVyKaoQcjUPMj6Abi-Y0xR_z21a25rbVr_yg&s',
+            callback: onLiked
+        },
+        {
+            label: 'Suggested',
+            tag: 'For you',
+            color: ['#0369a1', '#0891b2'] as const,
+            uri: 'https://static0.srcdn.com/wordpress/wp-content/uploads/2025/10/reze-and-denji-from-chainsaw-man_-the-movie-reze-arc.jpg',
+            callback: onSuggested
+        },
+        {
+            label: 'Top Pick',
+            tag: '🔥 Trending',
+            color: ['#be185d', '#e11d48'] as const,
+            uri: 'https://static0.cbrimages.com/wordpress/wp-content/uploads/2025/10/7e51da1c-af57-4072-aaad-dc2c4d690ca7.jpeg',
+            callback: onTopPick
+        },
+    ];
+
+
     return (
         <FlatList
             numColumns={2}
             scrollEnabled={false}
-            data={dummy}
+            data={cards}
             columnWrapperClassName="gap-2.5"
             contentContainerClassName="gap-2.5"
             keyExtractor={(item) => item.label}

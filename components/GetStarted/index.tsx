@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
-import { useAppSelector } from '@/hooks/useRedux';
+import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
+import { setAvatar, setName } from '@/store/reducer/userSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,6 +20,7 @@ export default function index() {
     const translateX = useRef(new Animated.Value(0)).current;
     const [open, setOpen] = React.useState<boolean>(false);
     const { name } = useAppSelector(state => state.userReducer);
+    const dispatch = useAppDispatch();
 
     const handleOpen = React.useCallback(() => setOpen(prev => !prev), []);
 
@@ -42,10 +44,29 @@ export default function index() {
     }, [translateX]);
 
     React.useEffect(() => {
-        AsyncStorage.getItem('continue', (err, value) => {
-            if (value && JSON.parse(value)) router.replace("/(tabs)/home")
-        })
-    }, [])
+        const initialize = async () => {
+            try {
+                const user = await AsyncStorage.getItem("user");
+                const continue_ = await AsyncStorage.getItem("continue");
+
+                if (continue_ && JSON.parse(continue_)) {
+                    if (user) {
+                        const { name, avatar } = JSON.parse(user);
+                        console.log(user)
+
+                        dispatch(setName(name));
+                        dispatch(setAvatar(avatar));
+                    }
+
+                    router.replace("/(tabs)/home");
+                }
+            } catch (error) {
+                console.error("Failed to initialize app:", error);
+            }
+        };
+
+        initialize();
+    }, []);
 
     return (
         <>

@@ -34,6 +34,10 @@ interface IMusicContext {
   onMusicLike: (musicId: string, likeValue: 0 | 1) => Promise<void>;
   waveProgress: boolean;
   toggleWaveProgress: () => void;
+  likedMusics: IMusicTrack[];
+  handleShots: () => void;
+  handleLiked: () => void;
+  handleTopPick: () => void;
 }
 
 export const musicContext = React.createContext<IMusicContext>({
@@ -58,6 +62,10 @@ export const musicContext = React.createContext<IMusicContext>({
   onMusicLike: async () => { },
   waveProgress: false,
   toggleWaveProgress: () => { },
+  likedMusics: [],
+  handleLiked: () => { },
+  handleShots: () => { },
+  handleTopPick: () => { }
 });
 
 function MusicContextProvider({ children }: { children: React.ReactNode }) {
@@ -76,6 +84,7 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
   const [playlist, setPlaylist] = React.useState<PlayListRecomendation | null>(null);
   const [recommendedMusic, setRecommendedMusic] = React.useState<IMusicTrack[]>([]);
   const [handpickedMusic, setHandpickedMusic] = React.useState<IMusicTrack[]>([]);
+  const [likedMusic, setLikedMusic] = React.useState<IMusicTrack[]>([]);
 
   //#region  HOME SCREEN STATE HANDLER 
 
@@ -84,7 +93,7 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
     setRecent(recent)
   }, [db])
 
-  const handleShorts = React.useCallback(async () => {
+  const handleShorts = () => {
     const shuffled = [...filteredMusic];
 
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -92,7 +101,7 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     setShorts(shuffled.slice(0, 4))
-  }, [filteredMusic])
+  }
 
   const handlePlaylist = React.useCallback(async () => {
     const playlist = await getPlayListRecomendation(db);
@@ -104,7 +113,7 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
     setRecommendedMusic(recommendedMusic)
   }, [db])
 
-  const handleHandpickedMusic = React.useCallback(async () => {
+  const handleHandpickedMusic = React.useCallback(() => {
     const shuffled = [...filteredMusic];
 
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -115,16 +124,23 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
     setHandpickedMusic(shuffled.slice(0, 8));
   }, [filteredMusic])
 
+  const handleLikedMusic = React.useCallback(() => {
+    const likedM = filteredMusic.map(item => item.isLiked === 1 ? item : null).filter(Boolean) as IMusicTrack[];
+    setLikedMusic(likedM);
+  }, [filteredMusic])
+
 
   const handleHomeData = React.useCallback(async () => {
     await Promise.all([
       handleRecent(),
-      handleShorts(),
       handlePlaylist(),
       handleRecommendedMusic(),
-      handleHandpickedMusic()
+      handleHandpickedMusic(),
+      handleLikedMusic()
     ]);
-  }, [handleRecent, handleShorts, handlePlaylist, handleRecommendedMusic, handleHandpickedMusic])
+
+  }, [handleRecent, handleShorts, handlePlaylist, handleRecommendedMusic, handleHandpickedMusic, handleLikedMusic])
+
 
   //#endregion 
 
@@ -187,13 +203,15 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
       recent, shorts, playlist, recommendedMusic, handpickedMusic,
       setRecent, setShorts, setPlaylist, setRecommendedMusic, setHandpickedMusic,
       onReloadHomeData: handleHomeData,
-      onMusicLike: handleMusicLike, waveProgress, toggleWaveProgress,
+      onMusicLike: handleMusicLike, waveProgress, toggleWaveProgress, likedMusics: likedMusic, handleLiked: handleLikedMusic,
+      handleShots: handleShorts,
+      handleTopPick: handleHandpickedMusic
     }),
     [musics, filteredMusic, loading, handleSetMusic, handleSetLike,
       handleRefresh, handleUpdateMusic, recent, shorts, playlist,
       recommendedMusic, handpickedMusic, setRecent, setShorts,
       setPlaylist, setRecommendedMusic, setHandpickedMusic, handleHomeData,
-      handleMusicLike, waveProgress, toggleWaveProgress,
+      handleMusicLike, waveProgress, toggleWaveProgress, likedMusic, handleMusicLike, handleHandpickedMusic, handleShorts
     ]
   );
 

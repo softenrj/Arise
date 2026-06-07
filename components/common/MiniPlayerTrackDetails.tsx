@@ -2,11 +2,11 @@
 // See LICENSE for details.
 
 import { useAppSelector } from '@/hooks/useRedux';
+import { useTrack } from '@/hooks/useTrack';
 import React, { useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import TrackPlayer from 'react-native-track-player';
 
 const SWIPE_THRESHOLD = 50;
 const SWIPE_OFFSET = 200;
@@ -20,34 +20,12 @@ const SPRING_CONFIG = {
 export default function MiniPlayerTrackDetails() {
     const { queue, currentIndex } = useAppSelector((state) => state.trackReducer);
     const track = queue[currentIndex];
+    const { skipToNext, skipToPrevious } = useTrack();
 
     const translateX = useSharedValue(0);
     const opacity = useSharedValue(1);
 
     const prevTrackId = useRef(track?.id);
-
-    const resetPositions = () => {
-        'worklet';
-
-        translateX.value = withSpring(0, SPRING_CONFIG);
-        opacity.value = withTiming(1, { duration: 150 });
-    };
-
-    const skipToNext = async () => {
-        try {
-            await TrackPlayer.skipToNext();
-        } catch {
-            resetPositions();
-        }
-    };
-
-    const skipToPrevious = async () => {
-        try {
-            await TrackPlayer.skipToPrevious();
-        } catch {
-            resetPositions();
-        }
-    };
 
     useEffect(() => {
         if (track?.id !== prevTrackId.current) {
@@ -71,16 +49,33 @@ export default function MiniPlayerTrackDetails() {
     }, [track?.id]);
 
     const panGesture = Gesture.Pan()
+        .enabled(!!track && queue.length > 1)
         .activeOffsetX([-10, 10])
         .onUpdate((event) => {
-            translateX.value = event.translationX;
+            let transX = event.translationX;
+
+            if (currentIndex === 0 && transX > 0) {
+                transX = 0;
+            } else if (currentIndex === queue.length - 1 && transX < 0) {
+                transX = 0;
+            }
+
+            translateX.value = transX;
             opacity.value = Math.max(
                 0.2,
-                1 - Math.abs(event.translationX) / SWIPE_OFFSET
+                1 - Math.abs(transX) / SWIPE_OFFSET
             );
         })
         .onEnd((event) => {
-            if (event.translationX < -SWIPE_THRESHOLD) {
+            let transX = event.translationX;
+
+            if (currentIndex === 0 && transX > 0) {
+                transX = 0;
+            } else if (currentIndex === queue.length - 1 && transX < 0) {
+                transX = 0;
+            }
+
+            if (transX < -SWIPE_THRESHOLD) {
                 translateX.value = withTiming(
                     -SWIPE_OFFSET,
                     { duration: 100 },
@@ -92,7 +87,7 @@ export default function MiniPlayerTrackDetails() {
                 );
 
                 opacity.value = withTiming(0, { duration: 100 });
-            } else if (event.translationX > SWIPE_THRESHOLD) {
+            } else if (transX > SWIPE_THRESHOLD) {
                 translateX.value = withTiming(
                     SWIPE_OFFSET,
                     { duration: 100 },
@@ -105,7 +100,8 @@ export default function MiniPlayerTrackDetails() {
 
                 opacity.value = withTiming(0, { duration: 100 });
             } else {
-                resetPositions();
+                translateX.value = withSpring(0, SPRING_CONFIG);
+                opacity.value = withTiming(1, { duration: 150 });
             }
         });
 

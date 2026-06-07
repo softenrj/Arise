@@ -32,7 +32,7 @@ export default function Settings({ onTerm }: { onTerm: () => void }) {
             const result = await ImagePicker.launchImageLibraryAsync({
                 allowsEditing: true,
                 mediaTypes: ['images'],
-                quality: 1
+                quality: 1,
             });
 
             if (result.canceled || !result.assets || result.assets.length === 0) return;
@@ -43,10 +43,28 @@ export default function Settings({ onTerm }: { onTerm: () => void }) {
     }, []);
 
     const handleSaveProfile = async () => {
-        let media = defaultAvtar;
-        if (avatar) media = await saveMedia(avatar, 'image', 'user');
-        dispatch(setName(name));
-        dispatch(setAvatar(media || defaultAvtar));
+        try {
+            let media = defaultAvtar;
+
+            if (avatar && avatar !== _avtar) {
+                media = await saveMedia(avatar, 'image', 'user');
+            }
+
+            const payload = {
+                name,
+                avatar: media,
+            };
+
+            await AsyncStorage.setItem(
+                'user',
+                JSON.stringify(payload)
+            );
+
+            dispatch(setName(name));
+            dispatch(setAvatar(media));
+        } catch (error) {
+            console.error('Failed saving profile:', error);
+        }
     };
 
     const handleGetStarterPage = () => {

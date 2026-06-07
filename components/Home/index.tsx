@@ -15,7 +15,7 @@ import MiniPlayer from '../common/MiniPlayer';
 
 export default function index({ children }: { children: React.ReactNode }) {
     const [activeTab, setActiveTab] = React.useState('All');
-    const { onReloadHomeData, musics, recent, recommendedMusic } = useMusic();
+    const { onReloadHomeData, musics, recent, recommendedMusic, filteredMusic, handleLiked, handleShots, handleTopPick } = useMusic();
     const { onOpen } = useAppDrawer();
     const { refresh, onRefresh, setRefresh } = useRefresh();
     const noMusic = musics.length === 0;
@@ -78,6 +78,12 @@ export default function index({ children }: { children: React.ReactNode }) {
     React.useEffect(() => {
         handleLoadHome();
     }, []);
+
+    React.useEffect(() => {
+        handleLiked();
+        handleTopPick();
+        handleShots();
+    }, [filteredMusic, musics])
 
 
     return (

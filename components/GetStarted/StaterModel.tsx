@@ -5,6 +5,7 @@ import { useAppDispatch } from '@/hooks/useRedux';
 import { saveMedia } from '@/service/persistMedia';
 import { setAvatar, setName } from '@/store/reducer/userSlice';
 import { defaultAvtar } from '@/utils/constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -21,6 +22,8 @@ const StarterModal = ({ open = true, onClose, handleContinue }: { open: boolean,
         if (avatar) media = await saveMedia(avatar, 'image', 'user');
         dispatch(setAvatar(media));
         dispatch(setName(name));
+
+        await AsyncStorage.setItem('user', JSON.stringify({ avatar: media, name }))
         handleContinue();
     }
 

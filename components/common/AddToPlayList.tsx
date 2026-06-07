@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Raj
+// See LICENSE for details.
+
 import { appendPlayListMusic, getAllPlayListByMusicId, PlayListByMusicId, removePlayListMusic } from '@/service/playlistdb'
 import { defaultPlayListCover } from '@/utils/constants'
 import { useSQLiteContext } from 'expo-sqlite'

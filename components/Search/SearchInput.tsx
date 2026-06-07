@@ -1,39 +1,79 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for detail
 
-import { Clock, Search, X } from 'lucide-react-native';
-import React, { useState } from 'react';
-import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useMusic } from '@/hooks/useMusic';
+import { useAppSelector } from '@/hooks/useRedux';
+import { useTrack } from '@/hooks/useTrack';
+import { getTrackFromMusic } from '@/service/TrackMaker';
+import { IMusicTrack } from '@/types/database';
+import { defaultMusicArtWork } from '@/utils/constants';
+import { Search, X } from 'lucide-react-native';
+import React from 'react';
+import { FlatList, Image, Keyboard, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-const RECENT_SEARCHES = [
-    'My Love', 'Blinding Lights', 'Starboy', 'Save Your Tears',
-    'Die For You'
-];
+export default function SearchInput({ _query, musicList }: { _query?: string, musicList?: IMusicTrack[] }) {
+    const { filteredMusic } = useMusic();
+    const [query, setQuery] = React.useState('');
+    const [focused, setFocused] = React.useState(false);
+    const [musics, setMusics] = React.useState<IMusicTrack[]>([]);
+    const { setupQueue, playAtIndex } = useTrack();
+    const tracks = useAppSelector(state => state.trackReducer);
 
-export default function SearchInput() {
-    const [query, setQuery] = useState('');
-    const [focused, setFocused] = useState(false);
+    React.useEffect(() => {
+        if (musicList && musicList.length > 0) setMusics(musicList);
+        if (_query) setQuery(_query);
+    }, [musicList, _query]);
 
-    const results = RECENT_SEARCHES.filter(s =>
-        query.length === 0 || s.toLowerCase().includes(query.toLowerCase())
-    );
+    const searchResults = React.useMemo(() => {
+        if (!query.trim()) return [];
+        if (query.startsWith('#')) {
+            return musics;
+        }
+
+        const lowerCaseQuery = query.toLowerCase();
+        return filteredMusic.filter(
+            (item) =>
+                item.title?.toLowerCase().includes(lowerCaseQuery) ||
+                item.artist?.toLowerCase().includes(lowerCaseQuery)
+        );
+    }, [query, musics, filteredMusic]);
+
+    const handleClear = () => {
+        setQuery('');
+        Keyboard.dismiss();
+    };
+
+    const handlePlay = (musicId: string) => {
+        const indx = musics.findIndex(m => m.id === musicId);
+        if (tracks.playlistName === query) {
+            playAtIndex(indx);
+        } else {
+            setupQueue({ tracks: getTrackFromMusic(musics), playlistName: query, sourceId: null, sourceType: 'search', startIndex: indx });
+        }
+    }
+
+    React.useEffect(() => {
+        if (musicList && musicList?.length > 0) setFocused(true);
+    }, [musicList])
 
     return (
-        <View className="w-full">
-
-            <View className={`flex-row items-center rounded-full px-3 py-1.5 gap-3 bg-zinc-100 border ${focused ? 'border-zinc-300' : 'border-transparent'}`}>
+        <View className="w-full relative z-50">
+            <View className={`flex-row items-center rounded-full px-3 py-2 gap-3 bg-zinc-100 border transition-all ${focused ? 'border-zinc-300' : 'border-transparent'}`}>
                 <Search size={17} color={focused ? '#3f3f46' : '#a1a1aa'} />
                 <TextInput
-                    className="flex-1 text-zinc-800 text-sm"
+                    className="flex-1 text-zinc-800 text-sm h-6 p-0"
                     placeholder="What do you want to listen to?"
                     placeholderTextColor="#a1a1aa"
                     value={query}
                     onChangeText={setQuery}
                     onFocus={() => setFocused(true)}
-                    onBlur={() => setFocused(false)}
+                    onBlur={() => {
+                        if (!query) setFocused(false);
+                    }}
+                    returnKeyType="search"
                 />
                 {query.length > 0 && (
-                    <TouchableOpacity onPress={() => setQuery('')} activeOpacity={0.6}>
+                    <TouchableOpacity onPress={handleClear} activeOpacity={0.6} className="p-1 -m-1">
                         <View className="bg-zinc-300 rounded-full p-0.5">
                             <X size={12} color="#52525b" strokeWidth={2.5} />
                         </View>
@@ -41,49 +81,56 @@ export default function SearchInput() {
                 )}
             </View>
 
-            {focused && (
-                <View className="mt-2">
-
-                    <View className="flex-row items-center gap-3 px-2 mb-1">
-                        <View className="flex-1 h-px bg-zinc-100" />
-                        <Text className="text-[10px] tracking-widest uppercase text-zinc-400">
-                            {query.length > 0 ? 'Results' : 'Recent'}
+            {focused && query.length > 0 && (
+                <View className="mt-4 bg-white rounded-2xl shadow-sm border border-zinc-100 overflow-hidden max-h-96">
+                    <View className="flex-row items-center gap-3 px-4 py-2 bg-white">
+                        <Text className="text-[10px] font-bold tracking-widest uppercase text-zinc-400">
+                            Results
                         </Text>
                         <View className="flex-1 h-px bg-zinc-100" />
                     </View>
 
-                    <FlatList
-                        data={results}
-                        scrollEnabled={false}
-                        keyExtractor={(item) => item}
-                        keyboardShouldPersistTaps="handled"
-                        renderItem={({ item }) => (
-                            <TouchableOpacity
-                                activeOpacity={0.5}
-                                onPress={() => {
-                                    setQuery(item);
-                                    setFocused(false);
-                                }}
-                            >
-                                <View className="flex-row items-center gap-3 px-2 py-3 border-b border-zinc-100">
-                                    <View className="w-8 h-8 rounded-full bg-zinc-100 items-center justify-center">
-                                        <Clock size={14} color="#a1a1aa" />
+                    {searchResults.length === 0 ? (
+                        <View className="py-8 items-center justify-center">
+                            <Text className="text-zinc-800 font-medium text-sm mb-1">No songs found</Text>
+                            <Text className="text-zinc-400 text-xs">Try searching for a different artist or title</Text>
+                        </View>
+                    ) : (
+                        <FlatList
+                            data={searchResults}
+                            scrollEnabled={false}
+                            keyExtractor={(item) => item.id}
+                            keyboardShouldPersistTaps="handled"
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{ paddingBottom: 10 }}
+                            renderItem={({ item }) => (
+                                <Pressable
+                                    key={item.id}
+                                    className='flex-row items-center w-full gap-3 px-4 py-2 active:bg-zinc-50'
+                                    onPress={() => {
+                                        Keyboard.dismiss();
+                                        setFocused(false);
+                                        handlePlay(item.id);
+                                    }}
+                                >
+                                    <Image
+                                        source={{ uri: item.customCoverUri || defaultMusicArtWork }}
+                                        className='w-16 h-16 rounded-sm'
+                                    />
+                                    <View className='flex-1 flex-col justify-center pr-2'>
+                                        <Text numberOfLines={1} className='text-black text-sm font-medium tracking-tight'>
+                                            {item.title}
+                                        </Text>
+                                        <Text numberOfLines={1} className='text-zinc-500 text-xs mt-0.5'>
+                                            {item.artist}
+                                        </Text>
                                     </View>
-                                    <Text className="flex-1 text-sm text-zinc-700">{item}</Text>
-                                    <TouchableOpacity
-                                        hitSlop={8}
-                                        onPress={() => { }}
-                                    >
-                                        <X size={13} color="#d4d4d8" strokeWidth={2} />
-                                    </TouchableOpacity>
-                                </View>
-                            </TouchableOpacity>
-                        )}
-                    />
-
+                                </Pressable>
+                            )}
+                        />
+                    )}
                 </View>
             )}
-
         </View>
     );
 }

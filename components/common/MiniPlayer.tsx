@@ -24,8 +24,9 @@ const HIT_SLOP = 20;
 
 export default function MiniPlayer() {
     const { onOpen } = useTrackPanle();
-    const { queue, currentIndex, playlistName } = useAppSelector((state) => state.trackReducer);
+    const { queue, currentIndex } = useAppSelector((state) => state.trackReducer);
     const track = queue[currentIndex];
+
     const { state } = usePlaybackState();
     const { position, duration } = useProgress(250);
     const { togglePlay } = useTrack();
