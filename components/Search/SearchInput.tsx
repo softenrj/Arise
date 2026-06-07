@@ -82,7 +82,7 @@ export default function SearchInput({ _query, musicList }: { _query?: string, mu
             </View>
 
             {focused && query.length > 0 && (
-                <View className="mt-4 bg-white rounded-2xl shadow-sm border border-zinc-100 overflow-hidden max-h-96">
+                <View className="mt-4 bg-white rounded-2xl shadow-sm border border-zinc-100 ">
                     <View className="flex-row items-center gap-3 px-4 py-2 bg-white">
                         <Text className="text-[10px] font-bold tracking-widest uppercase text-zinc-400">
                             Results

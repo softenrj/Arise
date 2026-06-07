@@ -55,7 +55,6 @@ export default function Arise({ handleContinue }: { handleContinue: () => void }
 
     const handlePressIn = () => {
         scale.value = withTiming(0.92);
-        handleContinue();
     };
 
     const handlePressOut = () => {
@@ -111,7 +110,7 @@ export default function Arise({ handleContinue }: { handleContinue: () => void }
                 </Text>
 
                 <Animated.View style={buttonStyle}>
-                    <Pressable onPress={() => { }}
+                    <Pressable onPress={handleContinue}
                         className='bg-black rounded-full items-center justify-center py-4'
                         onPressIn={handlePressIn}
                         onPressOut={handlePressOut}

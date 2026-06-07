@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import CustomModal from '../ui/model';
 
-const StarterModal = ({ open = true, onClose, handleContinue }: { open: boolean, onClose: () => void, handleContinue: () => void }) => {
+const StarterModal = ({ open = true, onClose, handleContinue }: { open: boolean, onClose: () => void, handleContinue: (name: string) => void }) => {
     const [avatar, setAvatarLocal] = useState<string | null>(null);
     const [name, setNameLocal] = useState<string>('');
     const dispatch = useAppDispatch();
@@ -24,10 +24,10 @@ const StarterModal = ({ open = true, onClose, handleContinue }: { open: boolean,
         dispatch(setName(name));
 
         await AsyncStorage.setItem('user', JSON.stringify({ avatar: media, name }))
-        handleContinue();
+        handleContinue(name);
     }
 
-    const handleImagePicker = React.useCallback(async () => {
+    const handleImagePicker = async () => {
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
                 allowsEditing: true,
@@ -41,7 +41,7 @@ const StarterModal = ({ open = true, onClose, handleContinue }: { open: boolean,
         } catch (error) {
             console.log("Error picking documents:", error);
         }
-    }, []);
+    };
 
     return (
         <CustomModal isVisible={open} onClose={onClose} position='bottom'>

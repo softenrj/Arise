@@ -27,7 +27,7 @@ export default function Settings({ onTerm }: { onTerm: () => void }) {
         setNameLocal(_name);
     }, [_avtar, _name]);
 
-    const handleImagePicker = React.useCallback(async () => {
+    const handleImagePicker = async () => {
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
                 allowsEditing: true,
@@ -40,7 +40,7 @@ export default function Settings({ onTerm }: { onTerm: () => void }) {
         } catch (error) {
             console.log("Error picking documents:", error);
         }
-    }, []);
+    }
 
     const handleSaveProfile = async () => {
         try {

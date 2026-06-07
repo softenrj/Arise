@@ -24,7 +24,6 @@ const TrackMusicList = ({ open, onClose }: { open: boolean, onClose: () => void 
 
         return (
             <Pressable
-                key={item.id}
                 className={clsx(
                     'flex-row items-center w-full gap-4 p-3 rounded-md active:bg-white/5',
                     isActive && 'bg-white/5'
@@ -79,7 +78,7 @@ const TrackMusicList = ({ open, onClose }: { open: boolean, onClose: () => void 
                     contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 16, gap: 8 }}
                     className='flex-1'
                     renderItem={renderTrack}
-
+                    extraData={currentIndex}
                 />
             </View>
         </SheetProvider>

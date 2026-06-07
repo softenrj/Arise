@@ -101,9 +101,9 @@ export const createMusic = async (music: IMusicTrack, db: SQLiteDatabase) => {
     await db.runAsync(
       `INSERT OR IGNORE INTO Musics (
                 id, uri, filename, title, artist, album, albumArtist, albumId, 
-                duration, trackNumber, year, artwork, isLiked, creationTime, 
+                duration, trackNumber, year, isLiked, creationTime, 
                 modificationTime, customCoverUri, customVideoUri, customVideoFileName, visible
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       music.id,
       music.uri,
       music.filename,
@@ -139,9 +139,9 @@ export const createMultipleMusics = async (
       const statement = await db.prepareAsync(
         `INSERT OR IGNORE INTO Musics (
                     id, uri, filename, title, artist, album, albumArtist, albumId, 
-                    duration, trackNumber, year, artwork, isLiked, creationTime, 
+                    duration, trackNumber, year, isLiked, creationTime, 
                     modificationTime, customCoverUri, customVideoUri, customVideoFileName, visible
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       );
 
       try {
@@ -184,6 +184,7 @@ export const getAllMusics = async (
     const result = await db.getAllAsync<IMusicTrack>(`
         SELECT 
             Musics.*, 
+            Musics.id as musicId,
             Lyrics.name AS lyricsName, 
             Lyrics.uri AS lyricsUri
         FROM Musics
@@ -206,6 +207,7 @@ export const getMusic = async (
       `
             SELECT 
                 Musics.*, 
+                Musics.id as musicId,
                 Lyrics.name AS lyricsName, 
                 Lyrics.uri AS lyricsUri
             FROM Musics

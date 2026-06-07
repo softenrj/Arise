@@ -16,7 +16,9 @@ export async function PlaybackService() {
     TrackPlayer.addEventListener(Event.RemotePrevious, () => TrackPlayer.skipToPrevious());
 
     TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
+        console.log('first kjdasdnjka')
         if (!event.lastTrack) return;
+        console.log("trrrrrrrrrrrrrrr")
 
         const duration = event.lastTrack.duration ?? 0;
         const position = event.lastPosition ?? 0;

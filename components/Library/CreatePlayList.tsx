@@ -21,7 +21,7 @@ function CreatePlayList({ isVisible, onClose, onRefresh }: CreatePlayListProps) 
     const [title, setTitle] = React.useState("");
     const [description, setDescription] = React.useState("");
 
-    const handleImagePicker = React.useCallback(async () => {
+    const handleImagePicker = async () => {
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
                 allowsEditing: true,
@@ -36,7 +36,7 @@ function CreatePlayList({ isVisible, onClose, onRefresh }: CreatePlayListProps) 
         } catch (error) {
             console.log("Error picking documents:", error);
         }
-    }, []);
+    };
 
     const handleCreatePlayList = async () => {
         await createPlayList({ db, title, description, cover: customeImage });

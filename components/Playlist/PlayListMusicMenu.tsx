@@ -48,6 +48,7 @@ export default function PlayListMusicMenu({ isLiked, musicId, reload }: { isLike
             trigger={({ ...triggerProps }) => (
                 <Pressable
                     {...triggerProps}
+                    hitSlop={14}
                     className="w-8 h-8 items-center justify-center rounded-full"
                 >
                     <EllipsisVertical size={15} color="#71717a" />

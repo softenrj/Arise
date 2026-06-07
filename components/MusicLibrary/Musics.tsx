@@ -2,6 +2,7 @@
 // See LICENSE for details.
 
 import { useMusic } from '@/hooks/useMusic';
+import { useAppSelector } from '@/hooks/useRedux';
 import { useTrack } from '@/hooks/useTrack';
 import { formatDuration } from '@/service/MusicDuration';
 import { getTrackFromMusic } from '@/service/TrackMaker';
@@ -25,8 +26,9 @@ export default function Musics({ scanState, onOpenAddToPlayList }: { scanState: 
     const [query, setQuery] = useState('');
     const [focused, setFocused] = useState(false);
     const inputRef = useRef<TextInput>(null);
+    const tracks = useAppSelector(state => state.trackReducer);
 
-    const { setupQueue } = useTrack();
+    const { setupQueue, playAtIndex } = useTrack();
     const { musics, onMusicRefresh } = useMusic();
 
     const keyboard = useAnimatedKeyboard();
@@ -68,52 +70,44 @@ export default function Musics({ scanState, onOpenAddToPlayList }: { scanState: 
     }, []);
 
 
-    const playTrack = useCallback(
-        async (item: IMusicTrack, filteredIndex: number) => {
-            try {
-                const fullIndex = musics.findIndex((m) => m.id === item.id);
-                const startIndex = fullIndex !== -1 ? fullIndex : filteredIndex;
+    const handlePlay = (musicId: string) => {
+        const indx = musics.findIndex(m => m.id === musicId);
+        if (tracks.playlistName === 'Media') {
+            playAtIndex(indx);
+        } else {
+            setupQueue({ tracks: getTrackFromMusic(musics), playlistName: 'Media', sourceId: null, sourceType: 'default', startIndex: indx });
+        }
+    }
 
-                await setupQueue({ tracks: getTrackFromMusic(musics), startIndex, playlistName: 'Media', sourceId: null, sourceType: 'default', });
-            } catch (err) {
-                console.error('Failed to set track globally:', err);
-            }
-        },
-        [musics, setupQueue],
-    );
+    const renderTrack = ({ item, index }: { item: IMusicTrack; index: number }) => (
+        <View className="flex-row items-center w-full gap-3 pr-2" key={item.id}>
+            <Pressable
+                onPress={() => handlePlay(item.id)}
+                className="flex-1 flex-row items-center gap-3"
+            >
+                <Image
+                    source={{ uri: item.customCoverUri || defaultMusicArtWork }}
+                    className="w-16 h-16 rounded-sm bg-slate-100"
+                    resizeMethod="resize"
+                />
 
-    const renderTrack = useCallback(
-        ({ item, index }: { item: IMusicTrack; index: number }) => (
-            <View className="flex-row items-center w-full gap-3 pr-2" key={item.id}>
-                <Pressable
-                    onPress={() => playTrack(item, index)}
-                    className="flex-1 flex-row items-center gap-3"
-                >
-                    <Image
-                        source={{ uri: item.customCoverUri || defaultMusicArtWork }}
-                        className="w-16 h-16 rounded-sm bg-slate-100"
-                        resizeMethod="resize"
-                    />
+                <View className="flex-1 flex-col justify-center">
+                    <Text
+                        numberOfLines={1}
+                        className="text-black text-sm font-jakarta tracking-tight"
+                        style={{ fontWeight: '500' }}
+                    >
+                        {cleanFilename(item.filename)}
+                    </Text>
 
-                    <View className="flex-1 flex-col justify-center">
-                        <Text
-                            numberOfLines={1}
-                            className="text-black text-sm font-jakarta tracking-tight"
-                            style={{ fontWeight: '500' }}
-                        >
-                            {cleanFilename(item.filename)}
-                        </Text>
+                    <Text numberOfLines={1} className="text-zinc-500 text-xs mt-0.5">
+                        {formatDuration(item.duration)} • Local Audio
+                    </Text>
+                </View>
+            </Pressable>
 
-                        <Text numberOfLines={1} className="text-zinc-500 text-xs mt-0.5">
-                            {formatDuration(item.duration)} • Local Audio
-                        </Text>
-                    </View>
-                </Pressable>
-
-                <MusicMenu musicId={item.id} onAddToPlayList={() => onOpenAddToPlayList(item.id)} />
-            </View>
-        ),
-        [playTrack],
+            <MusicMenu musicId={item.id} onAddToPlayList={() => onOpenAddToPlayList(item.id)} />
+        </View>
     );
 
     const ListEmpty = useMemo(

@@ -5,7 +5,7 @@ import { usePlaylist } from '@/hooks/usePlaylist';
 import { defaultPlayListCover } from '@/utils/constants';
 import * as ImagePicker from 'expo-image-picker';
 import { useSQLiteContext } from 'expo-sqlite';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import SheetProvider from '../ui/Sheet';
 // 1. Import Reanimated utilities
@@ -29,7 +29,7 @@ const EditSheet = ({ reload, open, onClose }: { reload: () => void, open: boolea
         };
     });
 
-    const handleImagePicker = useCallback(async () => {
+    const handleImagePicker = async () => {
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
                 allowsEditing: true,
@@ -43,7 +43,7 @@ const EditSheet = ({ reload, open, onClose }: { reload: () => void, open: boolea
         } catch (error) {
             console.log("Error picking documents:", error);
         }
-    }, [playlist]);
+    };
 
     const handleSave = async () => {
         if (!playlist) return;
@@ -53,7 +53,7 @@ const EditSheet = ({ reload, open, onClose }: { reload: () => void, open: boolea
             finalCover = await saveMedia(cover, 'image', playlist.id);
         }
 
-        await updatePlayList({ db, playList: { id: playlist.id, title: playlist.title, description: playlist.description, cover: finalCover } });
+        await updatePlayList({ db, playList: { id: playlist.id, title: title, description: description, cover: finalCover } });
         reload();
         onClose();
     };
@@ -100,7 +100,7 @@ const EditSheet = ({ reload, open, onClose }: { reload: () => void, open: boolea
                             <TextInput
                                 value={title}
                                 onChangeText={setTitle}
-                                placeholder="Enter song title"
+                                placeholder="Enter title"
                                 placeholderTextColor="#94a3b8"
                                 className='bg-slate-100 px-4 py-3 rounded-xl text-base font-elms text-slate-900'
                             />
@@ -113,7 +113,7 @@ const EditSheet = ({ reload, open, onClose }: { reload: () => void, open: boolea
                             <TextInput
                                 value={description}
                                 onChangeText={setDescription}
-                                placeholder="Enter artist name"
+                                placeholder="Enter Description"
                                 placeholderTextColor="#94a3b8"
                                 className='bg-slate-100 px-4 py-3 rounded-xl text-base font-elms text-slate-900'
                             />

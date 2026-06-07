@@ -24,15 +24,27 @@ export default function index() {
 
     const handleOpen = React.useCallback(() => setOpen(prev => !prev), []);
 
-    const handleContinue = () => {
+    const handleContinue = async (userName?: string) => {
+        if (!userName || userName.trim() === '') {
+            handleOpen();
+            return;
+        }
+
+        await AsyncStorage.setItem("continue", "true");
+
+        router.replace("/(tabs)/home");
+    };
+
+    const handleContinueTo = async () => {
         if (name === 'default') {
             handleOpen();
             return;
         }
-        AsyncStorage.setItem("continue", JSON.stringify(true));
-        router.replace("/(tabs)/home")
-    }
 
+        await AsyncStorage.setItem("continue", "true");
+
+        router.replace("/(tabs)/home");
+    };
     useEffect(() => {
         Animated.loop(
             Animated.timing(translateX, {
@@ -52,7 +64,6 @@ export default function index() {
                 if (continue_ && JSON.parse(continue_)) {
                     if (user) {
                         const { name, avatar } = JSON.parse(user);
-                        console.log(user)
 
                         dispatch(setName(name));
                         dispatch(setAvatar(avatar));
@@ -107,7 +118,7 @@ export default function index() {
                     </View>
                 </SafeAreaView>
 
-                <Arise handleContinue={handleContinue} />
+                <Arise handleContinue={handleContinueTo} />
             </ImageBackground>
             <StaterModel open={open} onClose={handleOpen} handleContinue={handleContinue} /></>
     )

@@ -10,7 +10,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import LottieView from 'lottie-react-native';
 import { Heart, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward } from 'lucide-react-native';
 import React from 'react';
-import { Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useProgress } from 'react-native-track-player';
@@ -52,8 +52,6 @@ export default function TrackController() {
 
     const handleTimerFormat = React.useCallback(() => setTimerFormat(prev => prev === 'default' ? 'left' : 'default'), []);
 
-
-
     const handleSetLike = (v: 0 | 1) => setIsLiked(v);
 
     const handleLike = async () => {
@@ -69,9 +67,9 @@ export default function TrackController() {
     }
 
 
-    const toggleLike = React.useCallback(() => {
+    const toggleLike = () => {
         handleLike();
-    }, [track, currentIndex, isLiked]);
+    };
 
     const seekToPosition = (pixelX: number) => {
         if (duration <= 0) return;
@@ -178,7 +176,7 @@ export default function TrackController() {
                         {track?.artist}
                     </Text>
                 </View>
-                <Pressable
+                <TouchableOpacity
                     onPress={toggleLike}
                     className='w-10 h-10 justify-center items-center relative'
                 >
@@ -197,7 +195,7 @@ export default function TrackController() {
 
                         />
                     )}
-                </Pressable>
+                </TouchableOpacity>
 
             </View>
 

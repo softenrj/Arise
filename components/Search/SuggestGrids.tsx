@@ -69,28 +69,28 @@ export default function SuggestGrids({ onLiked, onRecent, onSuggested, onTopPick
             label: 'Recent',
             tag: 'Updated today',
             color: ['#7c3aed', '#4f46e5'] as const,
-            uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8wK5jmP5hbFhyYEFjOzUGSE1x_8IxL_HBlQ&s',
+            uri: 'https://res.cloudinary.com/dcyn3ewpv/image/upload/v1780851944/images_pqn8kp.jpg',
             callback: onRecent
         },
         {
             label: 'Linked',
             tag: '12 tracks',
             color: ['#059669', '#0d9488'] as const,
-            uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVyKaoQcjUPMj6Abi-Y0xR_z21a25rbVr_yg&s',
+            uri: 'https://res.cloudinary.com/dcyn3ewpv/image/upload/v1780851886/g-2_xlzk1i.png',
             callback: onLiked
         },
         {
             label: 'Suggested',
             tag: 'For you',
             color: ['#0369a1', '#0891b2'] as const,
-            uri: 'https://static0.srcdn.com/wordpress/wp-content/uploads/2025/10/reze-and-denji-from-chainsaw-man_-the-movie-reze-arc.jpg',
+            uri: 'https://res.cloudinary.com/dcyn3ewpv/image/upload/v1780851913/g-3_os9tsx.jpg',
             callback: onSuggested
         },
         {
             label: 'Top Pick',
             tag: '🔥 Trending',
             color: ['#be185d', '#e11d48'] as const,
-            uri: 'https://static0.cbrimages.com/wordpress/wp-content/uploads/2025/10/7e51da1c-af57-4072-aaad-dc2c4d690ca7.jpeg',
+            uri: 'https://res.cloudinary.com/dcyn3ewpv/image/upload/v1780851856/g4_n0i8ew.jpg',
             callback: onTopPick
         },
     ];

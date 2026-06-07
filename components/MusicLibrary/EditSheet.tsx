@@ -15,7 +15,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { FileArchive } from 'lucide-react-native';
 import React from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { YouTubeEmbed } from '../common/YouTubeEmbed';
 import SheetProvider from '../ui/Sheet';
 
@@ -43,26 +43,37 @@ export default function EditSheet() {
     });
 
 
-    const handlePickLytics = React.useCallback(async () => {
+    const handlePickLytics = async () => {
         try {
             const result = await DocumentPicker.getDocumentAsync({
                 type: ["text/plain", "*/*"],
                 multiple: false,
-                copyToCacheDirectory: true
-            })
+                copyToCacheDirectory: true,
+            });
 
-            if (result.canceled || !result.assets || result.assets.length === 0) {
+            if (result.canceled || !result.assets?.length) {
                 return;
             }
 
             const pickedFile = result.assets[0];
+
+            const fileName = pickedFile.name?.toLowerCase() ?? "";
+
+            if (!fileName.endsWith(".lrc")) {
+                Alert.alert(
+                    "Invalid file",
+                    "Please select a .lrc lyrics file."
+                );
+                return;
+            }
+
             setLyrics(pickedFile);
         } catch (error) {
             console.log("Error picking documents:", error);
         }
-    }, [editMusicId])
+    };
 
-    const handleImagePicker = React.useCallback(async () => {
+    const handleImagePicker = async () => {
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
                 allowsEditing: true,
@@ -78,9 +89,9 @@ export default function EditSheet() {
         } catch (error) {
             console.log("Error picking documents:", error);
         }
-    }, [editMusicId])
+    }
 
-    const handleVideoPicker = React.useCallback(async () => {
+    const handleVideoPicker = async () => {
         try {
             const result = await ImagePicker.launchImageLibraryAsync({
                 allowsEditing: true,
@@ -97,7 +108,7 @@ export default function EditSheet() {
         } catch (error) {
             console.log("Error picking documents:", error);
         }
-    }, [editMusicId])
+    }
 
     React.useEffect(() => {
         const track = musics.find(m => m.id === editMusicId);
@@ -143,13 +154,16 @@ export default function EditSheet() {
             let videoMediaUri = null;
 
             if (customeImage) imageMediaUri = await saveMedia(customeImage, 'image', music.id);
-            if (customeVideo) videoMediaUri = await saveMedia(customeVideo, 'video', music.id)
-
+            if (customeVideo) videoMediaUri = await saveMedia(customeVideo, 'video', music.id);
 
             const updatedMusic = await updateMusicdb(db, music?.id!, {
                 title, artist, lyricsId, customCoverUri: imageMediaUri, customVideoUri: videoMediaUri, customVideoFileName, youtube_uri: extractVideoId(youtubeUrl) ?? null
             }) as IMusicTrack;
 
+            console.log(
+                music.customCoverUri,
+                updatedMusic.customCoverUri
+            );
             if (updatedMusic) {
                 setTitle('');
                 setArtist('');

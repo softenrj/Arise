@@ -85,10 +85,19 @@ export function WaveThumb({ isPlaying = true, sliderWidth, progressX }: WaveThum
         };
     });
 
+    const guiderStyle = useAnimatedStyle(() => {
+        return {
+            left: progressX.value,
+        };
+    });
+
     return (
         <View className="w-full h-[20px] justify-center relative">
 
-            <View className="absolute left-0 right-0 h-[2px] bg-white/30 top-1/2 -mt-[1px]" />
+            <Animated.View
+                className="absolute right-0 h-[2px] bg-white/30 top-1/2 -mt-[1px]"
+                style={guiderStyle}
+            />
 
             <Animated.View style={waveContainerStyle}>
                 <AnimatedSvg
