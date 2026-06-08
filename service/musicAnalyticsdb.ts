@@ -145,7 +145,6 @@ export const initRecentPlaysDB = async (db: SQLiteDatabase) => {
  */
 export const addRecentPlay = async (db: SQLiteDatabase, musicId: string) => {
     try {
-        console.log("adding to recent ", musicId);
         const now = Date.now();
         const id = getId();
         const sqlCommand = `

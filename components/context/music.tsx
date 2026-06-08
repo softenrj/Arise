@@ -90,7 +90,6 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
 
   const handleRecent = React.useCallback(async () => {
     const recent = await getRecentPlays(db, 15);
-    console.log("recent ", recent.length)
     setRecent(recent)
   }, [db])
 
@@ -106,13 +105,11 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
 
   const handlePlaylist = React.useCallback(async () => {
     const playlist = await getPlayListRecomendation(db);
-    console.log("playlist ", playlist)
     setPlaylist(playlist)
   }, [db])
 
   const handleRecommendedMusic = React.useCallback(async () => {
     const recommendedMusic = await getRecomendations(db, 15);
-    console.log("recommendedMusic ", recommendedMusic.length)
     setRecommendedMusic(recommendedMusic)
   }, [db])
 

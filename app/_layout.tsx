@@ -19,6 +19,7 @@ import { store } from '@/store/store';
 import { SQLiteProvider } from 'expo-sqlite';
 import { Provider } from 'react-redux';
 
+
 export default function Layout() {
   const isReady = useSetupPlayer();
   const [fontsLoaded] = useFonts({
