@@ -27,7 +27,7 @@ export default function Playlist() {
 
     const playlistMusics = (playlistEntries: PlayListMusic[]) => {
         const musicMap = new Map<string, IMusicTrack>(
-            musics.map((music) => [music.id, music])
+            musics.tracks.map((music) => [music.id, music])
         );
 
         return playlistEntries.reduce<IPlayListMusicTrack[]>(

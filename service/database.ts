@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
-import { IMusicTrack } from "@/types/database";
+import { HashedIMusicTrackList, IMusicTrack } from "@/types/database";
+import * as Crypto from "expo-crypto";
 import { SQLiteDatabase } from "expo-sqlite";
 import { LyricsTable } from "./lyricsdb";
 import { initMusicAnalyticsDB, initRecentPlaysDB } from "./musicAnalyticsdb";
@@ -176,10 +177,11 @@ export const createMultipleMusics = async (
   }
 };
 
+const getHash = () => Crypto.randomUUID();
 // --------- //
 export const getAllMusics = async (
   db: SQLiteDatabase,
-): Promise<IMusicTrack[]> => {
+): Promise<HashedIMusicTrackList> => {
   try {
     const result = await db.getAllAsync<IMusicTrack>(`
         SELECT 
@@ -191,10 +193,12 @@ export const getAllMusics = async (
         LEFT JOIN Lyrics ON Musics.lyricsId = Lyrics.id
         ORDER BY Musics.modificationTime DESC;
     `);
-    return result;
+
+    const hash = getHash();
+    return { tracks: result, queueHash: hash };
   } catch (error) {
     console.error("Failed getting music from SQLite:", error);
-    return [];
+    return { tracks: [], queueHash: getHash() };
   }
 };
 

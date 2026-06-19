@@ -43,7 +43,7 @@ export default function MusicMenu({ musicId, onAddToPlayList }: { musicId: strin
     }, [db, onMusicRefresh, closeSheet]);
 
     React.useEffect(() => {
-        const track = musics.find(m => m.id === musicId);
+        const track = musics.tracks.find(m => m.id === musicId);
         if (track) {
             setMusic(track);
             setVisibility(track.visible)

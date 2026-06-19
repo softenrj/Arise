@@ -4,14 +4,18 @@
 import { initializeCurrentSession } from "@/service/musicAnalytics";
 import { AriseTrack } from "@/types/database";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import * as Crypto from "expo-crypto";
 import TrackPlayer, { RepeatMode } from "react-native-track-player";
 
 export type LoopMode = 'none' | 'track' | 'queue';
 
 export type TrackSourceType = 'playlist' | 'search' | 'short' | 'default' | 'start';
 
+const getHash = () => Crypto.randomUUID();
+
 interface ArisePlayerState {
     queue: AriseTrack[];
+    queueHash: string | null;
     originalQueue: AriseTrack[];
     playlistName: string;
     currentIndex: number;
@@ -43,7 +47,7 @@ const REPEAT_MODE_MAP: Record<LoopMode, RepeatMode> = {
 
 export const setupQueue = createAsyncThunk(
     'trackplayer/setupQueue',
-    async ({ tracks, startIndex = 0, playlistName, sourceId, sourceType, play = true }: { tracks: AriseTrack[]; startIndex?: number, playlistName: string, sourceType: TrackSourceType, sourceId: string | null, play?: boolean }) => {
+    async ({ tracks, startIndex = 0, playlistName, sourceId, sourceType, play = true, queueHash }: { tracks: AriseTrack[]; startIndex?: number, playlistName: string, sourceType: TrackSourceType, sourceId: string | null, play?: boolean, queueHash: string | null }) => {
         await TrackPlayer.reset();
         await TrackPlayer.add(tracks);
         await TrackPlayer.skip(startIndex);
@@ -51,7 +55,7 @@ export const setupQueue = createAsyncThunk(
             await TrackPlayer.play()
             await initializeCurrentSession()
         };
-        return { tracks, startIndex, playlistName, sourceId, sourceType };
+        return { tracks, startIndex, playlistName, sourceId, sourceType, hash: queueHash };
     }
 );
 
@@ -190,6 +194,7 @@ export const clearQueue = createAsyncThunk(
 
 const initialState: ArisePlayerState = {
     queue: [],
+    queueHash: getHash(),
     originalQueue: [],
     playlistName: 'default',
     currentIndex: 0,
@@ -215,9 +220,10 @@ const trackPlayerSlice = createSlice({
     extraReducers: (builder) => {
 
         builder.addCase(setupQueue.fulfilled, (state, action) => {
-            state.queue = action.payload.tracks;
+            if (action.payload.hash != state.queueHash) state.queue = action.payload.tracks;
             state.originalQueue = action.payload.tracks;
             state.currentIndex = action.payload.startIndex;
+            if (action.payload.hash != state.queueHash) state.queueHash = action.payload.hash;
             state.isPlaying = true;
             state.playlistName = action.payload.playlistName;
             // Reset shuffle when a new queue is loaded

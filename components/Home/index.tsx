@@ -5,9 +5,11 @@ import { NavBar } from '@/config/viewRegistry/navbar';
 import { useAppDrawer } from '@/hooks/useAppDrawer';
 import { useMusic } from '@/hooks/useMusic';
 import { useRefresh } from '@/hooks/useRefresh';
+import { useTrackPanle } from '@/hooks/useTrackPanel';
 import Renderer from '@/renderer/renderer';
 import { Section } from '@/types/screenMap';
 import { defaultMusicArtWork } from '@/utils/constants';
+import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
@@ -18,13 +20,15 @@ export default function index({ children }: { children: React.ReactNode }) {
     const { onReloadHomeData, musics, recent, recommendedMusic, filteredMusic, handleLiked, handleShots, handleTopPick } = useMusic();
     const { onOpen } = useAppDrawer();
     const { refresh, onRefresh, setRefresh } = useRefresh();
-    const noMusic = musics.length === 0;
+    const noMusic = musics.tracks.length === 0;
+    const params = useLocalSearchParams();
+    const { onOpen: openTrackPanel } = useTrackPanle();
 
     let categories = [];
 
-    if (musics.length > 0) categories.push('All');
-    if (recent.length > 0) categories.push('Top Picks');
-    if (recommendedMusic.length > 0) categories.push('Recommended');
+    if (musics.tracks.length > 0) categories.push('All');
+    if (recent.tracks.length > 0) categories.push('Top Picks');
+    if (recommendedMusic.tracks.length > 0) categories.push('Recommended');
 
     const navSeen = {
         ...NavBar['nav'],
@@ -78,6 +82,12 @@ export default function index({ children }: { children: React.ReactNode }) {
     React.useEffect(() => {
         handleLoadHome();
     }, []);
+
+    React.useEffect(() => {
+        if (params.trackplayer !== undefined) {
+            openTrackPanel();
+        }
+    }, [params.trackplayer])
 
     React.useEffect(() => {
         handleLiked();

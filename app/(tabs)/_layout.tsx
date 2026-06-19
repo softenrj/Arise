@@ -7,12 +7,15 @@ import { AppTheme } from "@/components/context/apptheme";
 import TrackpanelProvider from "@/components/context/trackpanel";
 import Track from "@/components/track";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { setDatabase } from "@/service/database-instance";
+import { setCurrentIndex } from "@/store/reducer/trackplayerSlice";
 import { TabList, Tabs, TabSlot, TabTrigger } from "expo-router/ui";
 import { useSQLiteContext } from "expo-sqlite";
 import { Home, Library, Search } from "lucide-react-native";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useActiveTrack } from "react-native-track-player";
 
 export const AppDrawerContext = React.createContext({
     open: false,
@@ -25,9 +28,24 @@ export default function TabLayout() {
     const insets = useSafeAreaInsets();
     const [open, setOpen] = React.useState<boolean>(false);
     const { theme } = useAppTheme();
+    const track = useActiveTrack();
+    const trackSlice = useAppSelector(state => state.trackReducer);
+    const dispatch = useAppDispatch();
 
     const handleClose = () => setOpen(false);
     const handleOpen = () => setOpen(true);
+
+    React.useEffect(() => {
+        if (!track) return;
+
+        const queue = trackSlice.queue;
+        const idx = queue.findIndex(item => item.musicId === track.mediaId);
+        if (typeof idx === 'undefined' || typeof idx === null || idx === -1) return;
+
+        if (idx === trackSlice.currentIndex) return;
+        dispatch(setCurrentIndex(idx));
+
+    }, [track]);
 
     React.useEffect(() => {
         setDatabase(db);

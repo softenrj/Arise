@@ -55,9 +55,10 @@ export default function Musics({ scanState, onOpenAddToPlayList }: { scanState: 
 
     const filteredMusics = useMemo<IMusicTrack[]>(() => {
         const q = normalize(query.trim());
-        if (!q) return musics;
 
-        return musics.filter((track) => {
+        if (!q) return musics.tracks;
+
+        return musics.tracks.filter((track) => {
             const name = normalize(cleanFilename(track.filename));
             const raw = normalize(track.filename ?? '');
             return name.includes(q) || raw.includes(q);
@@ -71,7 +72,7 @@ export default function Musics({ scanState, onOpenAddToPlayList }: { scanState: 
 
 
     const handlePlay = (musicId: string) => {
-        const indx = musics.findIndex(m => m.id === musicId);
+        const indx = musics.tracks.findIndex(m => m.id === musicId);
         if (tracks.playlistName === 'Media') {
             playAtIndex(indx);
         } else {
@@ -140,8 +141,8 @@ export default function Musics({ scanState, onOpenAddToPlayList }: { scanState: 
                 <View className="bg-slate-50 px-3 py-1.5 absolute right-0 rounded-full border border-slate-100">
                     <Text className="text-xs font-elms-med text-slate-500 tracking-wide">
                         {query.trim()
-                            ? `${filteredMusics.length} / ${musics.length}`
-                            : musics.length}
+                            ? `${filteredMusics.length} / ${musics.tracks.length}`
+                            : musics.tracks.length}
                     </Text>
                 </View>
             </View>

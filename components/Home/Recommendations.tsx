@@ -9,8 +9,8 @@ import MusicLinearList from '../common/MusicLinearList';
 export default function Recommendations() {
     const { recommendedMusic } = useMusic();
 
-    if (recommendedMusic.length === 0) return null;
+    if (recommendedMusic.tracks.length === 0) return null;
     return (
-        <MusicLinearList title="Recommendations" subTitle={`Back to \nwhat sounds good.`} Icon={Sparkle} music={recommendedMusic} />
+        <MusicLinearList title="Recommendations" subTitle={`Back to \nwhat sounds good.`} Icon={Sparkle} music={recommendedMusic.tracks} />
     )
 }

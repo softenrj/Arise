@@ -4,5 +4,5 @@
 import { Redirect } from "expo-router";
 
 export default function NotificationClick() {
-    return <Redirect href="/home" />;
+    return <Redirect href={{ pathname: "/(tabs)/home", params: { trackplayer: "true" } }} />;
 }

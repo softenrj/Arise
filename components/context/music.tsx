@@ -10,17 +10,18 @@ import { getRecentPlays, getRecomendations } from "@/service/musicAnalyticsdb";
 import { getPlayListRecomendation } from "@/service/playlistdb";
 import { getFirstTrackFromMusic } from "@/service/TrackMaker";
 import { updateMusic } from "@/store/reducer/trackplayerSlice";
-import { IMusicTrack, PlayListRecomendation } from "@/types/database";
+import { HashedIMusicTrackList, IMusicTrack, PlayListRecomendation } from "@/types/database";
+import * as Crypto from "expo-crypto";
 
 interface IMusicContext {
-  musics: IMusicTrack[];
+  musics: HashedIMusicTrackList;
   filteredMusic: IMusicTrack[];
   loading: boolean;
-  recent: IMusicTrack[];
-  shorts: IMusicTrack[];
+  recent: HashedIMusicTrackList;
+  shorts: HashedIMusicTrackList;
   playlist: PlayListRecomendation | null;
-  recommendedMusic: IMusicTrack[];
-  handpickedMusic: IMusicTrack[];
+  recommendedMusic: HashedIMusicTrackList;
+  handpickedMusic: HashedIMusicTrackList;
   setRecent: (music: IMusicTrack[]) => void;
   setShorts: (music: IMusicTrack[]) => void;
   setPlaylist: (music: PlayListRecomendation | null) => void;
@@ -34,21 +35,21 @@ interface IMusicContext {
   onMusicLike: (musicId: string, likeValue: 0 | 1) => Promise<void>;
   waveProgress: boolean;
   toggleWaveProgress: () => void;
-  likedMusics: IMusicTrack[];
+  likedMusics: HashedIMusicTrackList;
   handleShots: () => void;
   handleLiked: () => void;
   handleTopPick: () => void;
 }
 
 export const musicContext = React.createContext<IMusicContext>({
-  musics: [],
+  musics: { queueHash: "default", tracks: [] },
   filteredMusic: [],
   loading: false,
-  recent: [],
-  shorts: [],
+  recent: { queueHash: "default", tracks: [] },
+  shorts: { queueHash: "default", tracks: [] },
   playlist: null,
-  recommendedMusic: [],
-  handpickedMusic: [],
+  recommendedMusic: { queueHash: "default", tracks: [] },
+  handpickedMusic: { queueHash: "default", tracks: [] },
   setRecent: () => { },
   setShorts: () => { },
   setPlaylist: () => { },
@@ -62,7 +63,7 @@ export const musicContext = React.createContext<IMusicContext>({
   onMusicLike: async () => { },
   waveProgress: false,
   toggleWaveProgress: () => { },
-  likedMusics: [],
+  likedMusics: { queueHash: "default", tracks: [] },
   handleLiked: () => { },
   handleShots: () => { },
   handleTopPick: () => { }
@@ -71,20 +72,41 @@ export const musicContext = React.createContext<IMusicContext>({
 function MusicContextProvider({ children }: { children: React.ReactNode }) {
   const db = useSQLiteContext();
   const dispatch = useAppDispatch();
-  const [musics, setMusics] = React.useState<IMusicTrack[]>([]);
+  const [musics, setMusics] = React.useState<HashedIMusicTrackList>({ queueHash: "default", tracks: [] });
   const [loading, setLoading] = React.useState(false);
-  const filteredMusic = React.useMemo(() => musics.filter((music) => music.visible !== 0), [musics]);
+  const filteredMusic = React.useMemo(() => musics.tracks.filter((music) => music.visible !== 0), [musics]);
   const [waveProgress, setWaveProgress] = React.useState<boolean>(false);
 
   const toggleWaveProgress = React.useCallback(() => setWaveProgress(prev => !prev), []);
 
   // Home Screen Data
-  const [recent, setRecent] = React.useState<IMusicTrack[]>([]);
-  const [shorts, setShorts] = React.useState<IMusicTrack[]>([]);
+  const [recent, setRecent] = React.useState<HashedIMusicTrackList>({ queueHash: "default", tracks: [] });
+  const [shorts, setShorts] = React.useState<HashedIMusicTrackList>({ queueHash: "default", tracks: [] });
   const [playlist, setPlaylist] = React.useState<PlayListRecomendation | null>(null);
-  const [recommendedMusic, setRecommendedMusic] = React.useState<IMusicTrack[]>([]);
-  const [handpickedMusic, setHandpickedMusic] = React.useState<IMusicTrack[]>([]);
-  const [likedMusic, setLikedMusic] = React.useState<IMusicTrack[]>([]);
+  const [recommendedMusic, setRecommendedMusic] = React.useState<HashedIMusicTrackList>({ queueHash: "default", tracks: [] });
+  const [handpickedMusic, setHandpickedMusic] = React.useState<HashedIMusicTrackList>({ queueHash: "default", tracks: [] });
+  const [likedMusic, setLikedMusic] = React.useState<HashedIMusicTrackList>({ queueHash: "default", tracks: [] });
+
+
+  const handleSetRecent = React.useCallback((music: IMusicTrack[]) => {
+    const hash = Crypto.randomUUID();
+    setRecent({ tracks: music, queueHash: hash })
+  }, [])
+
+  const handleSetShots = React.useCallback((music: IMusicTrack[]) => {
+    const hash = Crypto.randomUUID();
+    setShorts({ tracks: music, queueHash: hash })
+  }, [])
+
+  const handleSetRecomendation = React.useCallback((music: IMusicTrack[]) => {
+    const hash = Crypto.randomUUID();
+    setRecommendedMusic({ tracks: music, queueHash: hash })
+  }, [])
+
+  const handleSetHandPicked = React.useCallback((music: IMusicTrack[]) => {
+    const hash = Crypto.randomUUID();
+    setHandpickedMusic({ tracks: music, queueHash: hash })
+  }, [])
 
   //#region  HOME SCREEN STATE HANDLER 
 
@@ -95,12 +117,13 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
 
   const handleShorts = () => {
     const shuffled = [...filteredMusic];
+    const hash = Crypto.randomUUID();
 
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    setShorts(shuffled.slice(0, 4))
+    setShorts({ tracks: shuffled.slice(0, 4), queueHash: hash })
   }
 
   const handlePlaylist = React.useCallback(async () => {
@@ -115,18 +138,20 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
 
   const handleHandpickedMusic = React.useCallback(() => {
     const shuffled = [...filteredMusic];
+    const hash = Crypto.randomUUID();
 
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
 
-    setHandpickedMusic(shuffled.slice(0, 8));
+    setHandpickedMusic({ tracks: shuffled.slice(0, 8), queueHash: hash });
   }, [filteredMusic])
 
   const handleLikedMusic = React.useCallback(() => {
     const likedM = filteredMusic.map(item => item.isLiked === 1 ? item : null).filter(Boolean) as IMusicTrack[];
-    setLikedMusic(likedM);
+    const hash = Crypto.randomUUID();
+    setLikedMusic({ tracks: likedM, queueHash: hash });
   }, [filteredMusic])
 
 
@@ -157,13 +182,25 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
   }, [db]);
 
   const handleSetMusic = React.useCallback((music: IMusicTrack[]) => {
-    setMusics(music);
+    const hash = Crypto.randomUUID();
+    setMusics({ tracks: music, queueHash: hash });
   }, []);
 
   const handleSetLike = React.useCallback(
     (musicId: string, likeValue: 0 | 1) => {
-      setMusics((prev) => prev.map((music) => music.id === musicId ? { ...music, isLiked: likeValue, } : music));
-    }, []);
+      setMusics((prev) => {
+        const updatedTracks = prev.tracks.map((music) =>
+          music.id === musicId ? { ...music, isLiked: likeValue } : music
+        );
+
+        return {
+          ...prev,
+          tracks: updatedTracks,
+        };
+      });
+    },
+    [setMusics]
+  );
 
   const handleRefresh = React.useCallback(async () => {
     await loadMusicData();
@@ -171,7 +208,13 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
 
   const handleUpdateMusic = React.useCallback(
     async (updatedMusicTrack: IMusicTrack) => {
-      setMusics((prev) => prev.map((music) => music.id === updatedMusicTrack.id ? updatedMusicTrack : music));
+      setMusics((prev) => ({
+        ...prev,
+        tracks: prev.tracks.map((music) =>
+          music.id === updatedMusicTrack.id ? updatedMusicTrack : music
+        ),
+      }));
+
       dispatch(updateMusic(getFirstTrackFromMusic(updatedMusicTrack)));
     },
     [dispatch]
@@ -179,18 +222,23 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
 
   const handleMusicLike = React.useCallback(
     async (musicId: string, v: 0 | 1) => {
-      const music = musics.find(item => item.id === musicId);
+      const music = musics.tracks.find((item) => item.id === musicId);
 
       if (!music) return;
 
       const updatedMusicTrack = { ...music, isLiked: v, musicId: music.id };
-      setMusics(prev => prev.map(item => item.id === musicId ? updatedMusicTrack : item));
+
+      setMusics((prev) => ({
+        ...prev,
+        tracks: prev.tracks.map((item) =>
+          item.id === musicId ? updatedMusicTrack : item
+        ),
+      }));
+
       dispatch(updateMusic(getFirstTrackFromMusic(updatedMusicTrack)));
     },
     [dispatch, musics]
   );
-
-
 
   React.useEffect(() => {
     loadMusicData();
@@ -201,7 +249,7 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
       musics, filteredMusic, loading, setMusic: handleSetMusic,
       setLike: handleSetLike, onMusicRefresh: handleRefresh, onMusicUpdate: handleUpdateMusic,
       recent, shorts, playlist, recommendedMusic, handpickedMusic,
-      setRecent, setShorts, setPlaylist, setRecommendedMusic, setHandpickedMusic,
+      setRecent: handleSetRecent, setShorts: handleSetShots, setPlaylist, setRecommendedMusic: handleSetRecomendation, setHandpickedMusic: handleSetHandPicked,
       onReloadHomeData: handleHomeData,
       onMusicLike: handleMusicLike, waveProgress, toggleWaveProgress, likedMusics: likedMusic, handleLiked: handleLikedMusic,
       handleShots: handleShorts,

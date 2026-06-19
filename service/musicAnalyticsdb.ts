@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
-import { IMusicTrack, MusicAnalytics } from "@/types/database";
+import { HashedIMusicTrackList, IMusicTrack, MusicAnalytics } from "@/types/database";
 import * as Crypto from "expo-crypto";
 import { SQLiteDatabase } from "expo-sqlite";
 
@@ -171,9 +171,9 @@ export const addRecentPlay = async (db: SQLiteDatabase, musicId: string) => {
  * gets last 20 played musics
  * @param db 
  * @param limit 
- * @returns Promise<IMusicTrack[]>
+ * @returns Promise<HashIMusicTrack>
  */
-export const getRecentPlays = async (db: SQLiteDatabase, limit: number = 20): Promise<IMusicTrack[]> => {
+export const getRecentPlays = async (db: SQLiteDatabase, limit: number = 20): Promise<HashedIMusicTrackList> => {
     try {
         const sql = `
             SELECT
@@ -202,10 +202,10 @@ export const getRecentPlays = async (db: SQLiteDatabase, limit: number = 20): Pr
         `;
 
         const recent = await db.getAllAsync(sql, [limit]) as IMusicTrack[];
-        return recent;
+        return { tracks: recent, queueHash: getId() } as HashedIMusicTrackList;
     } catch (error) {
         console.error("Error fetching recent plays database:", error);
-        return [];
+        return { tracks: [], queueHash: getId() };
     }
 }
 
@@ -213,9 +213,9 @@ export const getRecentPlays = async (db: SQLiteDatabase, limit: number = 20): Pr
  * Gets recomendations based on user listening history
  * @param db 
  * @param limit 
- * @returns Promise<IMusicTrack[]>
+ * @returns Promise<HashMusicList[]>
  */
-export const getRecomendations = async (db: SQLiteDatabase, limit: number = 20): Promise<IMusicTrack[]> => {
+export const getRecomendations = async (db: SQLiteDatabase, limit: number = 20): Promise<HashedIMusicTrackList> => {
     try {
         const sqlCommand = `
             SELECT music.isLiked, music.creationTime , music_a.* 
@@ -273,19 +273,19 @@ export const getRecomendations = async (db: SQLiteDatabase, limit: number = 20):
                 `;
 
             const recommendedTracks = (await db.getAllAsync(query, recommendedIds)) as IMusicTrack[];
-            return recommendedTracks;
+            return { tracks: recommendedTracks, queueHash: getId() } as HashedIMusicTrackList;
         }
 
         // Get most played songs
-        const recents = await getRecentPlays(db, limit);
+        const recentsHashTrackList = await getRecentPlays(db, limit);
 
-        if (recents.length > 0) {
-            return recents;
+        if (recentsHashTrackList.tracks.length > 0) {
+            return recentsHashTrackList;
         }
 
-        return [];
+        return { tracks: [], queueHash: getId() } as HashedIMusicTrackList;
     } catch (error) {
         console.error("Error fetching recomendations:", error);
-        return [];
+        return { tracks: [], queueHash: getId() } as HashedIMusicTrackList;
     }
 }

@@ -78,7 +78,7 @@ const MusicList = ({ playlistId, onMusicListOpen, open }: { playlistId: string, 
                 </Text>
 
                 <FlatList
-                    data={musics}
+                    data={musics.tracks}
                     extraData={selectedMusicIds}
                     className='flex-1 px-2 py-2'
                     keyExtractor={(item) => item.id}

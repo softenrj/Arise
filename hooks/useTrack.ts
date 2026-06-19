@@ -18,8 +18,8 @@ export const useTrack = () => {
     const handleVolume = useCallback(async (v: number) => await TrackPlayer.setVolume(v), []);
 
     const handleSetupQueue = useCallback(
-        ({ tracks, startIndex, playlistName, sourceId, sourceType, play = true }: { tracks: AriseTrack[]; startIndex?: number, playlistName: string, sourceId: string | null, sourceType: TrackSourceType, play?: boolean }) => {
-            return dispatch(setupQueue({ tracks, startIndex, playlistName, sourceId, sourceType, play }));
+        ({ tracks, startIndex, playlistName, sourceId, sourceType, play = true, queueHash }: { tracks: AriseTrack[]; startIndex?: number, playlistName: string, sourceId: string | null, sourceType: TrackSourceType, play?: boolean, queueHash: string }) => {
+            return dispatch(setupQueue({ tracks, startIndex, playlistName, sourceId, sourceType, play, queueHash }));
         },
         [dispatch]
     );

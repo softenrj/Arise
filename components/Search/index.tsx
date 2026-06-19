@@ -29,22 +29,22 @@ export default function index({ children }: { children: React.ReactNode }) {
     };
 
     const handleRecentMusic = () => {
-        setMusics(recent);
+        setMusics(recent.tracks);
         setQuery('#Recent')
     }
 
     const handleLikedMusic = () => {
-        setMusics(likedMusics);
+        setMusics(likedMusics.tracks);
         setQuery('#Liked')
     }
 
     const handleSuggested = () => {
-        setMusics(recommendedMusic);
+        setMusics(recommendedMusic.tracks);
         setQuery('#Suggested')
     }
 
     const handleTopPick = () => {
-        setMusics(handpickedMusic);
+        setMusics(handpickedMusic.tracks);
         setQuery('#TopPick')
     }
 

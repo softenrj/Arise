@@ -22,17 +22,17 @@ export default function Shorts() {
     const track = useAppSelector(state => state.trackReducer);
 
     const streamPlayList = (play: boolean = true) => {
-        if (shorts.length === 0) return;
+        if (shorts.tracks.length === 0) return;
         setupQueue({ tracks: getTrackFromMusic(shorts), playlistName: 'Shorts', sourceType: 'short', sourceId: null, play });
     }
 
     const handlePlayInShort = () => {
-        if (shorts.length === 0) return;
+        if (shorts.tracks.length === 0) return;
         if (track.playlistName !== 'Shorts') streamPlayList(false);
         router.push('/(tabs)/shorts');
     }
 
-    if (shorts.length === 0) return null;
+    if (shorts.tracks.length === 0) return null;
     return (
         <View>
             <View className='flex-col items-start'>
@@ -48,7 +48,7 @@ export default function Shorts() {
             </View>
 
             <FlatList
-                data={shorts}
+                data={shorts.tracks}
                 scrollEnabled={false}
                 numColumns={2}
                 columnWrapperStyle={{ gap: 15 }}

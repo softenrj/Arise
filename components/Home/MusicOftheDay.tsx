@@ -17,7 +17,7 @@ export default function MusicoftheDay() {
     const tracks = useAppSelector(state => state.trackReducer);
 
     const handlePlay = (musicId: string) => {
-        const indx = handpickedMusic.findIndex(m => m.id === musicId);
+        const indx = handpickedMusic.tracks.findIndex(m => m.id === musicId);
         if (tracks.playlistName === 'Music of the Day') {
             playAtIndex(indx);
         } else {
@@ -25,7 +25,7 @@ export default function MusicoftheDay() {
         }
     }
 
-    if (handpickedMusic.length === 0) return null;
+    if (handpickedMusic.tracks.length === 0) return null;
     return (
         <View>
             <View className='flex-row items-start gap-3'>
@@ -50,7 +50,7 @@ export default function MusicoftheDay() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 10 }} className='my-2 mx-3'>
-                {handpickedMusic.map((item: IMusicTrack) => (
+                {handpickedMusic.tracks.map((item: IMusicTrack) => (
                     <Pressable key={item.id} className='flex-row items-center w-full gap-3' onPress={() => handlePlay(item.id)}>
                         <Image
                             source={{ uri: item.customCoverUri || defaultMusicArtWork }}

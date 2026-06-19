@@ -9,11 +9,11 @@ import MusicLinearList from '../common/MusicLinearList';
 export default function Recent() {
     const { recent } = useMusic();
 
-    if (recent.length === 0) {
+    if (recent.tracks.length === 0) {
         return null;
     }
 
     return (
-        <MusicLinearList title="Recent" subTitle={`Pick up where\nyou left off.`} Icon={Zap} music={recent} />
+        <MusicLinearList title="Recent" subTitle={`Pick up where\nyou left off.`} Icon={Zap} music={recent.tracks} />
     )
 }

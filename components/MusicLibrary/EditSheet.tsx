@@ -111,7 +111,7 @@ export default function EditSheet() {
     }
 
     React.useEffect(() => {
-        const track = musics.find(m => m.id === editMusicId);
+        const track = musics.tracks.find(m => m.id === editMusicId);
         if (track) {
             setMusic(track);
             setTitle(track.title!);
@@ -160,10 +160,6 @@ export default function EditSheet() {
                 title, artist, lyricsId, customCoverUri: imageMediaUri, customVideoUri: videoMediaUri, customVideoFileName, youtube_uri: extractVideoId(youtubeUrl) ?? null
             }) as IMusicTrack;
 
-            console.log(
-                music.customCoverUri,
-                updatedMusic.customCoverUri
-            );
             if (updatedMusic) {
                 setTitle('');
                 setArtist('');

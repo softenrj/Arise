@@ -35,6 +35,11 @@ export interface IMusicTrack {
   [key: string]: any;
 }
 
+export interface HashedIMusicTrackList {
+  queueHash: string | null;
+  tracks: IMusicTrack[]
+}
+
 export interface AriseTrack extends Track {
   isLiked?: 0 | 1;
   visible: 0 | 1;
