@@ -8,10 +8,10 @@ import { useAppDispatch } from "@/hooks/useRedux";
 import { getAllMusics } from "@/service/database";
 import { getRecentPlays, getRecomendations } from "@/service/musicAnalyticsdb";
 import { getPlayListRecomendation } from "@/service/playlistdb";
+import createQueueHash from "@/service/queueHash";
 import { getFirstTrackFromMusic } from "@/service/TrackMaker";
 import { updateMusic } from "@/store/reducer/trackplayerSlice";
 import { HashedIMusicTrackList, IMusicTrack, PlayListRecomendation } from "@/types/database";
-import * as Crypto from "expo-crypto";
 
 interface IMusicContext {
   musics: HashedIMusicTrackList;
@@ -22,17 +22,17 @@ interface IMusicContext {
   playlist: PlayListRecomendation | null;
   recommendedMusic: HashedIMusicTrackList;
   handpickedMusic: HashedIMusicTrackList;
-  setRecent: (music: IMusicTrack[]) => void;
-  setShorts: (music: IMusicTrack[]) => void;
+  setRecent: (music: IMusicTrack[]) => Promise<void>;
+  setShorts: (music: IMusicTrack[]) => Promise<void>;
   setPlaylist: (music: PlayListRecomendation | null) => void;
-  setRecommendedMusic: (music: IMusicTrack[]) => void;
-  setHandpickedMusic: (music: IMusicTrack[]) => void;
-  setMusic: (music: IMusicTrack[]) => void;
+  setRecommendedMusic: (music: IMusicTrack[]) => Promise<void>;
+  setHandpickedMusic: (music: IMusicTrack[]) => Promise<void>;
+  setMusic: (music: IMusicTrack[]) => Promise<void>;
   onReloadHomeData: () => Promise<void>;
   setLike: (musicId: string, likeValue: 0 | 1) => void;
   onMusicRefresh: () => Promise<void>;
   onMusicUpdate: (music: IMusicTrack) => Promise<void>;
-  onMusicLike: (musicId: string, likeValue: 0 | 1) => Promise<void>;
+  onMusicLike: (musicId: string, likeValue: 0 | 1) => void;
   waveProgress: boolean;
   toggleWaveProgress: () => void;
   likedMusics: HashedIMusicTrackList;
@@ -50,17 +50,17 @@ export const musicContext = React.createContext<IMusicContext>({
   playlist: null,
   recommendedMusic: { queueHash: "default", tracks: [] },
   handpickedMusic: { queueHash: "default", tracks: [] },
-  setRecent: () => { },
-  setShorts: () => { },
+  setRecent: async () => { },
+  setShorts: async () => { },
   setPlaylist: () => { },
-  setRecommendedMusic: () => { },
-  setHandpickedMusic: () => { },
-  setMusic: () => { },
+  setRecommendedMusic: async () => { },
+  setHandpickedMusic: async () => { },
+  setMusic: async () => { },
   setLike: () => { },
   onMusicRefresh: async () => { },
   onMusicUpdate: async () => { },
   onReloadHomeData: async () => { },
-  onMusicLike: async () => { },
+  onMusicLike: () => { },
   waveProgress: false,
   toggleWaveProgress: () => { },
   likedMusics: { queueHash: "default", tracks: [] },
@@ -88,23 +88,23 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
   const [likedMusic, setLikedMusic] = React.useState<HashedIMusicTrackList>({ queueHash: "default", tracks: [] });
 
 
-  const handleSetRecent = React.useCallback((music: IMusicTrack[]) => {
-    const hash = Crypto.randomUUID();
+  const handleSetRecent = React.useCallback(async (music: IMusicTrack[]) => {
+    const hash = await createQueueHash(music);
     setRecent({ tracks: music, queueHash: hash })
   }, [])
 
-  const handleSetShots = React.useCallback((music: IMusicTrack[]) => {
-    const hash = Crypto.randomUUID();
+  const handleSetShots = React.useCallback(async (music: IMusicTrack[]) => {
+    const hash = await createQueueHash(music);
     setShorts({ tracks: music, queueHash: hash })
   }, [])
 
-  const handleSetRecomendation = React.useCallback((music: IMusicTrack[]) => {
-    const hash = Crypto.randomUUID();
+  const handleSetRecomendation = React.useCallback(async (music: IMusicTrack[]) => {
+    const hash = await createQueueHash(music);
     setRecommendedMusic({ tracks: music, queueHash: hash })
   }, [])
 
-  const handleSetHandPicked = React.useCallback((music: IMusicTrack[]) => {
-    const hash = Crypto.randomUUID();
+  const handleSetHandPicked = React.useCallback(async (music: IMusicTrack[]) => {
+    const hash = await createQueueHash(music);
     setHandpickedMusic({ tracks: music, queueHash: hash })
   }, [])
 
@@ -115,9 +115,9 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
     setRecent(recent)
   }, [db])
 
-  const handleShorts = () => {
+  const handleShorts = async () => {
     const shuffled = [...filteredMusic];
-    const hash = Crypto.randomUUID();
+    const hash = await createQueueHash(shuffled);
 
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -136,9 +136,9 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
     setRecommendedMusic(recommendedMusic)
   }, [db])
 
-  const handleHandpickedMusic = React.useCallback(() => {
+  const handleHandpickedMusic = React.useCallback(async () => {
     const shuffled = [...filteredMusic];
-    const hash = Crypto.randomUUID();
+    const hash = await createQueueHash(shuffled);
 
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -148,9 +148,9 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
     setHandpickedMusic({ tracks: shuffled.slice(0, 8), queueHash: hash });
   }, [filteredMusic])
 
-  const handleLikedMusic = React.useCallback(() => {
+  const handleLikedMusic = React.useCallback(async () => {
     const likedM = filteredMusic.map(item => item.isLiked === 1 ? item : null).filter(Boolean) as IMusicTrack[];
-    const hash = Crypto.randomUUID();
+    const hash = await createQueueHash(likedM);
     setLikedMusic({ tracks: likedM, queueHash: hash });
   }, [filteredMusic])
 
@@ -181,8 +181,8 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
     }
   }, [db]);
 
-  const handleSetMusic = React.useCallback((music: IMusicTrack[]) => {
-    const hash = Crypto.randomUUID();
+  const handleSetMusic = React.useCallback(async (music: IMusicTrack[]) => {
+    const hash = await createQueueHash(music);
     setMusics({ tracks: music, queueHash: hash });
   }, []);
 

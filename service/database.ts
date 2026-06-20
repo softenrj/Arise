@@ -7,6 +7,7 @@ import { SQLiteDatabase } from "expo-sqlite";
 import { LyricsTable } from "./lyricsdb";
 import { initMusicAnalyticsDB, initRecentPlaysDB } from "./musicAnalyticsdb";
 import { PlayListMusicTable, PlayListTable } from "./playlistdb";
+import createQueueHash from "./queueHash";
 
 export const InitiateDataBase = async (db: SQLiteDatabase) => {
   // const TARGET_DATABASE_VERSION = 4;
@@ -194,7 +195,7 @@ export const getAllMusics = async (
         ORDER BY Musics.modificationTime DESC;
     `);
 
-    const hash = getHash();
+    const hash = await createQueueHash(result);
     return { tracks: result, queueHash: hash };
   } catch (error) {
     console.error("Failed getting music from SQLite:", error);

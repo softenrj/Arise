@@ -2,8 +2,8 @@
 // See LICENSE for details.
 
 import { useMusic } from '@/hooks/useMusic';
+import createQueueHash from '@/service/queueHash';
 import { IMusicTrack, IPlayListMusicTrack, PlayList, PlayListMusic } from '@/types/database';
-import * as Crypto from "expo-crypto";
 import React, { createContext, useMemo, useState } from 'react';
 
 interface PlaylistContextType {
@@ -11,7 +11,7 @@ interface PlaylistContextType {
     playListHash: string;
     playlistMusics: IPlayListMusicTrack[];
     setPlayList: (playlist: PlayList) => void;
-    setPlayListMusic: (musics: PlayListMusic[]) => void;
+    setPlayListMusic: (musics: PlayListMusic[]) => Promise<void>;
 }
 
 export const PlaylistContext = createContext<PlaylistContextType>({
@@ -19,7 +19,7 @@ export const PlaylistContext = createContext<PlaylistContextType>({
     playListHash: 'default',
     playlistMusics: [],
     setPlayList: () => { },
-    setPlayListMusic: () => { },
+    setPlayListMusic: async () => { },
 });
 
 export default function PlayListProvider({
@@ -55,8 +55,8 @@ export default function PlayListProvider({
         );
     }, [playlistEntries, musics]);
 
-    const handleSetPlayList = React.useCallback((playlistMusics: PlayListMusic[]) => {
-        const hash = Crypto.randomUUID();
+    const handleSetPlayList = React.useCallback(async (playlistMusics: PlayListMusic[]) => {
+        const hash = await createQueueHash(playlistMusics);
         setPlaylistEntries(playlistMusics);
         setPlayListHash(hash);
     }, [])

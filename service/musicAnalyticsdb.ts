@@ -4,6 +4,7 @@
 import { HashedIMusicTrackList, IMusicTrack, MusicAnalytics } from "@/types/database";
 import * as Crypto from "expo-crypto";
 import { SQLiteDatabase } from "expo-sqlite";
+import createQueueHash from "./queueHash";
 
 const getId = () => Crypto.randomUUID();
 
@@ -201,11 +202,13 @@ export const getRecentPlays = async (db: SQLiteDatabase, limit: number = 20): Pr
             LIMIT ?;
         `;
 
+
         const recent = await db.getAllAsync(sql, [limit]) as IMusicTrack[];
-        return { tracks: recent, queueHash: getId() } as HashedIMusicTrackList;
+        const hash = await createQueueHash(recent);
+        return { tracks: recent, queueHash: hash } as HashedIMusicTrackList;
     } catch (error) {
         console.error("Error fetching recent plays database:", error);
-        return { tracks: [], queueHash: getId() };
+        return { tracks: [], queueHash: "default" };
     }
 }
 
@@ -273,19 +276,21 @@ export const getRecomendations = async (db: SQLiteDatabase, limit: number = 20):
                 `;
 
             const recommendedTracks = (await db.getAllAsync(query, recommendedIds)) as IMusicTrack[];
-            return { tracks: recommendedTracks, queueHash: getId() } as HashedIMusicTrackList;
+            const hash = await createQueueHash(recommendedTracks);
+            return { tracks: recommendedTracks, queueHash: hash } as HashedIMusicTrackList;
         }
 
         // Get most played songs
         const recentsHashTrackList = await getRecentPlays(db, limit);
 
+
         if (recentsHashTrackList.tracks.length > 0) {
             return recentsHashTrackList;
         }
 
-        return { tracks: [], queueHash: getId() } as HashedIMusicTrackList;
+        return { tracks: [], queueHash: 'default' } as HashedIMusicTrackList;
     } catch (error) {
         console.error("Error fetching recomendations:", error);
-        return { tracks: [], queueHash: getId() } as HashedIMusicTrackList;
+        return { tracks: [], queueHash: 'default' } as HashedIMusicTrackList;
     }
 }
