@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for detail
+
 import { fetchUserMetricsDashboard, MusicStatsPayload } from '@/service/musicAnalyticsdb'
 import { useSQLiteContext } from 'expo-sqlite'
 import { Clock, Crown, TrendingUp } from 'lucide-react-native'
