@@ -20,7 +20,7 @@ export default function MusicoftheDay() {
         if (!handpickedMusic.tracks || !handpickedMusic.queueHash) return;
 
         const indx = handpickedMusic.tracks.findIndex(m => m.id === musicId);
-        if (tracks.playlistName === 'Music of the Day') {
+        if (tracks.playlistName === 'Music of the Day' && tracks.queueHash === handpickedMusic.queueHash) {
             playAtIndex(indx);
         } else {
             setupQueue({ tracks: getTrackFromMusic(handpickedMusic.tracks), playlistName: 'Music of the Day', sourceId: null, sourceType: 'default', startIndex: indx, queueHash: handpickedMusic.queueHash });

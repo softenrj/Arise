@@ -12,6 +12,7 @@ import createQueueHash from "@/service/queueHash";
 import { getFirstTrackFromMusic } from "@/service/TrackMaker";
 import { updateMusic } from "@/store/reducer/trackplayerSlice";
 import { HashedIMusicTrackList, IMusicTrack, PlayListRecomendation } from "@/types/database";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface IMusicContext {
   musics: HashedIMusicTrackList;
@@ -77,7 +78,18 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
   const filteredMusic = React.useMemo(() => musics.tracks.filter((music) => music.visible !== 0), [musics]);
   const [waveProgress, setWaveProgress] = React.useState<boolean>(false);
 
-  const toggleWaveProgress = React.useCallback(() => setWaveProgress(prev => !prev), []);
+  const toggleWaveProgress = React.useCallback(() => {
+    setWaveProgress(prev => {
+      const nextState = !prev;
+      setAsyncLocal("arise:raj:progress:style", String(nextState));
+
+      return nextState;
+    });
+  }, []);
+
+
+  const setAsyncLocal = (key: string, value: string) => AsyncStorage.setItem(key, value);
+  const getAsyncLocal = (key: string) => AsyncStorage.getItem(key);
 
   // Home Screen Data
   const [recent, setRecent] = React.useState<HashedIMusicTrackList>({ queueHash: "default", tracks: [] });
@@ -117,7 +129,7 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
 
   const handleShorts = async () => {
     const shuffled = [...filteredMusic];
-    const hash = await createQueueHash(shuffled);
+    const hash = await createQueueHash(shuffled, true);
 
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -138,7 +150,7 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
 
   const handleHandpickedMusic = React.useCallback(async () => {
     const shuffled = [...filteredMusic];
-    const hash = await createQueueHash(shuffled);
+    const hash = await createQueueHash(shuffled, true);
 
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -150,7 +162,7 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
 
   const handleLikedMusic = React.useCallback(async () => {
     const likedM = filteredMusic.map(item => item.isLiked === 1 ? item : null).filter(Boolean) as IMusicTrack[];
-    const hash = await createQueueHash(likedM);
+    const hash = await createQueueHash(likedM, true);
     setLikedMusic({ tracks: likedM, queueHash: hash });
   }, [filteredMusic])
 
@@ -243,6 +255,21 @@ function MusicContextProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     loadMusicData();
   }, [loadMusicData]);
+
+  React.useEffect(() => {
+    const loadSavedStyle = async () => {
+      try {
+        const savedValue = await getAsyncLocal("arise:raj:progress:style");
+        if (savedValue !== null) {
+          setWaveProgress(savedValue === "true");
+        }
+      } catch (error) {
+        console.error("Failed to load wave progress style:", error);
+      }
+    };
+
+    loadSavedStyle();
+  }, []);
 
   const contextValue = React.useMemo(
     () => ({

@@ -26,10 +26,12 @@ export default function Shorts() {
         setupQueue({ tracks: getTrackFromMusic(shorts.tracks), playlistName: 'Shorts', sourceType: 'short', sourceId: null, play, queueHash: shorts.queueHash });
     }
 
-    const handlePlayInShort = () => {
+    const handlePlayInShort = (musicId: string) => {
         if (shorts.tracks.length === 0) return;
-        if (track.playlistName !== 'Shorts') streamPlayList(false);
-        router.push('/(tabs)/shorts');
+        if (track.playlistName !== 'Shorts' || track.queueHash !== shorts.queueHash) streamPlayList(false);
+        const index = shorts.tracks.findIndex(muisc => muisc.id === musicId);
+        if (index === -1) return;
+        router.push({ pathname: '/(tabs)/shorts', params: { activeIndex: index } });
     }
 
     if (shorts.tracks.length === 0) return null;
@@ -65,7 +67,7 @@ export default function Shorts() {
                         elevation: 6,
                         backgroundColor: '#fff',
                     }}>
-                        <Pressable onPress={handlePlayInShort} style={{ borderRadius: 14, overflow: 'hidden' }}>
+                        <Pressable onPress={() => handlePlayInShort(item.id)} style={{ borderRadius: 14, overflow: 'hidden' }}>
                             <ImageBackground
                                 source={{ uri: item?.customCoverUri || defaultMusicArtWork }}
                                 style={{ width: '100%', aspectRatio: 2 / 3 }}

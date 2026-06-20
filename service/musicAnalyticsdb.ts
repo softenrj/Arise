@@ -2,6 +2,7 @@
 // See LICENSE for details.
 
 import { HashedIMusicTrackList, IMusicTrack, MusicAnalytics } from "@/types/database";
+import { defaultMusicArtWork } from "@/utils/constants";
 import * as Crypto from "expo-crypto";
 import { SQLiteDatabase } from "expo-sqlite";
 import createQueueHash from "./queueHash";
@@ -294,3 +295,94 @@ export const getRecomendations = async (db: SQLiteDatabase, limit: number = 20):
         return { tracks: [], queueHash: 'default' } as HashedIMusicTrackList;
     }
 }
+
+export interface MusicStatsPayload {
+    totalWatchMinutes: number;
+    completionRate: number;
+    heavyRotation: Array<{
+        id: string;
+        title: string;
+        artist: string;
+        playCount: number;
+        customCoverUri: string;
+    }>;
+    weeklyGraphData: Array<{
+        dayName: string;
+        minutes: number;
+    }>;
+}
+
+export const fetchUserMetricsDashboard = async (db: SQLiteDatabase): Promise<MusicStatsPayload> => {
+    try {
+        const topTracksQuery = `
+            SELECT 
+              m.id, m.title, m.customCoverUri, m.filename, m.artist, ma.playCount,
+              SUM(ma.totalListeningSeconds) OVER() as globalSeconds,
+              SUM(ma.playCount) OVER() as globalPlays,
+              SUM(ma.completedCount) OVER() as globalCompletions
+            FROM music_analytics ma
+            INNER JOIN Musics m ON ma.musicId = m.id
+            WHERE ma.playCount > 0
+            ORDER BY ma.playCount DESC
+            LIMIT 5;
+        `;
+        const trackRows = await db.getAllAsync<any>(topTracksQuery);
+
+        const sevenDaysAgoMs = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        const graphQuery = `
+            SELECT lastPlayedAt, totalListeningSeconds 
+            FROM music_analytics 
+            WHERE lastPlayedAt >= ${sevenDaysAgoMs}
+        `;
+        const graphRows = await db.getAllAsync<any>(graphQuery);
+
+        const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const weeklyGraphData = Array.from({ length: 7 }).map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (6 - i));
+
+            d.setHours(0, 0, 0, 0);
+            return {
+                timestamp: d.getTime(),
+                dayName: daysOfWeek[d.getDay()],
+                minutes: 0
+            };
+        });
+
+        graphRows.forEach((row) => {
+            if (!row.lastPlayedAt) return;
+
+            const playedDate = new Date(row.lastPlayedAt);
+            playedDate.setHours(0, 0, 0, 0);
+
+            const targetDay = weeklyGraphData.find(d => d.timestamp === playedDate.getTime());
+            if (targetDay) {
+                targetDay.minutes += (row.totalListeningSeconds / 60);
+            }
+        });
+
+        if (trackRows.length === 0) {
+            return { totalWatchMinutes: 0, completionRate: 0, heavyRotation: [], weeklyGraphData };
+        }
+
+        const metaRow = trackRows[0];
+        const totalWatchMinutes = Math.round((metaRow.globalSeconds || 0) / 60);
+        const completionRate = metaRow.globalPlays > 0
+            ? Math.round((metaRow.globalCompletions / metaRow.globalPlays) * 100)
+            : 0;
+
+        const heavyRotation = trackRows.map(row => ({
+            id: row.id,
+            title: row.title || row.filename,
+            artist: row.artist,
+            customCoverUri: row.customCoverUri || defaultMusicArtWork,
+            playCount: row.playCount
+        }));
+
+        return { totalWatchMinutes, completionRate, heavyRotation, weeklyGraphData };
+
+    } catch (err) {
+        console.error("Database analytics loading failed:", err);
+        throw err;
+    }
+};

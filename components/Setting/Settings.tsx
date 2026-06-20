@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { Camera, Moon, Shield, Star, User } from 'lucide-react-native';
 import React from 'react';
 import { Image, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import Matrics from './Matrics';
 
 export default function Settings({ onTerm }: { onTerm: () => void }) {
     const router = useRouter();
@@ -75,7 +76,7 @@ export default function Settings({ onTerm }: { onTerm: () => void }) {
     return (
         <View className="px-5 pt-6">
 
-            <View className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 mb-6 items-center">
+            <View className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 mb-6 items-center">
                 <TouchableOpacity
                     activeOpacity={0.8}
                     className="relative mb-5"
@@ -95,7 +96,7 @@ export default function Settings({ onTerm }: { onTerm: () => void }) {
                     <Text className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">
                         Display Name
                     </Text>
-                    <View className="flex-row items-center bg-slate-50 border border-slate-200 rounded-2xl px-4 py-1">
+                    <View className="flex-row items-center bg-slate-50 border border-slate-200 rounded-xl px-4 py-1">
                         <User size={20} color="#94a3b8" />
                         <TextInput
                             value={name}
@@ -110,7 +111,7 @@ export default function Settings({ onTerm }: { onTerm: () => void }) {
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={handleSaveProfile}
-                    className="w-full bg-slate-900 py-3.5 rounded-xl items-center"
+                    className="w-full bg-slate-900 py-3.5 rounded-md items-center"
                 >
                     <Text className="text-white text-base font-bold">Save Profile</Text>
                 </TouchableOpacity>
@@ -119,7 +120,7 @@ export default function Settings({ onTerm }: { onTerm: () => void }) {
             <Text className="text-sm font-bold text-slate-400 uppercase tracking-wider ml-2 mb-2">
                 Preferences
             </Text>
-            <View className="bg-white rounded-3xl shadow-sm border border-slate-100 mb-6 overflow-hidden">
+            <View className="bg-white rounded-xl shadow-sm border border-slate-100 mb-6 overflow-hidden">
                 <SettingRow
                     icon={<Moon size={22} color="#64748b" />}
                     title="Wave Progress"
@@ -127,7 +128,9 @@ export default function Settings({ onTerm }: { onTerm: () => void }) {
                         <Switch
                             value={waveProgress}
                             onValueChange={toggleWaveProgress}
-                            trackColor={{ false: '#cbd5e1', true: '#0f172a' }}
+                            trackColor={{ false: '#e2e8f0', true: '#0f172a' }}
+                            thumbColor={waveProgress ? '#f8fafc' : '#64748b'}
+
                         />
                     }
                 />
@@ -138,10 +141,12 @@ export default function Settings({ onTerm }: { onTerm: () => void }) {
                 />
             </View>
 
+            <Matrics />
+
             <Text className="text-sm font-bold text-slate-400 uppercase tracking-wider ml-2 mb-2">
                 About & Data
             </Text>
-            <View className="bg-white rounded-3xl shadow-sm border border-slate-100 mb-6 overflow-hidden">
+            <View className="bg-white rounded-xl shadow-sm border border-slate-100 mb-6 overflow-hidden">
                 <SettingRow
                     icon={<Shield size={22} color="#64748b" />}
                     title="Privacy Policy"

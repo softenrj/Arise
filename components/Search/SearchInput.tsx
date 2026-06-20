@@ -48,7 +48,7 @@ export default function SearchInput({ _query, musicList }: { _query?: string, mu
         if (tracks.playlistName === query) {
             playAtIndex(indx);
         } else {
-            setupQueue({ tracks: getTrackFromMusic(musics), playlistName: query, sourceId: null, sourceType: 'search', startIndex: indx });
+            setupQueue({ tracks: getTrackFromMusic(musics), playlistName: query, sourceId: null, sourceType: 'search', startIndex: indx, queueHash: null });
         }
     }
 

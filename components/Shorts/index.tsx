@@ -9,8 +9,8 @@ import { useRefresh } from "@/hooks/useRefresh";
 import { useTrack } from "@/hooks/useTrack";
 import { getTrackFromMusic } from "@/service/TrackMaker";
 import { AriseTrack } from "@/types/database";
-import { FlashList } from '@shopify/flash-list';
-import { useFocusEffect } from "expo-router";
+import { FlashList, FlashListRef } from '@shopify/flash-list';
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from 'react';
 import { RefreshControl, View } from 'react-native';
@@ -26,9 +26,13 @@ export default function index() {
     const { refresh, onRefresh } = useRefresh();
     const { queue, sourceType } = useAppSelector(state => state.trackReducer);
     const { playAtIndex, onCycleLoopMode, setTrackVolume, setupQueue } = useTrack();
+    const params = useLocalSearchParams();
+    const flashListRef = React.useRef<FlashListRef<AriseTrack>>(null);
+    const isInitialPositionSet = React.useRef(false);
 
 
     const onViewableItemsChanged = React.useCallback(({ viewableItems }: any) => {
+        if (!isInitialPositionSet.current) return;
         if (viewableItems.length > 0) {
             playAtIndex(viewableItems[0].index);
             setActiveIndex(viewableItems[0].index);
@@ -66,6 +70,24 @@ export default function index() {
         }
     }, [queue])
 
+    React.useEffect(() => {
+        if (params?.activeIndex !== undefined && queue.length > 0) {
+            const targetIndex = Number(params.activeIndex);
+            setActiveIndex(targetIndex);
+
+            if (targetIndex > 0) {
+                flashListRef.current?.scrollToIndex({
+                    index: targetIndex,
+                    animated: false,
+                });
+            }
+
+            isInitialPositionSet.current = true;
+        } else if (queue.length > 0) {
+            isInitialPositionSet.current = true;
+        }
+    }, [params?.activeIndex, queue.length]);
+
     return (
         <View className="flex-1 bg-black">
             <StatusBar style="light" />
@@ -81,7 +103,7 @@ export default function index() {
                         {containerHeight > 0 && (
                             <FlashList
                                 data={queue}
-
+                                ref={flashListRef}
                                 showsVerticalScrollIndicator={false}
                                 pagingEnabled={true}
                                 snapToInterval={containerHeight}
@@ -92,7 +114,7 @@ export default function index() {
 
                                 onViewableItemsChanged={onViewableItemsChanged}
                                 viewabilityConfig={viewabilityConfig}
-
+                                initialScrollIndex={params?.activeIndex ? Number(params.activeIndex) : 0}
                                 renderItem={renderItem}
                             />
                         )}

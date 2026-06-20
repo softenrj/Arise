@@ -58,8 +58,10 @@ export default function index() {
     React.useEffect(() => {
         const initialize = async () => {
             try {
-                const user = await AsyncStorage.getItem("user");
-                const continue_ = await AsyncStorage.getItem("continue");
+                const [user, continue_] = await Promise.all([
+                    AsyncStorage.getItem("user"),
+                    AsyncStorage.getItem("continue")
+                ])
 
                 if (continue_ && JSON.parse(continue_)) {
                     if (user) {

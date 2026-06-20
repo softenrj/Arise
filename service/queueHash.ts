@@ -10,7 +10,10 @@ import * as Crypto from "expo-crypto";
  * @returns hash
  */
 
-export default async function createQueueHash(tracks: IMusicTrack[] | IPlayListMusicTrack[] | PlayListMusic[]) {
-    const trades = JSON.stringify(tracks);
+export default async function createQueueHash(tracks: IMusicTrack[] | IPlayListMusicTrack[] | PlayListMusic[], random: boolean = false) {
+    let trades = JSON.stringify(tracks);
+    if (random) {
+        trades += String(Math.random())
+    }
     return Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, trades);
 }
