@@ -3,10 +3,12 @@
 
 import { useMusic } from '@/hooks/useMusic';
 import { IMusicTrack, IPlayListMusicTrack, PlayList, PlayListMusic } from '@/types/database';
+import * as Crypto from "expo-crypto";
 import React, { createContext, useMemo, useState } from 'react';
 
 interface PlaylistContextType {
     playlist: PlayList | null;
+    playListHash: string;
     playlistMusics: IPlayListMusicTrack[];
     setPlayList: (playlist: PlayList) => void;
     setPlayListMusic: (musics: PlayListMusic[]) => void;
@@ -14,6 +16,7 @@ interface PlaylistContextType {
 
 export const PlaylistContext = createContext<PlaylistContextType>({
     playlist: null,
+    playListHash: 'default',
     playlistMusics: [],
     setPlayList: () => { },
     setPlayListMusic: () => { },
@@ -28,6 +31,7 @@ export default function PlayListProvider({
 
     const [playlist, setPlaylist] = useState<PlayList | null>(null);
     const [playlistEntries, setPlaylistEntries] = useState<PlayListMusic[]>([]);
+    const [playlistHash, setPlayListHash] = React.useState<string>('');
 
     const playlistMusics = useMemo<IPlayListMusicTrack[]>(() => {
         const musicMap = new Map<string, IMusicTrack>(
@@ -51,13 +55,20 @@ export default function PlayListProvider({
         );
     }, [playlistEntries, musics]);
 
+    const handleSetPlayList = React.useCallback((playlistMusics: PlayListMusic[]) => {
+        const hash = Crypto.randomUUID();
+        setPlaylistEntries(playlistMusics);
+        setPlayListHash(hash);
+    }, [])
+
     return (
         <PlaylistContext.Provider
             value={{
                 playlist,
                 playlistMusics,
+                playListHash: playlistHash,
                 setPlayList: setPlaylist,
-                setPlayListMusic: setPlaylistEntries,
+                setPlayListMusic: handleSetPlayList,
             }}
         >
             {children}

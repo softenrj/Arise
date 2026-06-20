@@ -5,7 +5,7 @@ import { AriseTrack, IMusicTrack } from "@/types/database";
 import { defaultMusicArtWork } from "@/utils/constants";
 
 export function getTrackFromMusic(musics: IMusicTrack[]): AriseTrack[] {
-    return musics.map((music: IMusicTrack, _) => ({
+    return musics?.map((music: IMusicTrack, _) => ({
         id: music.id.toString(),
         musicId: music.musicId,
         url: music.uri,

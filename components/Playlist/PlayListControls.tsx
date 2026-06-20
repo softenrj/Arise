@@ -15,7 +15,7 @@ import PlaylistMenu from './playlistMenu';
 
 
 export default function PlayListControls({ onMusicListOpen, onEditPlayList, onRemovePlaylist }: { onMusicListOpen: () => void, onEditPlayList: () => void, onRemovePlaylist: () => void }) {
-    const { playlistMusics, playlist } = usePlaylist();
+    const { playlistMusics, playlist, playListHash } = usePlaylist();
     const [duration, setDuration] = React.useState<string>('0 second');
     const track = useAppSelector(state => state.trackReducer);
     const { setupQueue } = useTrack();
@@ -23,7 +23,7 @@ export default function PlayListControls({ onMusicListOpen, onEditPlayList, onRe
 
     const streamPlayList = (play: boolean = true) => {
         if (playlistMusics.length === 0) return;
-        setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id!, play });
+        setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id!, play, queueHash: playListHash });
     }
 
     const handlePlayInShort = () => {

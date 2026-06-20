@@ -11,6 +11,6 @@ export default function Recommendations() {
 
     if (recommendedMusic.tracks.length === 0) return null;
     return (
-        <MusicLinearList title="Recommendations" subTitle={`Back to \nwhat sounds good.`} Icon={Sparkle} music={recommendedMusic.tracks} />
+        <MusicLinearList title="Recommendations" subTitle={`Back to \nwhat sounds good.`} Icon={Sparkle} musicPlayList={recommendedMusic} />
     )
 }

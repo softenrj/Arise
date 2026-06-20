@@ -14,6 +14,6 @@ export default function Recent() {
     }
 
     return (
-        <MusicLinearList title="Recent" subTitle={`Pick up where\nyou left off.`} Icon={Zap} music={recent.tracks} />
+        <MusicLinearList title="Recent" subTitle={`Pick up where\nyou left off.`} Icon={Zap} musicPlayList={recent} />
     )
 }

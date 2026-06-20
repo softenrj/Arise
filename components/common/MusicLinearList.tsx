@@ -4,21 +4,23 @@
 import { useAppSelector } from '@/hooks/useRedux';
 import { useTrack } from '@/hooks/useTrack';
 import { getTrackFromMusic } from '@/service/TrackMaker';
-import { IMusicTrack } from '@/types/database';
+import { HashedIMusicTrackList, IMusicTrack } from '@/types/database';
 import { defaultMusicArtWork } from '@/utils/constants';
 import { MoveRight, Zap } from 'lucide-react-native';
 import React from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 
-export default function MusicLinearList({ title, subTitle, Icon = Zap, music = [] }: { title: string, subTitle: string, Icon?: React.ElementType, music: IMusicTrack[] }) {
+export default function MusicLinearList({ title, subTitle, Icon = Zap, musicPlayList = { tracks: [], queueHash: 'default' } }: { title: string, subTitle: string, Icon?: React.ElementType, musicPlayList: HashedIMusicTrackList }) {
     const { setupQueue, playAtIndex } = useTrack();
     const tracks = useAppSelector(state => state.trackReducer);
     const handlePlay = (musicId: string) => {
-        const indx = music.findIndex(m => m.id === musicId);
-        if (tracks.playlistName === title) {
+        if (!musicPlayList?.tracks || !musicPlayList.queueHash) return;
+
+        const indx = musicPlayList.tracks.findIndex(m => m.id === musicId);
+        if (tracks.playlistName === title && tracks.queueHash === musicPlayList.queueHash) {
             playAtIndex(indx);
         } else {
-            setupQueue({ tracks: getTrackFromMusic(music), playlistName: title, sourceId: null, sourceType: 'default', startIndex: indx });
+            setupQueue({ tracks: getTrackFromMusic(musicPlayList.tracks), playlistName: title, sourceId: null, sourceType: 'default', startIndex: indx, queueHash: musicPlayList.queueHash });
         }
     }
     return (
@@ -36,7 +38,7 @@ export default function MusicLinearList({ title, subTitle, Icon = Zap, music = [
             </View>
 
             <ScrollView horizontal contentContainerStyle={{ gap: 6 }} className='my-2' showsHorizontalScrollIndicator={false}>
-                {music.map((item: IMusicTrack) => (
+                {musicPlayList?.tracks?.map((item: IMusicTrack) => (
                     <Pressable key={item.id} onPress={() => handlePlay(item.id)}>
                         <View className='w-36'>
 

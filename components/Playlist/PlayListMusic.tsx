@@ -17,7 +17,7 @@ import PlayListMusicMenu from './PlayListMusicMenu';
 export default function PlayListMusic({ header, reload }: { header: React.JSX.Element, reload: () => void }) {
     const db = useSQLiteContext();
     const { setupQueue, playAtIndex } = useTrack();
-    const { playlistMusics, setPlayListMusic, playlist } = usePlaylist();
+    const { playlistMusics, setPlayListMusic, playlist, playListHash } = usePlaylist();
     const track = useAppSelector(state => state.trackReducer);
 
     const handleReorder = async (data: any) => {
@@ -26,11 +26,12 @@ export default function PlayListMusic({ header, reload }: { header: React.JSX.El
     }
 
     const handlePlay = (musicId: string) => {
+        if (!playListHash || !playlistMusics) return;
         const musicIdx = playlistMusics.findIndex(item => item.id === musicId);
-        if (playlist?.title === track.playlistName) {
+        if (playlist?.title === track.playlistName && track.queueHash === playListHash) {
             playAtIndex(musicIdx);
         } else {
-            setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id!, startIndex: musicIdx });
+            setupQueue({ tracks: getTrackFromMusic(playlistMusics), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id!, startIndex: musicIdx, queueHash: playListHash });
         }
     }
 

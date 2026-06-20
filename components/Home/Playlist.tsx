@@ -50,7 +50,7 @@ export default function Playlist() {
     const handlePlay = async () => {
         if (tracks.sourceId !== playlist?.id) {
             const pm = await getPlaylistMusic();
-            setupQueue({ tracks: getTrackFromMusic(playlistMusics(pm)), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id! });
+            setupQueue({ tracks: getTrackFromMusic(playlistMusics(pm)), playlistName: playlist?.title || defaultPlayList, sourceType: 'playlist', sourceId: playlist?.id!, queueHash: null });
         }
     }
     if (!playlist) return null;

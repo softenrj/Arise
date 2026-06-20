@@ -72,11 +72,12 @@ export default function Musics({ scanState, onOpenAddToPlayList }: { scanState: 
 
 
     const handlePlay = (musicId: string) => {
+        if (!musics.tracks || !musics.queueHash) return;
         const indx = musics.tracks.findIndex(m => m.id === musicId);
-        if (tracks.playlistName === 'Media') {
+        if (tracks.playlistName === 'Media' && tracks.queueHash === musics.queueHash) {
             playAtIndex(indx);
         } else {
-            setupQueue({ tracks: getTrackFromMusic(musics), playlistName: 'Media', sourceId: null, sourceType: 'default', startIndex: indx });
+            setupQueue({ tracks: getTrackFromMusic(musics.tracks), playlistName: 'Media', sourceId: null, sourceType: 'default', startIndex: indx, queueHash: musics.queueHash });
         }
     }
 

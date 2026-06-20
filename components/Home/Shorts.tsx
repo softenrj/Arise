@@ -22,8 +22,8 @@ export default function Shorts() {
     const track = useAppSelector(state => state.trackReducer);
 
     const streamPlayList = (play: boolean = true) => {
-        if (shorts.tracks.length === 0) return;
-        setupQueue({ tracks: getTrackFromMusic(shorts), playlistName: 'Shorts', sourceType: 'short', sourceId: null, play });
+        if (!shorts.tracks || shorts.tracks.length === 0 || !shorts.queueHash) return;
+        setupQueue({ tracks: getTrackFromMusic(shorts.tracks), playlistName: 'Shorts', sourceType: 'short', sourceId: null, play, queueHash: shorts.queueHash });
     }
 
     const handlePlayInShort = () => {

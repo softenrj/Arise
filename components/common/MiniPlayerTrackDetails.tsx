@@ -41,7 +41,7 @@ export default function MiniPlayerTrackDetails() {
 
             opacity.value = 0;
 
-            translateX.value = withSpring(0, SPRING_CONFIG);
+            translateX.value = withTiming(0);
             opacity.value = withTiming(1, { duration: 180 });
 
             prevTrackId.current = track?.id;

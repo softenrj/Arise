@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for detail
 
+import { useMusic } from '@/hooks/useMusic';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
@@ -64,6 +65,8 @@ function GridCard({ item }: { item: Card }) {
 }
 
 export default function SuggestGrids({ onLiked, onRecent, onSuggested, onTopPick }: { onRecent: () => void, onLiked: () => void, onSuggested: () => void, onTopPick: () => void }) {
+    const { likedMusics } = useMusic();
+
     const cards: Card[] = [
         {
             label: 'Recent',
@@ -74,7 +77,7 @@ export default function SuggestGrids({ onLiked, onRecent, onSuggested, onTopPick
         },
         {
             label: 'Linked',
-            tag: '12 tracks',
+            tag: `${likedMusics?.tracks.length ?? 0} tracks`,
             color: ['#059669', '#0d9488'] as const,
             uri: 'https://res.cloudinary.com/dcyn3ewpv/image/upload/v1780851886/g-2_xlzk1i.png',
             callback: onLiked

@@ -60,8 +60,9 @@ export default function index() {
     );
 
     React.useEffect(() => {
+        if (!musics.tracks || !musics.queueHash) return;
         if (queue.length === 0 && sourceType === 'start') {
-            setupQueue({ tracks: getTrackFromMusic(musics), playlistName: 'default', sourceType: 'start', sourceId: null, play: true });
+            setupQueue({ tracks: getTrackFromMusic(musics.tracks), playlistName: 'default', sourceType: 'start', sourceId: null, play: true, queueHash: musics.queueHash });
         }
     }, [queue])
 
