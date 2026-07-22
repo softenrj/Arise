@@ -38,13 +38,13 @@ export default function Shorts() {
     return (
         <View>
             <View className='flex-col items-start'>
-                <View className='flex-row items-center gap-2 bg-sky-50 px-3 py-1 rounded-full self-start mb-2'>
+                <View className='flex-row items-center gap-2 bg-sky-50 dark:bg-[#181818] px-3 py-1 rounded-full self-start mb-2'>
                     <Image source={require("@/assets/arise/shorts.png")} className='w-3 h-3' />
-                    <Text className='text-sky-500 text-xs font-elms-med tracking-widest uppercase'>Shorts</Text>
+                    <Text className='text-sky-500 dark:text-sky-400 text-xs font-elms-med tracking-widest uppercase'>Shorts</Text>
                 </View>
-                <Text className='text-black text-4xl font-elms-med tracking-tighter leading-none'>Catch a new vibe.</Text>
+                <Text className='text-black dark:text-white text-4xl font-elms-med tracking-tighter leading-none'>Catch a new vibe.</Text>
                 <View className='flex-row items-center gap-1.5 mt-2'>
-                    <View className='w-4 h-px bg-gray-300' />
+                    <View className='w-4 h-px bg-gray-300 dark:bg-[#282828]' />
                     <MoveRight size={11} color='#d1d5db' />
                 </View>
             </View>
@@ -57,16 +57,15 @@ export default function Shorts() {
                 contentContainerStyle={{ gap: 15 }}
                 className='mx-2 my-2'
                 renderItem={({ item }: { item: IMusicTrack }) => (
-                    <View style={{
-                        flex: 1,
-                        borderRadius: 14,
-                        shadowColor: '#000',
-                        shadowOpacity: 0.12,
-                        shadowRadius: 16,
-                        shadowOffset: { width: 0, height: 8 },
-                        elevation: 6,
-                        backgroundColor: '#fff',
-                    }}>
+                    <View
+                        className='flex-1 bg-white dark:bg-[#181818] rounded-[14px]'
+                        style={{
+                            shadowColor: '#000',
+                            shadowOpacity: 0.12,
+                            shadowRadius: 16,
+                            shadowOffset: { width: 0, height: 8 },
+                            elevation: 6,
+                        }}>
                         <Pressable onPress={() => handlePlayInShort(item.id)} style={{ borderRadius: 14, overflow: 'hidden' }}>
                             <ImageBackground
                                 source={{ uri: item?.customCoverUri || defaultMusicArtWork }}

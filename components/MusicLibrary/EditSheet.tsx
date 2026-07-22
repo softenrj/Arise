@@ -182,18 +182,18 @@ export default function EditSheet() {
         <SheetProvider open={editSheet} onClose={closeSheet}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                className='px-5 pt-4 pb-12'
+                className='px-5 pt-4 pb-12 bg-white dark:bg-[#121212]'
                 contentContainerStyle={{ paddingBottom: 48 }}
             >
 
                 <View className='mb-6 flex-row items-center justify-between'>
-                    <Text className='text-2xl font-elms-bold text-slate-900'>Edit Track</Text>
+                    <Text className='text-2xl font-elms-bold text-slate-900 dark:text-white'>Edit Track</Text>
                 </View>
 
                 <View className='items-center mb-8'>
                     <TouchableOpacity
                         activeOpacity={0.8}
-                        className='relative rounded-2xl shadow-sm overflow-hidden bg-slate-100'
+                        className='relative rounded-2xl shadow-sm dark:shadow-none overflow-hidden bg-slate-100 dark:bg-[#242424]'
                         onPress={handleImagePicker}
                     >
                         <Image
@@ -210,7 +210,7 @@ export default function EditSheet() {
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
 
                         <View>
-                            <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
+                            <Text className='text-xs font-elms text-slate-500 dark:text-[#B3B3B3] uppercase mb-1 ml-1 tracking-wider'>
                                 Title
                             </Text>
                             <TextInput
@@ -218,7 +218,7 @@ export default function EditSheet() {
                                 onChangeText={setTitle}
                                 placeholder="Enter song title"
                                 placeholderTextColor="#94a3b8"
-                                className='bg-slate-100 px-4 py-3 rounded-xl text-base font-elms text-slate-900'
+                                className='bg-slate-100 dark:bg-[#242424] px-4 py-3 rounded-xl text-base font-elms text-slate-900 dark:text-white'
                             />
                         </View>
                     </KeyboardAvoidingView>
@@ -226,7 +226,7 @@ export default function EditSheet() {
                     <KeyboardAvoidingView
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                         <View>
-                            <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
+                            <Text className='text-xs font-elms text-slate-500 dark:text-[#B3B3B3] uppercase mb-1 ml-1 tracking-wider'>
                                 Artist
                             </Text>
                             <TextInput
@@ -234,13 +234,13 @@ export default function EditSheet() {
                                 onChangeText={setArtist}
                                 placeholder="Enter artist name"
                                 placeholderTextColor="#94a3b8"
-                                className='bg-slate-100 px-4 py-3 rounded-xl text-base font-elms text-slate-900'
+                                className='bg-slate-100 dark:bg-[#242424] px-4 py-3 rounded-xl text-base font-elms text-slate-900 dark:text-white'
                             />
                         </View>
                     </KeyboardAvoidingView>
 
                     <View>
-                        <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
+                        <Text className='text-xs font-elms text-slate-500 dark:text-[#B3B3B3] uppercase mb-1 ml-1 tracking-wider'>
                             Youtube Video
                         </Text>
                         <TextInput
@@ -248,21 +248,21 @@ export default function EditSheet() {
                             onChangeText={setYoutubeUrl}
                             placeholder="Enter youtube url"
                             placeholderTextColor="#94a3b8"
-                            className='bg-slate-100 px-4 py-3 rounded-xl text-base font-elms text-slate-900'
+                            className='bg-slate-100 dark:bg-[#242424] px-4 py-3 rounded-xl text-base font-elms text-slate-900 dark:text-white'
                         />
                         {youtubeUrl ? <YouTubeEmbed id={extractVideoId(youtubeUrl) ?? ''} /> : null}
                     </View>
 
                     <View>
-                        <Text className='text-xs font-elms text-slate-500 uppercase mb-1 ml-1 tracking-wider'>
+                        <Text className='text-xs font-elms text-slate-500 dark:text-[#B3B3B3] uppercase mb-1 ml-1 tracking-wider'>
                             Lyrics
                         </Text>
                         <TouchableOpacity
                             activeOpacity={0.7}
-                            className='bg-slate-100 px-4 py-4 rounded-xl flex-row justify-between items-center'
+                            className='bg-slate-100 dark:bg-[#242424] px-4 py-4 rounded-xl flex-row justify-between items-center'
                             onPress={handlePickLytics}
                         >
-                            <Text className='text-sm font-elms text-slate-500 break-words max-w-[90%]'>
+                            <Text className='text-sm font-elms text-slate-500 dark:text-[#B3B3B3] break-words max-w-[90%]'>
                                 {lyrics?.name ? lyrics.name : 'Select .lrc file...'}
                             </Text>
                             <FileArchive size={20} color="#94a3b8" />
@@ -270,11 +270,11 @@ export default function EditSheet() {
                     </View>
 
                     <View className='gap-5'>
-                        <Text className='text-xs font-elms text-black uppercase tracking-wider'>
+                        <Text className='text-xs font-elms text-black dark:text-[#B3B3B3] uppercase tracking-wider'>
                             Short Clip
                         </Text>
                         {(music?.customVideoUri || customeVideo) ? (
-                            <View className='w-full h-48 rounded-xl overflow-hidden bg-slate-200'>
+                            <View className='w-full h-48 rounded-xl overflow-hidden bg-slate-200 dark:bg-[#282828]'>
                                 <VideoView
                                     style={{ width: '100%', height: '100%' }}
                                     player={player}
@@ -286,10 +286,10 @@ export default function EditSheet() {
 
                         <TouchableOpacity
                             activeOpacity={0.7}
-                            className='bg-slate-100 px-4 py-4 rounded-xl flex-row justify-between items-center'
+                            className='bg-slate-100 dark:bg-[#242424] px-4 py-4 rounded-xl flex-row justify-between items-center'
                             onPress={handleVideoPicker}
                         >
-                            <Text className='text-base font-elms text-slate-500'>
+                            <Text className='text-base font-elms text-slate-500 dark:text-[#B3B3B3]'>
                                 {customVideoFileName ? customVideoFileName : 'Select Clip yet...'}
                             </Text>
                             <FileArchive size={20} color="#94a3b8" />
@@ -302,10 +302,10 @@ export default function EditSheet() {
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={handleSave}
-                    className='mt-8 bg-slate-900 py-4 rounded-xl items-center shadow-sm'
+                    className='mt-8 bg-slate-900 dark:bg-white py-4 rounded-xl items-center shadow-sm dark:shadow-none'
                     disabled={loading}
                 >
-                    <Text className='text-white text-lg font-elms-bold'>Save Changes</Text>
+                    <Text className='text-white dark:text-[#121212] text-lg font-elms-bold'>Save Changes</Text>
                 </TouchableOpacity>
 
             </ScrollView>

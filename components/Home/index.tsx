@@ -1,6 +1,5 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
-
 import { NavBar } from '@/config/viewRegistry/navbar';
 import { useAppDrawer } from '@/hooks/useAppDrawer';
 import { useMusic } from '@/hooks/useMusic';
@@ -98,15 +97,15 @@ export default function index({ children }: { children: React.ReactNode }) {
 
     return (
         <>
-            <View className='bg-white flex-1'>
+            <View className='bg-white dark:bg-[#121212] flex-1'>
                 <Renderer scene={navSeen} />
-                <FocusAwareStatusBar style='dark' />
+                <FocusAwareStatusBar style='auto' />
 
                 <ScrollView
                     contentContainerStyle={{ gap: 20, paddingBottom: 60, flexGrow: 1 }}
                     className='flex-1 px-4 py-2'
                     showsVerticalScrollIndicator={false}
-                    refreshControl={<RefreshControl refreshing={refresh} onRefresh={handleRefresh} />}
+                    refreshControl={<RefreshControl refreshing={refresh} onRefresh={handleRefresh} tintColor="#B3B3B3" />}
                 >
                     {categories.length >= 2 && <View>
                         <ScrollView
@@ -123,11 +122,11 @@ export default function index({ children }: { children: React.ReactNode }) {
                                         onPress={() => setActiveTab(tab)}
                                         activeOpacity={0.7}
                                         className={`px-3 py-1.5 rounded-full border ${isActive
-                                            ? 'bg-white border-gray-300'
-                                            : 'bg-[#27272A] border-transparent'
+                                            ? 'bg-white border-gray-300 dark:bg-[#282828] dark:border-[#282828]'
+                                            : 'bg-[#27272A] border-transparent dark:bg-[#121212] dark:border-[#282828]'
                                             }`}
                                     >
-                                        <Text className={`text-sm font-elms-med ${isActive ? 'text-black' : 'text-[#A1A1AA]'}`}>
+                                        <Text className={`text-sm font-elms-med ${isActive ? 'text-black dark:text-white' : 'text-[#A1A1AA] dark:text-[#B3B3B3]'}`}>
                                             {tab}
                                         </Text>
                                     </TouchableOpacity>
@@ -138,7 +137,7 @@ export default function index({ children }: { children: React.ReactNode }) {
 
                     {noMusic && (
                         <View className='flex-1 justify-center items-center py-20 px-6'>
-                            <View className='mb-8 rounded-[32px] bg-gray-50 p-2 border border-gray-100'>
+                            <View className='mb-8 rounded-[32px] bg-gray-50 dark:bg-[#181818] p-2 border border-gray-100 dark:border-[#282828]'>
                                 <Image
                                     source={{ uri: defaultMusicArtWork }}
                                     className='w-32 h-32 rounded-2xl opacity-90'
@@ -146,25 +145,25 @@ export default function index({ children }: { children: React.ReactNode }) {
                                 />
                             </View>
 
-                            <Text className='text-2xl font-extrabold text-gray-800 mb-2 text-center tracking-tight'>
+                            <Text className='text-2xl font-extrabold text-gray-800 dark:text-white mb-2 text-center tracking-tight'>
                                 It's quiet in here
                             </Text>
 
-                            <Text className='text-base text-gray-500 text-center leading-6 mb-8 px-2'>
+                            <Text className='text-base text-gray-500 dark:text-[#B3B3B3] text-center leading-6 mb-8 px-2'>
                                 Your library is empty. Let's find your local tracks to get the party started.
                             </Text>
 
                             <TouchableOpacity
                                 activeOpacity={0.8}
-                                className='bg-[#27272A] px-8 py-4 rounded-full flex-row items-center shadow-sm'
+                                className='bg-[#27272A] dark:bg-white px-8 py-4 rounded-full flex-row items-center shadow-sm'
                                 onPress={onOpen}
                             >
-                                <Text className='text-white font-semibold text-base'>
+                                <Text className='text-white dark:text-[#121212] font-semibold text-base'>
                                     Open Menu
                                 </Text>
                             </TouchableOpacity>
 
-                            <Text className='text-xs text-gray-400 mt-6 text-center'>
+                            <Text className='text-xs text-gray-400 dark:text-[#B3B3B3] mt-6 text-center'>
                                 (You can also open the menu by tapping your avatar)
                             </Text>
                         </View>

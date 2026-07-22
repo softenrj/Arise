@@ -25,7 +25,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
   onClose,
   position = "middle",
   children,
-  className
+  className = ""
 }) => {
   const progress = useSharedValue<number>(0);
   const keyboard = useAnimatedKeyboard();
@@ -81,7 +81,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
         pointerEvents="box-none"
       >
         <Animated.View
-          className={`bg-white rounded-3xl p-6 shadow-2xl w-full ${className}`}
+          className={`bg-white dark:bg-[#181818] rounded-3xl p-6 shadow-2xl dark:shadow-none w-full ${className}`}
           style={modalStyle}
         >
           {children}

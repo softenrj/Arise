@@ -20,9 +20,9 @@ export default function NavBar({ children, portal = null }: { children: React.Re
     const { avatar, name } = useAppSelector(state => state.userReducer);
 
     return (
-        <SafeAreaView className="bg-white mt-2 z-10" edges={['top']}>
-            <View className="flex px-6 pb-3 bg-white shadow-sm">
-                <View className="flex-row  gap-3 items-center relative">
+        <SafeAreaView className="bg-white dark:bg-[#121212] mt-2 z-10" edges={['top']}>
+            <View className="flex px-6 pb-3 bg-white dark:bg-[#121212] shadow-sm">
+                <View className="flex-row gap-3 items-center relative">
                     <TouchableOpacity onPress={(onOpen)}>
                         <Avatar size="md">
                             <AvatarFallbackText>{name}</AvatarFallbackText>
@@ -33,8 +33,6 @@ export default function NavBar({ children, portal = null }: { children: React.Re
                             />
                         </Avatar>
                     </TouchableOpacity>
-
-
 
                     {children}
 
@@ -53,11 +51,11 @@ export function GreetSnippts() {
 
     return (
         <View className="flex flex-col justify-center">
-            <Text className="text-xs font-elms text-gray-400 mb-0.5">
+            <Text className="text-xs font-elms text-gray-400 dark:text-[#B3B3B3] mb-0.5">
                 {greeting},
             </Text>
 
-            <Text className="text-lg font-elms-med text-gray-900 leading-none tracking-tight">
+            <Text className="text-lg font-elms-med text-gray-900 dark:text-white leading-none tracking-tight">
                 {name}
             </Text>
         </View>
@@ -68,16 +66,16 @@ export function TimeSnippts() {
         month: 'short',
         day: 'numeric'
     });
-    return <View className="bg-slate-50 px-3 py-1.5 absolute right-0 rounded-full border border-slate-100">
-        <Text className="text-xs font-elms-med text-slate-500 tracking-wide">
+    return <View className="bg-slate-50 dark:bg-[#181818] px-3 py-1.5 absolute right-0 rounded-full border border-slate-100 dark:border-[#282828]">
+        <Text className="text-xs font-elms-med text-slate-500 dark:text-[#B3B3B3] tracking-wide">
             {today}
         </Text>
     </View>
 }
 
 export function ChipSnippts({ text }: { text: string }) {
-    return <View className="bg-slate-50 px-3 py-1.5 absolute right-0 rounded-full border border-slate-100">
-        <Text className="text-xs font-elms-med text-slate-500 tracking-wide">
+    return <View className="bg-slate-50 dark:bg-[#181818] px-3 py-1.5 absolute right-0 rounded-full border border-slate-100 dark:border-[#282828]">
+        <Text className="text-xs font-elms-med text-slate-500 dark:text-[#B3B3B3] tracking-wide">
             {text}
         </Text>
     </View>

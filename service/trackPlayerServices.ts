@@ -6,9 +6,9 @@ import { finalizeCurrentTrack, initializeCurrentSession } from './musicAnalytics
 
 export async function PlaybackService() {
 
-    TrackPlayer.addEventListener(Event.RemotePlay, () => {
-        TrackPlayer.play();
-        initializeCurrentSession();
+    TrackPlayer.addEventListener(Event.RemotePlay, async () => {
+        await TrackPlayer.play();
+        await initializeCurrentSession();
     });
     TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
     TrackPlayer.addEventListener(Event.RemoteStop, () => TrackPlayer.stop());
@@ -20,7 +20,7 @@ export async function PlaybackService() {
 
         const duration = event.lastTrack.duration ?? 0;
         const position = event.lastPosition ?? 0;
-        finalizeCurrentTrack(position, duration);
+        await finalizeCurrentTrack(position, duration);
     });
 
     // Fired when seeking via notification scrubber

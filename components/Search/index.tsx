@@ -54,11 +54,11 @@ export default function index({ children }: { children: React.ReactNode }) {
         onRefresh();
     }
     return (
-        <View className='flex-1 bg-white'>
-            <FocusAwareStatusBar style='dark' />
+        <View className='flex-1 bg-white dark:bg-[#121212]'>
+            <FocusAwareStatusBar style='auto' />
             <Renderer scene={navSeen} />
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-4 py-2 '
-                refreshControl={<RefreshControl refreshing={refresh} onRefresh={handleRefresh} />}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 20, paddingBottom: 10 }} className='flex-1 px-4 py-2'
+                refreshControl={<RefreshControl refreshing={refresh} onRefresh={handleRefresh} tintColor="#B3B3B3" />}>
                 <SearchInput _query={query} musicList={musics} />
                 <SuggestGrids onRecent={handleRecentMusic} onLiked={handleLikedMusic} onSuggested={handleSuggested} onTopPick={handleTopPick} />
                 <Shorts />

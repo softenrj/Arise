@@ -17,9 +17,9 @@ export function ProgressBar({ progress }: { progress: number }) {
     }, [progress]);
 
     return (
-        <View className="h-[3px] bg-slate-100 rounded-sm overflow-hidden w-full">
+        <View className="h-[3px] bg-slate-100 dark:bg-[#282828] rounded-sm overflow-hidden w-full">
             <Animated.View
-                className="h-full rounded-sm bg-[#4F8EF7]"
+                className="h-full rounded-sm bg-[#4F8EF7] dark:bg-white"
                 style={{
                     width: widthPct.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
                 }}
@@ -30,9 +30,9 @@ export function ProgressBar({ progress }: { progress: number }) {
 
 export function StatCard({ label, value, colorClass }: { label: string; value: string; colorClass: string }) {
     return (
-        <View className="flex-1 bg-slate-50 rounded-[14px] py-4 items-center border-[0.5px] border-slate-200">
+        <View className="flex-1 bg-slate-50 dark:bg-[#181818] rounded-[14px] py-4 items-center border-[0.5px] border-slate-200 dark:border-[#282828]">
             <Text className={`text-2xl font-[elms-bold] mb-1 ${colorClass}`}>{value}</Text>
-            <Text className="text-slate-500 text-[11px] font-[elms] tracking-[0.5px]">{label}</Text>
+            <Text className="text-slate-500 dark:text-[#B3B3B3] text-[11px] font-[elms] tracking-[0.5px]">{label}</Text>
         </View>
     );
 }

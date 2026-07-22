@@ -19,7 +19,7 @@ export default function index() {
     const [refresh, setRefresh] = React.useState<boolean>(false);
     const [open, setOpen] = React.useState<boolean>(false);
     const [playList, setPlayList] = React.useState<PlayList[]>([]);
-    const [sort, setSort] = React.useState<0 | 1>(0); //? 0 - DESEC 1 - ASC
+    const [sort, setSort] = React.useState<0 | 1>(0);
 
     const loadPlayList = async () => {
         const result = await getPlayList(db, sort);
@@ -60,15 +60,15 @@ export default function index() {
     const handleOpen = React.useCallback(() => setOpen((prev) => !prev), []);
     return (
         <>
-            <View className="flex-1 bg-white">
-                <FocusAwareStatusBar style="dark" />
+            <View className="flex-1 bg-white dark:bg-[#121212]">
+                <FocusAwareStatusBar style="auto" />
                 <Renderer scene={navSeen} />
                 <ScrollView
                     contentContainerStyle={{ gap: 20, paddingBottom: 10 }}
                     className="flex-1 px-6 py-2"
                     showsVerticalScrollIndicator={false}
                     refreshControl={
-                        <RefreshControl refreshing={refresh} onRefresh={handleRefresh} />
+                        <RefreshControl refreshing={refresh} onRefresh={handleRefresh} tintColor="#B3B3B3" />
                     }
                 >
                     <Library onCreateNew={handleOpen} playList={playList} onSort={handleSort} sort={sort} />

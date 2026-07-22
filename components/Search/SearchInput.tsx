@@ -9,7 +9,7 @@ import { IMusicTrack } from '@/types/database';
 import { defaultMusicArtWork } from '@/utils/constants';
 import { Search, X } from 'lucide-react-native';
 import React from 'react';
-import { FlatList, Image, Keyboard, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, Keyboard, Pressable, Text, TextInput, TouchableOpacity, View, useColorScheme } from 'react-native';
 
 export default function SearchInput({ _query, musicList }: { _query?: string, musicList?: IMusicTrack[] }) {
     const { filteredMusic } = useMusic();
@@ -18,6 +18,8 @@ export default function SearchInput({ _query, musicList }: { _query?: string, mu
     const [musics, setMusics] = React.useState<IMusicTrack[]>([]);
     const { setupQueue, playAtIndex } = useTrack();
     const tracks = useAppSelector(state => state.trackReducer);
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
 
     React.useEffect(() => {
         if (musicList && musicList.length > 0) setMusics(musicList);
@@ -58,12 +60,12 @@ export default function SearchInput({ _query, musicList }: { _query?: string, mu
 
     return (
         <View className="w-full relative z-50">
-            <View className={`flex-row items-center rounded-full px-3 py-2 gap-3 bg-zinc-100 border transition-all ${focused ? 'border-zinc-300' : 'border-transparent'}`}>
-                <Search size={17} color={focused ? '#3f3f46' : '#a1a1aa'} />
+            <View className={`flex-row items-center rounded-full px-3 py-2 gap-3 bg-zinc-100 dark:bg-[#242424] border transition-all ${focused ? 'border-zinc-300 dark:border-white' : 'border-transparent dark:border-transparent'}`}>
+                <Search size={17} color={focused ? (isDark ? '#FFFFFF' : '#3f3f46') : (isDark ? '#B3B3B3' : '#a1a1aa')} />
                 <TextInput
-                    className="flex-1 text-zinc-800 text-sm h-6 p-0"
+                    className="flex-1 text-zinc-800 dark:text-white text-sm h-6 p-0"
                     placeholder="What do you want to listen to?"
-                    placeholderTextColor="#a1a1aa"
+                    placeholderTextColor={isDark ? "#B3B3B3" : "#a1a1aa"}
                     value={query}
                     onChangeText={setQuery}
                     onFocus={() => setFocused(true)}
@@ -74,26 +76,26 @@ export default function SearchInput({ _query, musicList }: { _query?: string, mu
                 />
                 {query.length > 0 && (
                     <TouchableOpacity onPress={handleClear} activeOpacity={0.6} className="p-1 -m-1">
-                        <View className="bg-zinc-300 rounded-full p-0.5">
-                            <X size={12} color="#52525b" strokeWidth={2.5} />
+                        <View className="bg-zinc-300 dark:bg-[#3E3E3E] rounded-full p-0.5">
+                            <X size={12} color={isDark ? "#FFFFFF" : "#52525b"} strokeWidth={2.5} />
                         </View>
                     </TouchableOpacity>
                 )}
             </View>
 
             {focused && query.length > 0 && (
-                <View className="mt-4 bg-white rounded-2xl shadow-sm border border-zinc-100 ">
-                    <View className="flex-row items-center gap-3 px-4 py-2 bg-white">
-                        <Text className="text-[10px] font-bold tracking-widest uppercase text-zinc-400">
+                <View className="mt-4 bg-white dark:bg-[#121212] rounded-2xl shadow-sm border border-zinc-100 dark:border-[#282828]">
+                    <View className="flex-row items-center gap-3 px-4 py-2 bg-white dark:bg-[#121212] rounded-t-2xl">
+                        <Text className="text-[10px] font-bold tracking-widest uppercase text-zinc-400 dark:text-[#B3B3B3]">
                             Results
                         </Text>
-                        <View className="flex-1 h-px bg-zinc-100" />
+                        <View className="flex-1 h-px bg-zinc-100 dark:bg-[#282828]" />
                     </View>
 
                     {searchResults.length === 0 ? (
                         <View className="py-8 items-center justify-center">
-                            <Text className="text-zinc-800 font-medium text-sm mb-1">No songs found</Text>
-                            <Text className="text-zinc-400 text-xs">Try searching for a different artist or title</Text>
+                            <Text className="text-zinc-800 dark:text-white font-medium text-sm mb-1">No songs found</Text>
+                            <Text className="text-zinc-400 dark:text-[#B3B3B3] text-xs">Try searching for a different artist or title</Text>
                         </View>
                     ) : (
                         <FlatList
@@ -106,7 +108,7 @@ export default function SearchInput({ _query, musicList }: { _query?: string, mu
                             renderItem={({ item }) => (
                                 <Pressable
                                     key={item.id}
-                                    className='flex-row items-center w-full gap-3 px-4 py-2 active:bg-zinc-50'
+                                    className='flex-row items-center w-full gap-3 px-4 py-2 active:bg-zinc-50 dark:active:bg-[#1A1A1A]'
                                     onPress={() => {
                                         Keyboard.dismiss();
                                         setFocused(false);
@@ -118,10 +120,10 @@ export default function SearchInput({ _query, musicList }: { _query?: string, mu
                                         className='w-16 h-16 rounded-sm'
                                     />
                                     <View className='flex-1 flex-col justify-center pr-2'>
-                                        <Text numberOfLines={1} className='text-black text-sm font-medium tracking-tight'>
+                                        <Text numberOfLines={1} className='text-black dark:text-white text-sm font-medium tracking-tight'>
                                             {item.title}
                                         </Text>
-                                        <Text numberOfLines={1} className='text-zinc-500 text-xs mt-0.5'>
+                                        <Text numberOfLines={1} className='text-zinc-500 dark:text-[#B3B3B3] text-xs mt-0.5'>
                                             {item.artist}
                                         </Text>
                                     </View>

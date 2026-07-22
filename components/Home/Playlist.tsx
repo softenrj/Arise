@@ -58,7 +58,7 @@ export default function Playlist() {
         <Pressable className='w-full' onPress={handlePlay}>
 
             <View
-                className='overflow-hidden'
+                className='overflow-hidden bg-white dark:bg-[#181818]'
                 style={{
                     flex: 1,
                     borderRadius: 14,
@@ -66,7 +66,6 @@ export default function Playlist() {
                     shadowOpacity: 0.02,
                     shadowRadius: 4,
                     elevation: 6,
-                    backgroundColor: '#fff',
                 }}>
                 <Image
                     source={{ uri: playlist?.cover || defaultPlayListCover }}
@@ -76,10 +75,10 @@ export default function Playlist() {
             </View>
 
             <View className='px-1 mt-2'>
-                <Text className='text-black text-2xl font-elms-med tracking-tighter'>
+                <Text className='text-black dark:text-white text-2xl font-elms-med tracking-tighter'>
                     {playlist?.title}
                 </Text>
-                <Text className='text-zinc-400 text-sm font-elms mt-0.5'>
+                <Text className='text-zinc-400 dark:text-[#B3B3B3] text-sm font-elms mt-0.5'>
                     {playlist?.numberOfMusic} songs • {formatDurationLocalString(playlist?.totalSeconds || 0)}
                 </Text>
             </View>

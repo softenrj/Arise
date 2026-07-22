@@ -6,7 +6,7 @@ import { defaultAvtar } from '@/utils/constants';
 import { Link } from 'expo-router';
 import { Home, Library, Music, Music2, Search, Settings } from 'lucide-react-native';
 import React, { useEffect } from 'react';
-import { Dimensions, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Pressable, ScrollView, Text, TouchableOpacity, View, useColorScheme } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
     Easing, useAnimatedStyle, useSharedValue, withTiming,
@@ -24,6 +24,8 @@ export default function AppDrawer({ open, onClose }: { open: boolean; onClose: (
     const translateX = useSharedValue(-DRAWER_WIDTH);
     const opacity = useSharedValue(0);
     const context = useSharedValue(0);
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
 
     const { avatar, name } = useAppSelector(state => state.userReducer);
 
@@ -80,10 +82,10 @@ export default function AppDrawer({ open, onClose }: { open: boolean; onClose: (
                     position: 'absolute',
                     top: 0, left: 0, bottom: 0,
                     width: DRAWER_WIDTH,
-                    backgroundColor: '#fff',
+                    backgroundColor: isDark ? '#121212' : '#fff',
                 }, drawerStyle]}>
 
-                    <View className='flex-row items-center justify-between px-5 pt-14 pb-5 border-b border-zinc-100'>
+                    <View className='flex-row items-center justify-between px-5 pt-14 pb-5 border-b border-zinc-100 dark:border-[#282828]'>
                         <View className='flex-row gap-3 items-center'>
                             <Avatar size="md">
                                 <AvatarFallbackText>{name}</AvatarFallbackText>
@@ -95,10 +97,10 @@ export default function AppDrawer({ open, onClose }: { open: boolean; onClose: (
                             </Avatar>
 
                             <View className="flex flex-col justify-center">
-                                <Text className="text-lg font-elms-med text-black mb-0.5">
+                                <Text className="text-lg font-elms-med text-black dark:text-white mb-0.5">
                                     {name}
                                 </Text>
-                                <Text className="text-sm font-elms text-gray-500 leading-none tracking-tight">
+                                <Text className="text-sm font-elms text-gray-500 dark:text-[#B3B3B3] leading-none tracking-tight">
                                     Arise
                                 </Text>
                             </View>
@@ -110,49 +112,49 @@ export default function AppDrawer({ open, onClose }: { open: boolean; onClose: (
                         <View className='px-3 pt-2 gap-1'>
 
                             <Link href={'/(tabs)/home'} onPress={onClose} asChild>
-                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
-                                    <Home size={20} color='#000' strokeWidth={1.8} />
-                                    <Text className='text-black font-elms-med text-sm'>Home</Text>
+                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100 dark:active:bg-[#282828]'>
+                                    <Home size={20} color={isDark ? '#FFFFFF' : '#000'} strokeWidth={1.8} />
+                                    <Text className='text-black dark:text-white font-elms-med text-sm'>Home</Text>
                                 </TouchableOpacity>
                             </Link>
 
                             <Link href={'/(tabs)/search'} onPress={onClose} asChild>
-                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
-                                    <Search size={20} color='#000' strokeWidth={1.8} />
-                                    <Text className='text-black font-elms-med text-sm'>Search</Text>
+                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100 dark:active:bg-[#282828]'>
+                                    <Search size={20} color={isDark ? '#FFFFFF' : '#000'} strokeWidth={1.8} />
+                                    <Text className='text-black dark:text-white font-elms-med text-sm'>Search</Text>
                                 </TouchableOpacity>
                             </Link>
 
                             <Link href={'/(tabs)/shorts'} onPress={onClose} asChild>
-                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
-                                    <Music2 size={20} color='#000' strokeWidth={1.8} />
-                                    <Text className='text-black font-elms-med text-sm'>Vibes</Text>
+                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100 dark:active:bg-[#282828]'>
+                                    <Music2 size={20} color={isDark ? '#FFFFFF' : '#000'} strokeWidth={1.8} />
+                                    <Text className='text-black dark:text-white font-elms-med text-sm'>Vibes</Text>
                                 </TouchableOpacity>
                             </Link>
 
                             <Link href={'/(tabs)/library'} onPress={onClose} asChild>
-                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
-                                    <Library size={20} color='#000' strokeWidth={1.8} />
-                                    <Text className='text-black font-elms-med text-sm'>Library</Text>
+                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100 dark:active:bg-[#282828]'>
+                                    <Library size={20} color={isDark ? '#FFFFFF' : '#000'} strokeWidth={1.8} />
+                                    <Text className='text-black dark:text-white font-elms-med text-sm'>Library</Text>
                                 </TouchableOpacity>
                             </Link>
 
                             <Link href={'/(tabs)/music_library'} onPress={onClose} asChild>
-                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
-                                    <Music size={20} color='#000' strokeWidth={1.8} />
-                                    <Text className='text-black font-elms-med text-sm'>Music Library</Text>
+                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100 dark:active:bg-[#282828]'>
+                                    <Music size={20} color={isDark ? '#FFFFFF' : '#000'} strokeWidth={1.8} />
+                                    <Text className='text-black dark:text-white font-elms-med text-sm'>Music Library</Text>
                                 </TouchableOpacity>
                             </Link>
 
                         </View>
 
-                        <View className='mx-4 my-3 h-px bg-zinc-100' />
+                        <View className='mx-4 my-3 h-px bg-zinc-100 dark:bg-[#282828]' />
 
                         <View className='px-3 gap-1'>
                             <Link href={'/setting'} onPress={onClose} asChild>
-                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100'>
-                                    <Settings size={20} color='#71717a' strokeWidth={1.8} />
-                                    <Text className='text-zinc-500 font-elms-med text-sm'>Account & Settings</Text>
+                                <TouchableOpacity className='flex-row items-center gap-3 px-3 py-3 rounded-xl active:bg-zinc-100 dark:active:bg-[#282828]'>
+                                    <Settings size={20} color={isDark ? '#B3B3B3' : '#71717a'} strokeWidth={1.8} />
+                                    <Text className='text-zinc-500 dark:text-[#B3B3B3] font-elms-med text-sm'>Account & Settings</Text>
                                 </TouchableOpacity>
                             </Link>
                         </View>

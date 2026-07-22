@@ -3,7 +3,7 @@
 
 import { Check, Database, Equal, Heart, Lock, Notebook, Sparkle } from "lucide-react-native";
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View, useColorScheme } from 'react-native';
 import SheetProvider from '../ui/Sheet';
 
 
@@ -18,62 +18,65 @@ const TermAndCondition: { title: string, content: string, icon: React.ElementTyp
 ];
 
 export default function TermAndConditionSheet({ open, onClose }: { open: boolean, onClose: () => void }) {
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
+
     return (
         <SheetProvider open={open} onClose={onClose}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                className='px-5 pt-2 pb-12'
+                className='px-5 pt-2 pb-12 bg-white dark:bg-[#121212]'
                 contentContainerStyle={{ paddingBottom: 48 }}
             >
 
                 <View className='items-center mb-4 pt-2'>
-                    <View className='bg-zinc-100 rounded-2xl px-4 py-1.5 mb-4'>
-                        <Text className='text-xs font-elms text-zinc-500 uppercase tracking-widest'>
+                    <View className='bg-zinc-100 dark:bg-[#282828] rounded-2xl px-4 py-1.5 mb-4'>
+                        <Text className='text-xs font-elms text-zinc-500 dark:text-[#B3B3B3] uppercase tracking-widest'>
                             Legal
                         </Text>
                     </View>
 
-                    <Text className='text-4xl font-elms-bold text-zinc-900 tracking-tight text-center leading-tight'>
+                    <Text className='text-4xl font-elms-bold text-zinc-900 dark:text-white tracking-tight text-center leading-tight'>
                         Terms &{'\n'}Conditions
                     </Text>
 
                     <View className='flex-row items-center mt-3 gap-2'>
-                        <View className='h-px w-8 bg-zinc-200' />
-                        <Text className='text-xs font-elms text-zinc-400'>
+                        <View className='h-px w-8 bg-zinc-200 dark:bg-[#282828]' />
+                        <Text className='text-xs font-elms text-zinc-400 dark:text-[#B3B3B3]'>
                             Last updated May 7, 2026
                         </Text>
-                        <View className='h-px w-8 bg-zinc-200' />
+                        <View className='h-px w-8 bg-zinc-200 dark:bg-[#282828]' />
                     </View>
                 </View>
 
-                <Text className='font-elms text-center my-4 text-base text-zinc-600 leading-relaxed'>
-                    Arise is a <Text className='font-elms-bold text-zinc-900'>personal</Text> and experimental music player created by Raj for creativity, design exploration, and immersive music experiences.
+                <Text className='font-elms text-center my-4 text-base text-zinc-600 dark:text-[#B3B3B3] leading-relaxed'>
+                    Arise is a <Text className='font-elms-bold text-zinc-900 dark:text-white'>personal</Text> and experimental music player created by Raj for creativity, design exploration, and immersive music experiences.
                 </Text>
 
 
                 <View className='flex-row items-center mb-6'>
-                    <View className='flex-1 h-px bg-zinc-100' />
-                    <Text className='text-xs font-elms text-zinc-300 mx-3'>Policies</Text>
-                    <View className='flex-1 h-px bg-zinc-100' />
+                    <View className='flex-1 h-px bg-zinc-100 dark:bg-[#282828]' />
+                    <Text className='text-xs font-elms text-zinc-300 dark:text-[#535353] mx-3'>Policies</Text>
+                    <View className='flex-1 h-px bg-zinc-100 dark:bg-[#282828]' />
                 </View>
 
                 {TermAndCondition.map((tac, index) => (
                     <View key={index}>
                         <View className='flex-row gap-4 mb-6'>
                             <View className='items-center'>
-                                <View className='w-10 h-10 rounded-2xl bg-zinc-100 items-center justify-center'>
-                                    <tac.icon size={18} color='#3f3f46' strokeWidth={1.5} />
+                                <View className='w-10 h-10 rounded-2xl bg-zinc-100 dark:bg-[#282828] items-center justify-center'>
+                                    <tac.icon size={18} color={isDark ? "#FFFFFF" : "#3f3f46"} strokeWidth={1.5} />
                                 </View>
                                 {index < TermAndCondition.length - 1 && (
-                                    <View className='w-px flex-1 bg-zinc-100 mt-2' />
+                                    <View className='w-px flex-1 bg-zinc-100 dark:bg-transparent mt-2' />
                                 )}
                             </View>
 
                             <View className='flex-1 pt-1'>
-                                <Text className='text-base font-elms-bold text-zinc-900 mb-1.5'>
+                                <Text className='text-base font-elms-bold text-zinc-900 dark:text-white mb-1.5'>
                                     {tac.title}
                                 </Text>
-                                <Text className='font-elms text-sm text-zinc-500 leading-relaxed'>
+                                <Text className='font-elms text-sm text-zinc-500 dark:text-[#B3B3B3] leading-relaxed'>
                                     {tac.content}
                                 </Text>
 
@@ -85,8 +88,8 @@ export default function TermAndConditionSheet({ open, onClose }: { open: boolean
                     </View>
                 ))}
 
-                <View className='mt-2 items-center py-4 border-t border-zinc-100'>
-                    <Text className='text-xs font-elms text-zinc-400 text-center'>
+                <View className='mt-2 items-center py-4 border-t border-zinc-100 dark:border-[#282828]'>
+                    <Text className='text-xs font-elms text-zinc-400 dark:text-[#535353] text-center'>
                         Built with ♥ by Raj · Arise v1.0
                     </Text>
                 </View>

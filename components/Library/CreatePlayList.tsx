@@ -6,7 +6,7 @@ import { defaultPlayListCover } from "@/utils/constants";
 import * as ImagePicker from "expo-image-picker";
 import { useSQLiteContext } from "expo-sqlite";
 import React from "react";
-import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Image, Text, TextInput, TouchableOpacity, View, useColorScheme } from "react-native";
 import CustomModal from "../ui/model";
 
 interface CreatePlayListProps {
@@ -20,6 +20,8 @@ function CreatePlayList({ isVisible, onClose, onRefresh }: CreatePlayListProps) 
     const [customeImage, setCustomeImage] = React.useState<string | null>(null);
     const [title, setTitle] = React.useState("");
     const [description, setDescription] = React.useState("");
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
 
     const handleImagePicker = async () => {
         try {
@@ -50,12 +52,12 @@ function CreatePlayList({ isVisible, onClose, onRefresh }: CreatePlayListProps) 
 
     return (
         <CustomModal isVisible={isVisible} onClose={onClose} position="bottom">
-            <Text className="text-xl font-bold text-gray-900 mb-5">New Playlist</Text>
+            <Text className="text-xl font-bold text-gray-900 dark:text-white mb-5">New Playlist</Text>
 
             <View className="flex-row items-center gap-4 mb-4">
                 <TouchableOpacity
                     activeOpacity={0.8}
-                    className="relative w-28 h-28 rounded-2xl shadow-sm overflow-hidden bg-slate-200 items-center justify-center"
+                    className="relative w-28 h-28 rounded-2xl shadow-sm overflow-hidden bg-slate-200 dark:bg-[#282828] items-center justify-center"
                     onPress={handleImagePicker}
                 >
                     <Image
@@ -66,32 +68,32 @@ function CreatePlayList({ isVisible, onClose, onRefresh }: CreatePlayListProps) 
                 </TouchableOpacity>
 
                 <View className="flex-1 h-28 justify-center">
-                    <Text className="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1 tracking-wider">
+                    <Text className="text-[10px] font-bold text-slate-400 dark:text-[#B3B3B3] uppercase mb-1 ml-1 tracking-wider">
                         Title
                     </Text>
                     <TextInput
                         value={title}
                         onChangeText={setTitle}
                         placeholder="Playlist name"
-                        placeholderTextColor="#94a3b8"
-                        className="bg-slate-100 px-4 py-3 rounded-xl text-base font-medium text-slate-900"
+                        placeholderTextColor={isDark ? "#B3B3B3" : "#94a3b8"}
+                        className="bg-slate-100 dark:bg-[#181818] px-4 py-3 rounded-xl text-base font-medium text-slate-900 dark:text-white"
                     />
                 </View>
             </View>
 
             <View className="mb-6">
-                <Text className="text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1 tracking-wider">
+                <Text className="text-[10px] font-bold text-slate-400 dark:text-[#B3B3B3] uppercase mb-1 ml-1 tracking-wider">
                     Description
                 </Text>
                 <TextInput
                     value={description}
                     onChangeText={setDescription}
                     placeholder="Optional description"
-                    placeholderTextColor="#94a3b8"
+                    placeholderTextColor={isDark ? "#B3B3B3" : "#94a3b8"}
                     multiline
                     numberOfLines={2}
                     textAlignVertical="top"
-                    className="bg-slate-100 px-4 py-3 h-20 rounded-xl text-base font-medium text-slate-900"
+                    className="bg-slate-100 dark:bg-[#181818] px-4 py-3 h-20 rounded-xl text-base font-medium text-slate-900 dark:text-white"
                 />
             </View>
 
@@ -99,17 +101,17 @@ function CreatePlayList({ isVisible, onClose, onRefresh }: CreatePlayListProps) 
                 <TouchableOpacity
                     activeOpacity={0.7}
                     onPress={onClose}
-                    className="flex-1 bg-slate-100 py-3.5 rounded-xl items-center"
+                    className="flex-1 bg-slate-100 dark:bg-[#282828] py-3.5 rounded-xl items-center"
                 >
-                    <Text className="text-slate-700 text-base font-bold">Cancel</Text>
+                    <Text className="text-slate-700 dark:text-white text-base font-bold">Cancel</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                     activeOpacity={0.7}
                     onPress={handleCreatePlayList}
-                    className="flex-1 bg-slate-900 py-3.5 rounded-xl items-center shadow-sm"
+                    className="flex-1 bg-slate-900 dark:bg-white py-3.5 rounded-xl items-center shadow-sm"
                 >
-                    <Text className="text-white text-base font-bold">Create</Text>
+                    <Text className="text-white dark:text-[#121212] text-base font-bold">Create</Text>
                 </TouchableOpacity>
             </View>
         </CustomModal>

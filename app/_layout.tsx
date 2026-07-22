@@ -5,7 +5,6 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from "expo-font";
 import { Stack } from 'expo-router';
 import React from 'react';
-import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import AppThemeProvider from '@/components/context/apptheme';
@@ -17,6 +16,7 @@ import { useSetupPlayer } from '@/hooks/useSetupPlayer';
 import { InitiateDataBase } from '@/service/database';
 import { store } from '@/store/store';
 import { SQLiteProvider } from 'expo-sqlite';
+import { useColorScheme } from 'nativewind';
 import { Provider } from 'react-redux';
 
 
@@ -30,7 +30,7 @@ export default function Layout() {
     OldStandT_400: require('@/assets/font/OldStandardTT-Regular.ttf'),
     OldStandT_700: require('@/assets/font/OldStandardTT-Bold.ttf'),
   });
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useColorScheme();
 
   if (!fontsLoaded || !isReady) return null;
 
@@ -40,10 +40,10 @@ export default function Layout() {
       <Provider store={store}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <SQLiteProvider databaseName='arise_raj_sqlite.db' onInit={InitiateDataBase}>
-            <AppThemeProvider>
+            <AppThemeProvider colorTheme={colorScheme}>
               <MusicContextProvider>
                 <RefreshProvider>
-                  <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
+                  <GluestackUIProvider mode={colorScheme ?? "light"} style={{ flex: 1 }}>
                     <Stack screenOptions={{ headerShown: false }} >
                       <Stack.Screen name='index' />
                       <Stack.Screen name='(tabs)' />

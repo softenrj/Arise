@@ -2,6 +2,7 @@
 // See LICENSE for details.
 
 import React, { createContext } from 'react';
+import { ColorSchemeName } from 'react-native';
 
 export enum AppTheme {
     'light' = 'light', 'dark' = 'dark'
@@ -11,7 +12,7 @@ export const AppThemeContext = createContext<{ theme: AppTheme, setTheme: (theme
     setTheme: (theme: AppTheme) => { }
 })
 
-export default function AppThemeProvider({ children }: { children: React.ReactNode }) {
+export default function AppThemeProvider({ children, colorTheme }: { children: React.ReactNode, colorTheme: ColorSchemeName }) {
     const [theme, setTheme] = React.useState<AppTheme>(AppTheme.light);
 
     const handleSetTheme = (t: AppTheme) => setTheme(t);
