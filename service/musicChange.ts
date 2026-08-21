@@ -1,6 +1,9 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import { setCurrentIndex } from "@/store/reducer/trackplayerSlice";
+import { store } from "@/store/store";
+import { AriseTrack } from "@/types/database";
 import TrackPlayer from "react-native-track-player";
 import { getDatabase } from "./database-instance";
 import { addRecentPlay, updateMusicAnalytics } from "./musicAnalyticsdb";
@@ -13,6 +16,15 @@ type TrackSession = {
 
 class TrackChange {
     private currentTrack: TrackSession | null = null;
+    private queueIndexMap = new Map<string, number>();
+
+    public setQueue(queue: AriseTrack[]) {
+        this.queueIndexMap.clear();
+
+        queue.forEach((track, index) => {
+            this.queueIndexMap.set(track.musicId, index);
+        });
+    }
 
     public async syncTrack() {
         const activeTrack = await TrackPlayer.getActiveTrack();
@@ -24,6 +36,17 @@ class TrackChange {
         }
 
         this.currentTrack = { musicId: activeTrack.mediaId, startedAt: Date.now(), recentPlayRecorded: false };
+        this.syncRedux(activeTrack.mediaId);
+    }
+
+    private syncRedux(musicId: string) {
+        const state = store.getState().trackReducer;
+        const idx = this.queueIndexMap.get(musicId);
+
+        const currentTrackIndex = state.currentIndex;
+
+        if (typeof idx === 'undefined' || idx === currentTrackIndex) return;
+        store.dispatch(setCurrentIndex(idx));
     }
 
     public async onChange(position: number, duration: number) {

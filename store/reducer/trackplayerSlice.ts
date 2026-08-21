@@ -223,6 +223,8 @@ const trackPlayerSlice = createSlice({
 
         builder.addCase(setupQueue.fulfilled, (state, action) => {
             if (action.payload.hash != state.queueHash) state.queue = action.payload.tracks;
+
+            trackChanger.setQueue(action.payload.tracks);
             state.originalQueue = action.payload.tracks;
             state.currentIndex = action.payload.startIndex;
             if (action.payload.hash != state.queueHash) state.queueHash = action.payload.hash;
@@ -249,7 +251,9 @@ const trackPlayerSlice = createSlice({
         });
 
         builder.addCase(addToQueue.fulfilled, (state, action) => {
-            state.queue = [...state.queue, ...action.payload];
+            const queue = [...state.queue, ...action.payload];
+            state.queue = queue;
+            trackChanger.setQueue(queue);
             if (!state.shuffle) state.originalQueue = state.queue;
         });
 
@@ -263,7 +267,9 @@ const trackPlayerSlice = createSlice({
 
 
         builder.addCase(removeFromQueue.fulfilled, (state, action) => {
-            state.queue = state.queue.filter((_, i) => i !== action.payload);
+            const queue = state.queue.filter((_, i) => i !== action.payload);
+            state.queue = queue;
+            trackChanger.setQueue(queue);
             if (!state.shuffle) state.originalQueue = state.queue;
             if (action.payload < state.currentIndex) state.currentIndex -= 1;
         });
@@ -277,9 +283,11 @@ const trackPlayerSlice = createSlice({
             state.shuffle = action.payload.shuffle;
             if (action.payload.shuffle && 'shuffledQueue' in action.payload) {
                 state.queue = action.payload.shuffledQueue!;
+                trackChanger.setQueue(action.payload.shuffledQueue!);
                 state.currentIndex = 0;
             } else if (!action.payload.shuffle && 'resumeIndex' in action.payload) {
                 state.queue = state.originalQueue;
+                trackChanger.setQueue(state.originalQueue);
                 state.currentIndex = action.payload.resumeIndex!;
             }
         });

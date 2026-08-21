@@ -6,7 +6,6 @@ import CustomeTab from "@/components/common/CustomeTab";
 import TrackpanelProvider from "@/components/context/trackpanel";
 import Track from "@/components/track";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
-import { setCurrentIndex } from "@/store/reducer/trackplayerSlice";
 import { TabList, Tabs, TabSlot, TabTrigger } from "expo-router/ui";
 import { Home, Library, Search } from "lucide-react-native";
 import React from "react";
@@ -29,17 +28,17 @@ export default function TabLayout() {
     const handleClose = () => setOpen(false);
     const handleOpen = () => setOpen(true);
 
-    React.useEffect(() => {
-        if (!track) return;
+    // React.useEffect(() => {
+    //     if (!track) return;
 
-        const queue = trackSlice.queue;
-        const idx = queue.findIndex(item => item.musicId === track.mediaId);
-        if (typeof idx === 'undefined' || typeof idx === null || idx === -1) return;
+    //     const queue = trackSlice.queue;
+    //     const idx = queue.findIndex(item => item.musicId === track.mediaId);
+    //     if (typeof idx === 'undefined' || typeof idx === null || idx === -1) return;
 
-        if (idx === trackSlice.currentIndex) return;
-        dispatch(setCurrentIndex(idx));
+    //     if (idx === trackSlice.currentIndex) return;
+    //     dispatch(setCurrentIndex(idx));
 
-    }, [track]);
+    // }, [track]);
 
 
     return (
