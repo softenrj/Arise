@@ -1,14 +1,7 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from "expo-font";
-import { Stack } from 'expo-router';
-import React from 'react';
-import { useColorScheme } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-import AppThemeProvider from '@/components/context/apptheme';
+import { DatabaseInitializer } from '@/components/context/databaseProvider';
 import MusicContextProvider from '@/components/context/music';
 import RefreshProvider from '@/components/context/refresh';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
@@ -16,7 +9,13 @@ import '@/global.css';
 import { useSetupPlayer } from '@/hooks/useSetupPlayer';
 import { InitiateDataBase } from '@/service/database';
 import { store } from '@/store/store';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useFonts } from "expo-font";
+import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
+import React from 'react';
+import { useColorScheme } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 
 
@@ -40,7 +39,7 @@ export default function Layout() {
       <Provider store={store}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <SQLiteProvider databaseName='arise_raj_sqlite.db' onInit={InitiateDataBase}>
-            <AppThemeProvider>
+            <DatabaseInitializer>
               <MusicContextProvider>
                 <RefreshProvider>
                   <GluestackUIProvider mode="dark" style={{ flex: 1 }}>
@@ -51,7 +50,7 @@ export default function Layout() {
                   </GluestackUIProvider>
                 </RefreshProvider>
               </MusicContextProvider>
-            </AppThemeProvider>
+            </DatabaseInitializer>
           </SQLiteProvider>
         </ThemeProvider>
       </Provider>

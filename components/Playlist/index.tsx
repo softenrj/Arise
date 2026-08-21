@@ -1,21 +1,18 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
+import { usePlaylist } from '@/hooks/usePlaylist';
+import { getPlayListById, getPlayListMusic } from '@/service/playlistdb';
+import { defaultPlayListCover } from '@/utils/constants';
 import { ImageBackground } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { getColors } from 'react-native-image-colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { useAppTheme } from '@/hooks/useAppTheme';
-import { usePlaylist } from '@/hooks/usePlaylist';
-import { getPlayListById, getPlayListMusic } from '@/service/playlistdb';
-import { defaultPlayListCover } from '@/utils/constants';
-import { AppTheme } from '../context/apptheme';
 
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
 import MiniPlayer from '../common/MiniPlayer';
@@ -28,7 +25,7 @@ import PlaylistRemoveDialog from './PlaylistRemoveDialog';
 const BACKGROUND_COLOR = '#121212';
 
 export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
-    const { setTheme } = useAppTheme();
+    // const { setTheme } = useAppTheme();
     const router = useRouter();
     const db = useSQLiteContext();
     const { setPlayList, setPlayListMusic, playlist } = usePlaylist();
@@ -87,12 +84,12 @@ export default function PlaylistScreen({ playlistId }: { playlistId: string }) {
         loadPlayList();
     }, [loadPlayList]);
 
-    useFocusEffect(
-        useCallback(() => {
-            setTheme(AppTheme.dark);
-            return () => setTheme(AppTheme.light);
-        }, [setTheme])
-    );
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         setTheme(AppTheme.dark);
+    //         return () => setTheme(AppTheme.light);
+    //     }, [setTheme])
+    // );
 
     const ListHeader = useCallback(() => (
         <View>

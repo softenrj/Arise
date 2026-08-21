@@ -38,7 +38,7 @@ export const initMusicAnalyticsDB = async (db: SQLiteDatabase) => {
 }
 
 interface UpdateMusicAnalytics {
-    musicId: string;
+    musicId: string | null;
     seconds: number;
     musicDuration: number;
 }
@@ -81,6 +81,11 @@ export const initializeMusicAnalyticsForMusic = async (db: SQLiteDatabase, music
 
 export const updateMusicAnalytics = async (db: SQLiteDatabase, updateData: UpdateMusicAnalytics) => {
     try {
+        const threshold = updateData.musicDuration * 0.05;
+
+        if (!updateData.musicId || updateData.seconds < threshold) {
+            return;
+        }
 
         const completionThreshold = 0.8; // 80% or more is considered completed
         const skipThreshold = 0.1; // Played for less than 10% of the song is considered skipped
@@ -145,7 +150,8 @@ export const initRecentPlaysDB = async (db: SQLiteDatabase) => {
  * @param musicId 
  * @returns Promise<void>
  */
-export const addRecentPlay = async (db: SQLiteDatabase, musicId: string) => {
+export const addRecentPlay = async (db: SQLiteDatabase, musicId: string | null) => {
+    if (!musicId) return;
     try {
         const now = Date.now();
         const id = getId();

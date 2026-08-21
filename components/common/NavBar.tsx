@@ -9,12 +9,6 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, AvatarFallbackText, AvatarImage } from '../ui/avatar';
 
-
-const NavBarSnippts: Record<string, React.FC> = {
-    'greet': GreetSnippts,
-    'time': TimeSnippts
-}
-
 export default function NavBar({ children, portal = null }: { children: React.ReactNode, portal?: React.ReactNode }) {
     const { onOpen } = useAppDrawer();
     const { avatar, name } = useAppSelector(state => state.userReducer);

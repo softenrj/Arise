@@ -1,15 +1,18 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
+import TrackChange from "@/service/musicChange";
 import TrackPlayer, { Event } from 'react-native-track-player';
-import { finalizeCurrentTrack, initializeCurrentSession } from './musicAnalytics';
 
 export async function PlaybackService() {
+    const trackChanger = TrackChange;
 
-    TrackPlayer.addEventListener(Event.RemotePlay, () => {
+    TrackPlayer.addEventListener(Event.RemotePlay, async () => {
         TrackPlayer.play();
-        initializeCurrentSession();
+        await trackChanger.syncTrack();
     });
+
+
     TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
     TrackPlayer.addEventListener(Event.RemoteStop, () => TrackPlayer.stop());
     TrackPlayer.addEventListener(Event.RemoteNext, () => TrackPlayer.skipToNext());
@@ -20,7 +23,7 @@ export async function PlaybackService() {
 
         const duration = event.lastTrack.duration ?? 0;
         const position = event.lastPosition ?? 0;
-        finalizeCurrentTrack(position, duration);
+        await trackChanger.onChange(position, duration);
     });
 
     // Fired when seeking via notification scrubber

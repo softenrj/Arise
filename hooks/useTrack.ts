@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import TrackPlayer, { State, usePlaybackState } from "react-native-track-player";
 import { useAppDispatch } from "./useRedux";
 
-import { initializeCurrentSession } from "@/service/musicAnalytics";
+import TrackChange from "@/service/musicChange";
 import { addToQueue, clearQueue, cycleLoopMode, LoopMode, onCycleLoopMode, playAtIndex, playNext, removeFromQueue, setupQueue, skipToNext, skipToPrevious, toggleShuffle, TrackSourceType, updateMusic } from "@/store/reducer/trackplayerSlice";
 import { AriseTrack } from "@/types/database";
 
@@ -78,7 +78,7 @@ export const useTrack = () => {
     }, [dispatch]);
 
     const togglePlay = async () => {
-        initializeCurrentSession();
+        await TrackChange.syncTrack();
         if (isPlaying) await TrackPlayer.pause();
         else await TrackPlayer.play();
     };
@@ -89,12 +89,12 @@ export const useTrack = () => {
 
     const seekTo = async (seconds: number) => await TrackPlayer.seekTo(seconds);
     const pause = async () => {
-        await initializeCurrentSession();
         await TrackPlayer.pause()
+        await TrackChange.syncTrack()
     };
     const play = async () => {
         await TrackPlayer.play();
-        await initializeCurrentSession();
+        await TrackChange.syncTrack()
     }
 
     return {

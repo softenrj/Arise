@@ -1,17 +1,19 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
-import { initializeCurrentSession } from "@/service/musicAnalytics";
+import TrackChange from "@/service/musicChange";
 import { AriseTrack } from "@/types/database";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as Crypto from "expo-crypto";
 import TrackPlayer, { RepeatMode } from "react-native-track-player";
+
 
 export type LoopMode = 'none' | 'track' | 'queue';
 
 export type TrackSourceType = 'playlist' | 'search' | 'short' | 'default' | 'start';
 
 const getHash = () => Crypto.randomUUID();
+const trackChanger = TrackChange;
 
 interface ArisePlayerState {
     queue: AriseTrack[];
@@ -53,7 +55,7 @@ export const setupQueue = createAsyncThunk(
         await TrackPlayer.skip(startIndex);
         if (play) {
             await TrackPlayer.play()
-            await initializeCurrentSession()
+            await trackChanger.syncTrack()
         };
         return { tracks, startIndex, playlistName, sourceId, sourceType, hash: queueHash };
     }
@@ -67,7 +69,7 @@ export const playAtIndex = createAsyncThunk(
         if (index === state.currentIndex) return;
         await TrackPlayer.skip(index);
         await TrackPlayer.play();
-        await initializeCurrentSession()
+        await trackChanger.syncTrack()
         return index;
     }
 );

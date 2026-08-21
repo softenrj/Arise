@@ -2,7 +2,6 @@
 // See LICENSE for detail
 
 import FeedItem from "@/components/Shorts/FeedItem";
-import { useAppTheme } from "@/hooks/useAppTheme";
 import { useMusic } from "@/hooks/useMusic";
 import { useAppSelector } from "@/hooks/useRedux";
 import { useRefresh } from "@/hooks/useRefresh";
@@ -10,18 +9,17 @@ import { useTrack } from "@/hooks/useTrack";
 import { getTrackFromMusic } from "@/service/TrackMaker";
 import { AriseTrack } from "@/types/database";
 import { FlashList, FlashListRef } from '@shopify/flash-list';
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from 'react';
 import { RefreshControl, View } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AppTheme } from "../context/apptheme";
 import ShortContextProvider from "../context/shorts";
 
 export default function index() {
     const [containerHeight, setContainerHeight] = React.useState(0);
     const [activeIndex, setActiveIndex] = React.useState(0);
-    const { setTheme } = useAppTheme();
+    // const { setTheme } = useAppTheme();
     const { musics } = useMusic();
     const { refresh, onRefresh } = useRefresh();
     const { queue, sourceType } = useAppSelector(state => state.trackReducer);
@@ -39,16 +37,16 @@ export default function index() {
         }
     }, []);
 
-    useFocusEffect(React.useCallback(() => {
-        onCycleLoopMode('track')
-        setTheme(AppTheme.dark);
+    // useFocusEffect(React.useCallback(() => {
+    //     onCycleLoopMode('track')
+    //     setTheme(AppTheme.dark);
 
-        return () => {
-            setTheme(AppTheme.light);
-            onCycleLoopMode('none');
-            setTrackVolume(1);
-        };
-    }, []));
+    //     return () => {
+    //         setTheme(AppTheme.light);
+    //         onCycleLoopMode('none');
+    //         setTrackVolume(1);
+    //     };
+    // }, []));
 
     const viewabilityConfig = React.useRef({ itemVisiblePercentThreshold: 50 }).current;
 
