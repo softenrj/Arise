@@ -55,7 +55,6 @@ export const setupQueue = createAsyncThunk(
         await TrackPlayer.skip(startIndex);
         if (play) {
             await TrackPlayer.play()
-            await trackChanger.syncTrack()
         };
         return { tracks, startIndex, playlistName, sourceId, sourceType, hash: queueHash };
     }
@@ -224,7 +223,12 @@ const trackPlayerSlice = createSlice({
         builder.addCase(setupQueue.fulfilled, (state, action) => {
             if (action.payload.hash != state.queueHash) state.queue = action.payload.tracks;
 
-            trackChanger.setQueue(action.payload.tracks);
+            try {
+                trackChanger.setQueue(action.payload.tracks);
+            } catch (error) {
+                console.error(error)
+            }
+
             state.originalQueue = action.payload.tracks;
             state.currentIndex = action.payload.startIndex;
             if (action.payload.hash != state.queueHash) state.queueHash = action.payload.hash;
@@ -234,7 +238,7 @@ const trackPlayerSlice = createSlice({
             state.shuffle = false;
             state.sourceType = action.payload.sourceType;
             state.sourceId = action.payload.sourceId;
-        });
+        })
 
         builder.addCase(playAtIndex.fulfilled, (state, action) => {
             if (action.payload === null || action.payload === undefined) return;

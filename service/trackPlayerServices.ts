@@ -2,6 +2,8 @@
 // See LICENSE for details.
 
 import TrackChange from "@/service/musicChange";
+import { setCurrentIndex } from "@/store/reducer/trackplayerSlice";
+import { store } from "@/store/store";
 import TrackPlayer, { Event } from 'react-native-track-player';
 
 export async function PlaybackService() {
@@ -9,7 +11,10 @@ export async function PlaybackService() {
 
     TrackPlayer.addEventListener(Event.RemotePlay, async () => {
         TrackPlayer.play();
-        await trackChanger.syncTrack();
+        const index = await TrackChange.syncTrack();
+        if (typeof index !== "undefined") {
+            store.dispatch(setCurrentIndex(index));
+        }
     });
 
 
@@ -18,18 +23,23 @@ export async function PlaybackService() {
     TrackPlayer.addEventListener(Event.RemoteNext, () => TrackPlayer.skipToNext());
     TrackPlayer.addEventListener(Event.RemotePrevious, () => TrackPlayer.skipToPrevious());
 
-    TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (event) => {
-        if (!event.lastTrack) return;
+    // New active track
+    TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async () => {
+        const index = await TrackChange.syncTrack();
+        if (index !== undefined) store.dispatch(setCurrentIndex(index));
+    });
 
-        const duration = event.lastTrack.duration ?? 0;
-        const position = event.lastPosition ?? 0;
-        await trackChanger.onChange(position, duration);
+    // Position / analytics updates
+    TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, async ({ position, duration }) => {
+        const index = await TrackChange.onChange(position, duration);
+
+        if (index !== undefined) store.dispatch(setCurrentIndex(index));
     });
 
     // Fired when seeking via notification scrubber
-    TrackPlayer.addEventListener(Event.RemoteSeek, ({ position }) =>
+    TrackPlayer.addEventListener(Event.RemoteSeek, ({ position }) => {
         TrackPlayer.seekTo(position)
-    );
+    });
 
     // Fired when the audio output changes (e.g. headphones unplugged)
     TrackPlayer.addEventListener(Event.RemoteDuck, async ({ paused, permanent }) => {

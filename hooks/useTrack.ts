@@ -6,7 +6,7 @@ import TrackPlayer, { State, usePlaybackState } from "react-native-track-player"
 import { useAppDispatch } from "./useRedux";
 
 import TrackChange from "@/service/musicChange";
-import { addToQueue, clearQueue, cycleLoopMode, LoopMode, onCycleLoopMode, playAtIndex, playNext, removeFromQueue, setupQueue, skipToNext, skipToPrevious, toggleShuffle, TrackSourceType, updateMusic } from "@/store/reducer/trackplayerSlice";
+import { addToQueue, clearQueue, cycleLoopMode, LoopMode, onCycleLoopMode, playAtIndex, playNext, removeFromQueue, setCurrentIndex, setupQueue, skipToNext, skipToPrevious, toggleShuffle, TrackSourceType, updateMusic } from "@/store/reducer/trackplayerSlice";
 import { AriseTrack } from "@/types/database";
 
 export const useTrack = () => {
@@ -78,9 +78,13 @@ export const useTrack = () => {
     }, [dispatch]);
 
     const togglePlay = async () => {
-        await TrackChange.syncTrack();
         if (isPlaying) await TrackPlayer.pause();
         else await TrackPlayer.play();
+
+        const index = await TrackChange.syncTrack();
+        if (index !== undefined) {
+            onSyncRedux(index);
+        }
     };
 
     const handleOnCycleLoopMode = useCallback((mode: LoopMode) => {
@@ -90,11 +94,27 @@ export const useTrack = () => {
     const seekTo = async (seconds: number) => await TrackPlayer.seekTo(seconds);
     const pause = async () => {
         await TrackPlayer.pause()
-        await TrackChange.syncTrack()
+        const index = await TrackChange.syncTrack();
+        if (index !== undefined) {
+            onSyncRedux(index);
+        }
     };
     const play = async () => {
         await TrackPlayer.play();
-        await TrackChange.syncTrack()
+        const index = await TrackChange.syncTrack();
+        if (index !== undefined) {
+            onSyncRedux(index);
+        }
+    }
+
+    // ------ sync tracks ----------
+    /**
+     * this calls the central trackchange service which is sync according to the trackplayer 
+     * and return the index and this will then sync with Redux
+     */
+
+    const onSyncRedux = (index: number) => {
+        dispatch(setCurrentIndex(index));
     }
 
     return {
@@ -115,6 +135,7 @@ export const useTrack = () => {
         seekTo: seekTo,
         play: play,
         pause: pause,
-        isPlaying
+        isPlaying,
+        onSyncRedux
     };
 };

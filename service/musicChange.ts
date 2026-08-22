@@ -1,8 +1,6 @@
 // Copyright (c) 2026 Raj
 // See LICENSE for details.
 
-import { setCurrentIndex } from "@/store/reducer/trackplayerSlice";
-import { store } from "@/store/store";
 import { AriseTrack } from "@/types/database";
 import TrackPlayer from "react-native-track-player";
 import { getDatabase } from "./database-instance";
@@ -12,11 +10,13 @@ type TrackSession = {
     musicId: string;
     startedAt: number;
     recentPlayRecorded: boolean;
+    lastAnalyticsUpdateAt: number;
 };
 
 class TrackChange {
     private currentTrack: TrackSession | null = null;
     private queueIndexMap = new Map<string, number>();
+    private readonly ANALYTICS_THROTTLE_MS = 5000;
 
     public setQueue(queue: AriseTrack[]) {
         this.queueIndexMap.clear();
@@ -28,41 +28,44 @@ class TrackChange {
 
     public async syncTrack() {
         const activeTrack = await TrackPlayer.getActiveTrack();
-
         if (!activeTrack?.mediaId) return;
 
         if (this.currentTrack?.musicId === activeTrack.mediaId) {
             return;
         }
 
-        this.currentTrack = { musicId: activeTrack.mediaId, startedAt: Date.now(), recentPlayRecorded: false };
-        this.syncRedux(activeTrack.mediaId);
-    }
-
-    private syncRedux(musicId: string) {
-        const state = store.getState().trackReducer;
-        const idx = this.queueIndexMap.get(musicId);
-
-        const currentTrackIndex = state.currentIndex;
-
-        if (typeof idx === 'undefined' || idx === currentTrackIndex) return;
-        store.dispatch(setCurrentIndex(idx));
+        this.currentTrack = { musicId: activeTrack.mediaId, startedAt: Date.now(), recentPlayRecorded: false, lastAnalyticsUpdateAt: Date.now() };
+        return this.queueIndexMap.get(activeTrack.mediaId);
     }
 
     public async onChange(position: number, duration: number) {
         try {
+            const index = await this.syncTrack();
+
+            if (!this.currentTrack) {
+                return index;
+            }
+
             const db = getDatabase();
-            await this.syncTrack();
 
-            if (!this.currentTrack) return;
-
-            if (position >= 15 && !this.currentTrack.recentPlayRecorded) {
+            if (position >= duration * 0.05 && !this.currentTrack.recentPlayRecorded) {
                 await addRecentPlay(db, this.currentTrack.musicId);
                 this.currentTrack.recentPlayRecorded = true;
             }
 
-            // Don't necessarily write this every 250ms.
+            /**
+             * Analytics: throttle DB writes
+             */
+            const now = Date.now();
+            if (now - this.currentTrack.lastAnalyticsUpdateAt < this.ANALYTICS_THROTTLE_MS) {
+                return index;
+            }
+
+
             await updateMusicAnalytics(db, { musicId: this.currentTrack.musicId, musicDuration: duration, seconds: position });
+            this.currentTrack.lastAnalyticsUpdateAt = now;
+
+            return index;
         } catch (error) {
             console.error("Failed to update track analytics:", error);
         }
