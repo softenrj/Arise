@@ -9,8 +9,8 @@ import { Animated, Pressable, RefreshControl, ScrollView, Text, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AddToPlayList from '../common/AddToPlayList';
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
-import MiniPlayer from '../common/MiniPlayer';
 import MusicLibProvider from '../context/musicLib';
+import MiniPlayer from '../Miniplayer';
 import EditSheet from './EditSheet';
 import Musics from './Musics';
 import ScanMusic from './ScanMusic';

@@ -15,7 +15,7 @@ import { getColors } from 'react-native-image-colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
-import MiniPlayer from '../common/MiniPlayer';
+import MiniPlayer from '../Miniplayer';
 import EditSheet from './EditSheet';
 import MusicList from './MusicList';
 import PlayListControls from './PlayListControls';

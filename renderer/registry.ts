@@ -1,7 +1,6 @@
 // Copyright (c) 2026 Raj 
 // See LICENSE for details.
 
-import MiniPlayer from "@/components/common/MiniPlayer";
 import NavBar, { ChipSnippts, GreetSnippts, TimeSnippts } from "@/components/common/NavBar";
 import VertualFC from "@/components/common/VertualFC";
 import GetStarted from "@/components/GetStarted";
@@ -13,6 +12,7 @@ import Recent from "@/components/Home/Recent";
 import Recommendations from "@/components/Home/Recommendations";
 import Shorts from "@/components/Home/Shorts";
 import Library from "@/components/Library";
+import MiniPlayer from "@/components/Miniplayer";
 import Search from "@/components/Search";
 import SearchInput from "@/components/Search/SearchInput";
 import SuggestGrids from "@/components/Search/SuggestGrids";

@@ -13,7 +13,7 @@ import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import FocusAwareStatusBar from '../common/FocusAwareStatusBar';
-import MiniPlayer from '../common/MiniPlayer';
+import MiniPlayer from '../Miniplayer';
 
 export default function index({ children }: { children: React.ReactNode }) {
     const [activeTab, setActiveTab] = React.useState('All');

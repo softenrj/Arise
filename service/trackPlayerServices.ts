@@ -26,14 +26,14 @@ export async function PlaybackService() {
     // New active track
     TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async () => {
         const index = await TrackChange.syncTrack();
-        if (index !== undefined) store.dispatch(setCurrentIndex(index));
+        if (typeof index !== "undefined") store.dispatch(setCurrentIndex(index));
     });
 
     // Position / analytics updates
     TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, async ({ position, duration }) => {
         const index = await TrackChange.onChange(position, duration);
 
-        if (index !== undefined) store.dispatch(setCurrentIndex(index));
+        if (typeof index !== "undefined") store.dispatch(setCurrentIndex(index));
     });
 
     // Fired when seeking via notification scrubber

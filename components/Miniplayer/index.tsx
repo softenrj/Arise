@@ -8,18 +8,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Pause, Play, PlusCircle } from 'lucide-react-native';
 import React from 'react';
 import { Image, Pressable, TouchableOpacity, View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { getColors } from 'react-native-image-colors';
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import TrackPlayer, { State, usePlaybackState, useProgress } from 'react-native-track-player';
-import AddToPlayList from './AddToPlayList';
+import { useSharedValue } from 'react-native-reanimated';
+import { State, usePlaybackState } from 'react-native-track-player';
+import AddToPlayList from '../common/AddToPlayList';
+import MiniPlayerSlideBar from './MiniPlayerSlideBar';
 import MiniPlayerTrackDetails from './MiniPlayerTrackDetails';
 
 export type GradientColors = [string, string, string];
 export const DEFAULT_COLORS: GradientColors = ['#0e7490', '#155e75', '#164e63'];
-const SLIDER_HEIGHT = 3;
-const SLIDER_HEIGHT_ACTIVE = 6;
-const HIT_SLOP = 20;
 
 
 export default function MiniPlayer() {
@@ -28,7 +25,6 @@ export default function MiniPlayer() {
     const track = queue[currentIndex];
 
     const { state } = usePlaybackState();
-    const { position, duration } = useProgress(250);
     const { togglePlay } = useTrack();
     const isPlaying = state === State.Playing;
     const artwork = track?.artwork;
@@ -79,66 +75,6 @@ export default function MiniPlayer() {
     }, [artwork]);
 
     const sliderWidth = useSharedValue(0);
-    const progressX = useSharedValue(0);
-    const isDragging = useSharedValue(false);
-
-    React.useEffect(() => {
-        if (!isDragging.value && duration > 0) {
-            progressX.value = withTiming((position / duration) * sliderWidth.value, { duration: 200 });
-        }
-    }, [position, duration]);
-
-    const seekToPosition = (pixelX: number) => {
-        if (duration <= 0) return;
-        const ratio = Math.max(0, Math.min(1, pixelX / sliderWidth.value));
-        const seconds = ratio * duration;
-        TrackPlayer.seekTo(seconds);
-    };
-
-    const panGesture = Gesture.Pan()
-        .hitSlop({ top: HIT_SLOP, bottom: HIT_SLOP })
-        .minDistance(0)
-        .onBegin((e) => {
-            isDragging.value = true;
-            const clamped = Math.max(0, Math.min(sliderWidth.value, e.x));
-            progressX.value = clamped;
-            runOnJS(seekToPosition)(clamped);
-        })
-        .onUpdate((e) => {
-            const clamped = Math.max(0, Math.min(sliderWidth.value, e.x));
-            progressX.value = clamped;
-            runOnJS(seekToPosition)(clamped);
-        })
-        .onEnd(() => { isDragging.value = false; })
-        .onFinalize(() => { isDragging.value = false; });
-
-    const trackStyle = useAnimatedStyle(() => ({
-        height: withSpring(isDragging.value ? SLIDER_HEIGHT_ACTIVE : SLIDER_HEIGHT, {
-            mass: 0.3, damping: 15, stiffness: 200,
-        }),
-        borderRadius: 4,
-        backgroundColor: 'rgba(255,255,255,0.35)',
-        overflow: 'hidden' as const,
-    }));
-
-    const fillStyle = useAnimatedStyle(() => ({
-        width: progressX.value,
-        height: '100%',
-        borderRadius: 4,
-    }));
-
-    const thumbStyle = useAnimatedStyle(() => ({
-        position: 'absolute' as const,
-        top: '50%',
-        left: progressX.value - 6,
-        marginTop: -6,
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        opacity: withTiming(isDragging.value ? 1 : 0, { duration: 150 }),
-        transform: [{ scale: withSpring(isDragging.value ? 1 : 0.1) }],
-    }));
-
 
 
     if (!track) return null;
@@ -180,22 +116,7 @@ export default function MiniPlayer() {
                         </TouchableOpacity>
                     </View>
 
-                    <GestureDetector gesture={panGesture}>
-                        <View
-                            style={{
-                                position: 'absolute',
-                                bottom: 0, left: 0, right: 0,
-                                zIndex: 50,
-                                justifyContent: 'flex-end',
-                            }}
-                            onLayout={(e) => { sliderWidth.value = e.nativeEvent.layout.width; }}
-                        >
-                            <Animated.View style={trackStyle}>
-                                <Animated.View style={[fillStyle, { backgroundColor: gradient[0] }]} />
-                            </Animated.View>
-                            <Animated.View style={[thumbStyle, { backgroundColor: gradient[0] }]} />
-                        </View>
-                    </GestureDetector>
+                    <MiniPlayerSlideBar sliderWidth={sliderWidth} sliderColor={gradient[0]} />
                 </View>
             </Pressable>
             <AddToPlayList musicId={track.mediaId!} isVisible={openAddtoPlaylist} onClose={handleOnCloseAddToPlayList} /></>
