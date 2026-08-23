@@ -5,14 +5,44 @@ import { useAppSelector } from '@/hooks/useRedux'
 import { useTrack } from '@/hooks/useTrack'
 import { AriseTrack } from '@/types/database'
 import { defaultMusicArtWork } from '@/utils/constants'
+import BottomSheet, { BottomSheetBackdrop, BottomSheetFlashList } from '@gorhom/bottom-sheet'
 import clsx from 'clsx'
-import React from 'react'
-import { FlatList, Image, Pressable, Text, View } from 'react-native'
-import SheetProvider from '../ui/Sheet'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import { Image, Pressable, Text, View } from 'react-native'
 
 const TrackMusicList = ({ open, onClose }: { open: boolean, onClose: () => void }) => {
+    const bottomSheetRef = useRef<BottomSheet>(null);
+    const snapPoints = useMemo(() => ['65%', '70%'], []);
+
     const { playlistName, queue, currentIndex } = useAppSelector(state => state.trackReducer);
     const { playAtIndex } = useTrack();
+
+
+    useEffect(() => {
+        if (open) {
+            bottomSheetRef.current?.snapToIndex(0);
+        } else {
+            bottomSheetRef.current?.close();
+        }
+    }, [open]);
+
+    const handleSheetChanges = useCallback((index: number) => {
+        if (index === -1) {
+            onClose();
+        }
+    }, [onClose]);
+
+    const renderBackdrop = useCallback(
+        (props: any) => (
+            <BottomSheetBackdrop
+                {...props}
+                disappearsOnIndex={-1}
+                appearsOnIndex={0}
+                pressBehavior="close"
+            />
+        ),
+        []
+    );
 
     const handlePlay = (musicId: string) => {
         const indx = queue.findIndex(m => m.id === musicId);
@@ -60,8 +90,16 @@ const TrackMusicList = ({ open, onClose }: { open: boolean, onClose: () => void 
     }
 
     return (
-        <SheetProvider open={open} onClose={onClose} className='bg-[#121212]' closeClassName='bg-white/10'>
-            <View className='flex-1 pt-3 pb-6'>
+        <BottomSheet
+            ref={bottomSheetRef}
+            index={-1}
+            snapPoints={snapPoints}
+            enablePanDownToClose={true}
+            onChange={handleSheetChanges}
+            backdropComponent={renderBackdrop}
+            backgroundStyle={{ backgroundColor: '#18181b' }}
+        >
+            <View style={{ flex: 1 }} className='pt-3 pb-6'>
                 <View className='px-5 pb-4 border-b-[1px] border-white/10 flex-row items-end justify-between'>
                     <Text className="text-white font-bold text-2xl tracking-tight">
                         {playlistName || 'Queue'}
@@ -71,7 +109,7 @@ const TrackMusicList = ({ open, onClose }: { open: boolean, onClose: () => void 
                     </Text>
                 </View>
 
-                <FlatList
+                <BottomSheetFlashList
                     data={queue}
                     keyExtractor={(item) => item.id.toString()}
                     showsVerticalScrollIndicator={false}
@@ -79,9 +117,10 @@ const TrackMusicList = ({ open, onClose }: { open: boolean, onClose: () => void 
                     className='flex-1'
                     renderItem={renderTrack}
                     extraData={currentIndex}
+                    estimatedItemSize={88}
                 />
             </View>
-        </SheetProvider>
+        </BottomSheet>
     )
 }
 
